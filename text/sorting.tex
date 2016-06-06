@@ -1,0 +1,513 @@
+\documentclass{article}
+\usepackage{amsmath, amsfonts, amsthm, amssymb}
+%\usepackage{sagetex}
+\usepackage{comment}
+\usepackage{url}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{defn}{Definition}%[section]
+\newtheorem{rem}[thm]{Remark}
+
+\def\Sage{{\tt Sage}}
+\def\Z{{\mathbb Z}}
+\def\Q{{\mathbb Q}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\def\T{{\mathbb T}}
+\def\H{{\mathbb H}}
+%\def\RC{{K_\infty}}
+\def\RC{{\tilde{K}}}
+\def\P{{\mathbb P}}
+\def\F{{\mathbb F}}
+\def\Fp{{\mathbb F}_p}
+\def\Fq{{\mathbb F}_q}
+\def\M{{\mathcal M}}
+\def\CC{{\mathcal C}}
+\def\HH{{\mathcal H}}
+\def\SS{{\mathcal S}}
+\def\G{{\mathcal G}}
+\def\K{{\mathcal K}}
+\def\I{{\mathcal I}}
+\def\J{{\mathcal J}}
+\def\PP{{\mathcal P}}
+\def\OO{{\mathcal O}}
+\def\ZG{{\mathcal Z}}
+\def\a{{\mathfrak a}}
+\def\b{{\mathbf b}}
+
+\def\v{{\mathbf v}}
+\def\c{{\mathfrak c}}
+\def\d{{\mathfrak d}}
+\def\m{{\mathfrak m}}
+\def\n{{\mathfrak n}}
+\def\p{{\mathfrak p}}
+\def\q{{\mathfrak q}}
+\def\r{{\mathfrak r}}
+\def\DF{{\nabla\underline{F}}}
+\def\Qbar{\overline{\Q}}
+\def\Qpbar{\overline{\Q_p}}
+\def\Abar{\overline{A}}
+\def\RR{{R\oplus R}}
+\def\KK{{K\oplus K}}
+\def\uF{{\underline{F}}}
+\def\oC{\overline{\mathcal C}}
+\def\oP{\overline{P}}
+\def\oM{\overline{M}}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\disc}{disc}
+\DeclareMathOperator{\rk}{rank}
+\DeclareMathOperator{\ord}{ord}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\adj}{adj}
+\DeclareMathOperator{\Mat}{Mat}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Res}{Res}
+\DeclareMathOperator{\Gal}{Gal}
+\DeclareMathOperator{\End}{End}
+\DeclareMathOperator{\Cl}{Cl}
+\def\<#1>{\left<#1\right>}
+\newcommand{\mat}[4]{\left(\begin{matrix} %
+                   #1 & #2 \\ #3 & #4 %
+                  \end{matrix}\right)}
+\newcommand{\smat}[4]{\left(\begin{smallmatrix} %
+                   #1 & #2 \\ #3 & #4 %
+                  \end{smallmatrix}\right)}
+\DeclareMathOperator{\im}{im}
+
+
+\title{Notes on sorting number field elements, prime ideals and
+  isogenous elliptic curves over number fields} \author{John Cremona}
+
+\begin{document}
+\maketitle
+
+These notes concern algorithms for sorting different objects:
+algebraic numbers, prime ideals of a fixed number field, and elliptic
+curves in an isogeny class over a number field.
+
+\section{Sorting number field elements}
+\subsection{Defining the number field}
+We assume that every number field $K$ is given in the form
+$K=\Q(\alpha)$ where the minimal polynomial $f(X)$ of $\alpha$ is
+canonically determined by the field $K$.  In practice, $f(X)$ is the
+polynomial returned by the {\tt Pari} function {\tt polredabs} which
+is guaranteed to always return the same polynomial, given any
+polynomial defining a number field isomorphic to $K$.  This canonical
+polynomial $f(X)$ is thus fixed one and for all; it is monic and
+integral.
+
+We do not assume that $\Z[\alpha]$ is the full ring of integers
+$\OO_K$, since in any case there exist number fields whose rings of
+integers are not monogenic over $\Z$.
+
+We emphasise that both the defining polynomial $f(X)$ and the generator
+$\alpha$ of~$K$ are fixed.  In other words we are fixing the structure
+of $K$ not just as a field but as a $\Q[X]$-algebra, where the
+structure map $\Q[X]\to K$ has kernel $(f(X))$ and $\alpha$ is the
+image of $X$.
+
+\subsection{Sorting elements of $K$}
+Given $K=\Q(\alpha)$ as above, with degree $d=[K:\Q]=\deg f$, every
+element $\beta\in K$ has a unique expression as a polynomial in
+$\alpha$ of degree at most $d-1$, say
+$\beta=\sum_{i=0}^{d-1}b_i\alpha^i$ and we use the coefficient vector
+$(b_0,b_1,\dots,b_{d-1})\in\Q^d$ as a sorting key, where $\Q^d$ is
+sorted lexicographically.  To remove any ambiguity, if also
+$\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$ then $\beta<\gamma$ if and only
+if for the \textit{smallest} index~$i$ for which $b_i\not=c_i$ we have
+$b_i<c_i$.
+
+As a corollary, the induced ordering on $\Q$ viewed as a subset of $K$
+is the natural one.
+
+\subsection{An incomplete alternative sorting method}
+
+The sorting of algebraic numbers defined above relies on all numbers
+to be sorted lying in one fixed number field, with a fixed generator,
+and the ordering will depend on this common ambient field.  For
+example, two elements of $K=\Q(\sqrt{2})$ may have one order in $K$
+but a different order in a larger field such as
+$\Q(\sqrt{2},\sqrt{3})$.
+
+It is tempting to try to define an ordering on all of $\Qbar$ which
+relies on no such choices.  Every $\beta\in\Qbar$ is a root of a
+unique polynomial $g(X)\in\Z[X]$ which is primitive and irreducible
+and with positive leading coefficient.  Using the coefficient sequence
+of $g$ as a key allows comparison of any two non-conjugate algebraic
+numbers.  Numbers of lower degree come before numbers of higher
+degree; for those of the same degree, if the leading coefficient was
+given priority, this ordering would even place all algebraic integers
+before all non-integers.
+
+However, in order to be completely deterministic we would have to
+define an ordering of each set of Galois conjugates, which share the
+same polynomial $g(X)$.  This could be done, for example, by fixing an
+embedding of $\Qbar$ into $\C$ and using lexicgraphical ordering of
+real and imaginary parts on $\C$.  But then to apply the ordering to
+elements of a number field $K=\Q(\alpha)$ would require fixing for
+each such field an embedding into $\Qbar$, with these embeddings being
+compatible with respect to inclusions.  This may well be possible
+though not easy to implement.
+
+On balance we decided to use the first sorting method based on the
+power basis coordinates in a common fixed ambient field (with fixed
+defining polynomial and generator).
+
+\section{Sorting prime ideals}
+Fix a number field $K=\Q(\alpha)$ with defining polynomial
+$f(X)\in\Z[X]$ and generator $\alpha$ as above.  We do not assume that
+$K/\Q$ is Galois.
+
+We wish to define a linear order on the set of all prime ideals~$\p$
+of $K$.  Denote by $p$ the underlying rational prime, $e=e(\p/p)$ the
+ramification index and $f=f(\p/p)$ the residue field degree
+$[\OO_K/\p:\F_p]$.  The norm is $N(\p)=p^f$.
+
+In \Sage, if $\p=${\tt P} is the prime ideal then its norm is
+$N(\p)=${\tt P.norm()}, the underlying prime is $p=${\tt
+  P.smallest\_integer()}, the residue degree is $f=${\tt
+  P.residue\_class\_degree()} (so that $N(\p)=p^f$), and the
+ramification index is $e=${\tt P.ramification\_index()}.
+
+We first sort by the norm, then by the ramification index. Now we have
+to sort primes with the same value of $p^{ef}$.
+
+\subsection{The case of unramified primes}
+
+Our general method is simplest when $p$ is unramified, not just in $K$
+but in the order $\Z[\alpha]$, i.e. when $p\nmid\disc(f)$.  In this
+case $f(X)$ factors modulo~$p$ into distinct irreducibles and we may
+write
+\[
+    f \equiv \prod_{i=1}^{g}h_i(X) \pmod{p},
+\]
+with the factors $h_i(X)\in\Z[X]$ monic and such that their reductions
+modulo~$p$ are distinct and irreducible.  We may assume that the
+coeffients of each $h_i(X)$ are reduced modulo~$p$ to lie in
+$\{0,1,\dots,p-1\}$, and we order these factors first by degree and
+then by lexicographical ordering of the coefficients.
+
+To each factor $h_i(X)$ we associate the ideal $\p_i=(p,h_i(\alpha))$
+which has $f(\pi_i/p)=\deg h_i$, and the ordering of the $h_i$ thus
+induces the desired ordering of the primes $\p_i$ with the same
+degree.
+
+To compute the associated sorting key attahed to a prime~$\p$
+above~$p$: factor $f(X)$ modulo~$p$ as above, let $h(X)$ be the unique
+$h_i(X)$ such that $\ord_{\p}(h_i(\alpha))>0$; then the key is the
+coefficient vector of $h_i$ in $\F_p^f$.
+
+\subsection{The general case, including ramified and unramified primes}
+
+There is a bijection between the distinct primes $\p$ above $p$ and
+the irreducible factors $h(X)$ of $f(X)$ over $\Q_p$, such that $\deg h
+= e(\p/p)f(\p/p)$.  Write
+\[
+  f(X) = h_1(X)h_2(X)\dots h_g(X)
+\]
+with the $h_i(X)$ monic and irreducible in $\Z_p[X]$, sorted as
+follows: first by degree, then by lexicographical order of the
+coefficient vectors, where $\Z_p$ is ordered lexicographically by
+$p$-adic digits.  In what follows it will be sufficient to know the
+$h_i$ to finite $p$-adic precision.
+
+Let $k\ge1$ be an integer such that the $h_i(X)$ are distinct
+modulo~$p^k$.  We may take $k=1$ if and only if $p$ is unramified (in
+the sense that it does not divide $\disc f$).  Denote by $h_i^k(X)$
+the unique monic polynomial in $\Z[X]$ with coefficients $c$
+satisfying $0\le c\le p^k-1$ which is congruent to $h_i(X)\pmod{p^k}$.
+Then the ordering of the $h_i(X)$ of the same degree defined in the
+previous paragraph as the same as the ordering of the $h_i^k(X)$ by
+lexicographical ordering of their integer coefficient vectors.
+
+For each prime $\p\mid p$ there is a unique index~$i$ such that
+$\ord_{\p}(h_i^k(\alpha))$ is strictly greater than all other
+$\ord_{\p}(h_j^k(\alpha))$.  For example, in the unramified case when
+$k=1$, $\ord_{\p}(h_i^1(\alpha))>0$ for one value of~$i$, while
+$\ord_{\p}(h_j^1(\alpha))=0$ for $j\not=i$.  We prove this as follows:
+
+For each $i$ let $\alpha_i\in\Qpbar$ be a root of $h_i(X)$.  There are
+$g$ different embeddings of $K$ into $\Qpbar$, up to conjugacy,
+defined by mapping $\alpha$ to $\alpha_i$ for $1\le i\le g$.  Since
+$h_i(\alpha_i)=0$ while $h_i(\alpha_j)\not=0$ for $j\not=i$, we have
+that $\lim_{k\to\infty}h_i^k(\alpha_i)=0$ while
+$\lim_{k\to\infty}h_i^k(\alpha_j)\not=0$ for $j\not=0$.
+
+Each field $\Q_p(\alpha_i)$ is the completions $K_{\p_i}$ of $K$ at
+some prime~$\p_i$ above~$p$, and the absolute value in each
+$\Q_p(\alpha_i)$ is that induced by the $\p_i$-adic valuation on $K$
+and on $\Q_p(\alpha_i)$.  Hence the limits in the previous paragraph
+are equivalent to saying that
+\[
+    \lim_{k\to\infty}\ord_{\p_i}(h_i^k(\alpha)) = \infty,
+\]
+while $\ord_{\p_j}(h_i^k(\alpha))$ remains bounded as $k\to\infty$ for
+$j\not=i$.  Thus for large enough $k$, $\ord_{\p_i}(h_i^k(\alpha))$ is
+strictly greater that $\ord_{\p_i}(h_j^k(\alpha))$ for all $j\not=i$.
+We can use this fact to uniquely assigned one of the $h_i^k$ to each
+$\p_i$ and use the ordering of the $h_i$ defined above to order the
+$\p_i$.
+
+In order to implement this in practice we need to know how large value
+of $k$ is needed.  Is it sufficient for $k$ to be such that the sets
+$\{\ord_{\p_i}(h_j^k(\alpha)) \mid 1\le j\le g\}$ have a unique
+maximal element, for all~$i$?  If so we can start with some $k$ and
+increase it until this property holds.  This will be easier than
+deciding in advance which $k$ work, in terms of the $p$-adic valuation
+of $\disc f$ perhaps.
+
+\subsection{Example}
+We take an example from
+\url{http://wstein.org/129/ant/html/node29.html} where $K$ is a
+non-Galois cubic with $2$ as an essential discriminant divisor.  Let
+$f(X) = X^3+X^2-2X+8$, with discriminant $\disc f = -2^2\cdot503$.
+
+Let $p=2$ and $k=2$; the $2$-adic factors of $f$ are, reduced
+modulo~$4$: $h_1^2=X$, $h_2^2=X+2$, $h_3^2=X+3$.  So there are $3$
+primes above $2$ (which is in fact unramified in $K$).  Calling these
+$\p_a$, $\p_b$, $\p_c$ in random order we find that
+\begin{itemize}
+\item the $\p_a$-valuations of the $h_i^2$ are $(1,2,0)$
+\item the $\p_b$-valuations of the $h_i^2$ are $(0,0,2)$
+\item the $\p_c$-valuations of the $h_i^2$ are $(2,1,0)$
+\end{itemize}
+and hence $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
+
+Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
+one of which is ramified (with $e=2$).  In our ordering we put the
+unramified one first and the ramified one second, so we do not have to
+look at the $p$-adic factorization of $f(X)$ in this case.  In fact,
+with $k=2$ we find factors $X+170313$ and $X^2+82697X+130849$.
+
+\section{Sorting all integral ideals}
+
+Work in progress.
+
+\section{Sorting isogenous elliptic curves}
+
+\subsection{Elliptic curve labels}
+
+Labels for elliptic curves over number fields (including $\Q$ have
+three components: a label for the conductor, a label for each isogeny
+class with that conductor, and a label for each curve in its isogeny
+class.
+
+Since conductors are integral ideals we can label them according to
+the previous section.
+
+For a fixed conductor each isogeny class is uniquely determined by the
+traces of Frobenius $a_{\p}(E)$.  Here we include primes of bad
+reduction in the usual way: $a_{\p}(E)=+1$ for split multiplicative
+reduction, $-1$ for non-split and $0$ for additive reduction.  Now we
+can sort the isogeny classes of any fixed conductor by
+lexicographically ordering the sequence of $a_{\p}(E)$ with the
+primes~$\p$ ordered as in the previous section.  Having done that,
+each isogeny class has an index in the order; we base the indices
+at~$0$ and convert to base 26 using ``digits'' $a=0$, $b=1$, $\dots$,
+$z=25$, obtaining a string from the list $a, b, \dots, z, ba, bb,
+\dots$.
+
+Remarks: 1. In the LMFDB at present (June 2016) the isogeny class
+labels follow this scheme for imaginary quadratic fields since there
+the primes are sorted as in the previous section.  However the class
+labels for elliptic curves over totally real fields are taken from the
+labels of the associated Hilbert modular forms , whose ordering is not
+necessary well-defined as described above.  This is a historical
+accident.
+
+2. Over $\Q$ the LMFDB labels for elliptic curves follow this but the
+Cremona labels do not for conductors up to $230000$.  Again this is a
+historical phenomenon.
+
+Finally, the curves in each isogeny class are sorted in some way and
+hence given a numerical index, starting at 1, which forms the third
+part of the label.  In the rest of this section we describe methods
+used to sort the curves in each isogeny class.
+
+\subsection{Over $\Q$}
+
+Every elliptic curve over $\Q$ has a unique Weierstrass model which is
+integral, globally minimal and with coefficients $a_1,a_3\in\{0,1\}$
+and $a_3\in\{-1,0,1\}$.  We sort the curves using this coefficient
+vector $(a_1,a_2,a_3,a_4,a_6)$.  In fact, within on isogeny class the
+triple $(a_1,a_2,a_3)$ is constant\footnote{Siksek, Samir \textit{On
+    standardized models of isogenous elliptic curves}. Math. Comp. 74
+  (2005), no. 250, 949–951} so it suffices to sort on $(a_4,a_6)$.
+
+This is the sorting used for the LMFDB labels for elliptic curves over
+$\Q$.  It differs from the Cremona labelling, in which the ``strong
+Weil'' or $\Gamma_0(N)$-optimal curve is number~$1$ and the others are
+labelled in the order of being computed from the first.  At some point
+the latter became completely deterministic and has been documented
+elsewhere, but the details are not relevant here.
+
+There are many reasons why a system of ordering isogenous curves using
+Weierstrass models is hopeless over almost all number fields (the only
+exceptions, perhaps, being the $7$ imaginary quadratic fields having
+only $\pm1$ as units, and class number~$1$).  There may be no global
+minimal model, in which case some ``semi-global minimal'' model is
+stored in the LMFDB; even when there is a global minimal model,
+scaling by units results in infinitely many such models, even up to
+translation (except for imaginary quadratic fields where the number is
+finite).
+
+Instead we have devised a system of sorting isogenous curves which
+does not depend on the model, based on the simple observation (see the
+next subsection) that in almost all cases isogenous curves have
+distinct $j$-invariants.  It would be possible to use this new system
+over $\Q$, but as there are already two labelling systems we do not
+propose this!
+
+\subsection{Over arbitrary number fields}
+
+The basic fact we need is that in almost all cases, the elliptic
+curves in an isogeny class have distinct $j$-invariants.
+
+\begin{thm}
+Let $K$ be a number field and $E_1$, $E_2$ elliptic curves defined
+over~$K$ which are isogenous over~$K$ but not isomorphic over~$K$.
+Then either
+\begin{enumerate}
+\item $j(E_1)\not=j(E_2)$; or
+\item $E_1$ and $E_2$ have CM by some imaginary quadratic order $\OO$
+  of discriminant~$D<0$ such that $\sqrt{D}\notin K$ (so that the extra
+  endomorphisms are not defined over~$K$), $E_1$ and $E_2$ become
+  isomorphic over $L=K(\sqrt{D})$, and there are cyclic isogenies
+  between $E_1$ and $E_2$ of degree $|D|$ (if $D$ is odd), $|D|/4$
+  (if $D$ is even and $D\not=-4$) or~$2$ (if $D=-4$).
+\end{enumerate}
+Conversely if $E$ is an elliptic curve defined over $K$ with CM by an
+order of discriminant~$D$ not contained in $K$, then the quadratic
+twist of $E$ by $\sqrt{D}$ is isogenous but not isomorphic to~$E$
+over~$K$, and hence the isogeny class of $E$ consists of pairs of
+curves, the curves in each pair being quadratic twists of each other
+over $K(\sqrt{D})$.
+\end{thm}
+
+\begin{proof}
+Let $\phi:E_1\to E_2$ be an isogeny defined over~$K$; without loss of
+generality we may take $\phi$ to be cyclic (since otherwise it factors
+through the multiplication-by-$m$ map on $E_1$ for some $m>1$).
+
+Assume that $j(E_1)=j(E_2)$.  Then there is an isomorphism
+$\alpha:E_2\to E_1$ defined over an extension $L$ of $K$ of degree at
+most~$6$, and no such isomorphism defined over $K$ itself, by
+assumption.
+
+The composite $\psi=\alpha\circ\phi$ is a cyclic endomorphism of
+$E_1$, showing that $E_1$ (and hence also $E_2$) has CM by some
+imaginary quadratic order~$\OO$, of discriminant $D$, say.  Now $\psi$
+is defined over $L=K(\sqrt{D})$, and $L$ contains the field of
+definition of~$\alpha$, showing that $[L:K]=2$ and that $\alpha$ is
+defined over~$L$.  Hence $E_1$ and $E_2$ become isomorphic over the
+quadratic extension~$L$.
+
+Let $\sigma$ denote the nontrivial element of $\Gal(L/K)$.
+
+Assume first that $j\not=0, 1728$, or equivalently that $D\not=-3,-4$.
+Then $\alpha^{\sigma}=-\alpha$, hence $\psi^{\sigma}=-\psi$.
+Moreover, the fact that $\psi$ has cyclic kernel implies that $\psi$
+is not divisible in $\End(E_1)$ by any integer $n>1$.  If $D$ is odd
+so that $\OO=\Z[(1+\sqrt{D})/2]$, this implies that
+$\psi=\pm\sqrt{D}$, so $\deg\psi=|D|$.  If $D$ is even then
+$\OO=\Z[(1+\sqrt{D})/2]$ and $\psi=\pm\sqrt{D}/2$ with degree $|D|/4$.
+
+Suppose that $j=0$ and $D=-3$.  Without loss we may assume that $E_1$
+has equation $Y^2=X^3+a$ with $a\in K^*$; since $E_2$ becomes
+isomorphic to $E_1$ over the quadratic extension $K(\sqrt{-3})$, it is
+isomorphic to $Y^2=X^3+a'$ where $a'/a$ represents a nontrivial
+element of the kernel of the map $K^*/(K^*)^6 \to L^*/(L^*)^6$, but
+the only such element (up to 6th powers) is $-27$ (easy exercise).
+Hence without loss of generality $E_2$ has equation $Y^2=X^3-27a$, and
+standard formulas show that $E_1$ and $E_2$ are $3$-isogenous.  To see
+the last part directly, one isomorphism $E_1\to E_2$ is given by
+$(x,y)\mapsto(-3x,-3\sqrt{-3}y)$ so that as in the generic case
+$\alpha^{\sigma}=-\alpha$ and $\psi$ is pure imaginary, hence
+$\psi=\pm\sqrt{-3}$ with degree~$3$.
+
+Finally suppose that $j=1728$ and $D=-4$, so $L=K(\sqrt{-1})$.  The
+kernel of $K^*/(K^*)^4 \to L^*/(L^*)^4$ has order~$2$ with non-trivial
+element represented by~$-4$, and hence without loss of generality we
+may suppose that $E_1$ has equation $Y^2=X^3+aX$ and $E_2:
+Y^2=X^3-4aX$ for some $a\in K^*$.  Again it is well-known that these
+are $2$-isogenous.  Alternatively, an explicit computation (similar to
+that for $j=0$) shows that $\psi=\pm1\pm i$ with degree~$2$; note that
+in this case $\alpha^{\sigma}\not=\pm\alpha$.
+
+For the last part let $E$ have CM by the order $\OO$ of
+discriminant~$D<0$ with $\sqrt{D}\notin K$.  Set $L=K(\sqrt{D})$ and
+let $E'$ be the $\sqrt{D}$-twist of $E$.  Assume first that
+$D\not=-4$; then $\OO$ contains a pure imaginary element $\psi$ which
+when composed with an isomorphism $\alpha:E'\to E$ gives an isogeny
+$\phi=\alpha\circ\psi:E_1\to E_2$, defined over~$K$.  For the case
+$D=-4$, when $\sqrt{-1}\notin K$, we take an equation for $E$ of the
+form $Y^2=X^3+aX$, set $E': Y^2=X^3-4aX$ and observe that $E$ and $E'$
+are $2$-isogenous, not isomorphic over $K$ but isomorphic over
+$K(\sqrt{-1})$ where $-4$ becomes a $4$th power.
+
+\end{proof}
+
+Hence for any isogeny class of curves which either do not have CM or
+for which the extra endomorphisms are defined over $K$ itself, the
+$j$-invariants are distinct and we can sort the curves using their
+$j$-invariants as in Section~1.
+
+It remains to consider isogeny classes of curves with CM by order in
+an imaginary quadratic field $\Q(\sqrt{d})$ where $\sqrt{d}\notin K$.
+Note that if any one curve has this property then all $K$-isogenous
+curves also do, though they may have CM by different orders in
+$\Q(\sqrt{d})$.
+
+So let $E_1$ and $E_2$ be $\sqrt{d}$-twists of each other with CM by
+the same order in $\Q(\sqrt{d})$.  As we have seen, they are isogenous
+over $K$ and in particular have the same conductor~$\n$.  Let
+$j=j(E_1)=j(E_2)$.  We may distinguish them using a prime ideal $\p$
+of $K$ with certain properties.  Consider the set of primes such that
+\begin{itemize}
+\item $\p$ does not divide $6d\n$;
+\item $\ord_{\p}(j-1728)=0$ if $j\not=1728$, otherwise
+  $\ord_{\p}(j)=0$;
+\item $\p$ has degree~$1$;
+\item the Legendre symbol $(d/p)=-1$ where $p=N(\p)$;
+\item $p$ does not divide $\disc f$ where f is the defining polynomail
+  of~$K$.
+\end{itemize}
+The first, second and last conditions only exclude finitely many
+primes, and the third one excludes a set of density~$0$; the last
+condition reduces the set of admissible primes to one of density
+$1/2$.  Using our ordering of primes we can let $\p$ be the
+\textit{first} prime of $K$ with all the above properties, and because
+of the last condition we only need use the simple form of ordering of
+primes of equal norm based on the factorization of $f(X)$ modulo~$p$.
+Note that the conditions we put on $\p$ are independent of the models
+for $E_1$ and~$E_2$.
+
+In the case $j\not=1728$ we can assume that $E_1$ has equation
+$Y^2=X^3+aX+b$ with $b\not=0$, and $E_2: Y^2=X^3+d^2aX+d^3b$.  The
+conditions on $\p$ imply that $a,b$ may be chosen so that $\p\nmid b$.
+Hence exactly one of $b$, $bd^3$ is a quadratic residue modulo~$\p$,
+and we can use this distinction to order $E_1$ and~$E_2$.  In order to
+do this simply without changing the models, take any integral model
+for $E_1$ with invariants $c_4$, $c_6$ and $\Delta$, where
+$j=c_6^2/\Delta$; if $\p\nmid c_6$, which will be true unless the
+model is non-minimal at~$\p$, we compute the Legendre symbol
+$(c_6\pmod{\p}/p)=\pm1$ and put $E_1$ first if and only if the value
+is $+1$.  In case our model is nonminimal at~$\p$ we would have
+$\ord_{\p}(c_6)=6k$ and $\ord_{\p}(\Delta)=12k$ for some $k\ge1$.  Now
+take $\pi$ a uniformiser at~$\p$ which has non-positive valuations at
+all other primes and compute the symbol $(c_6/\pi^{6k}\pmod{\p}/p)$.
+Clearly the resulting value $\pm1$ is independent of the choice of
+model.
+
+A similar analysis and formula works when $j=1728$ using $c_4$ in
+place of $c_6$, dividing by $\pi^{4k}$ where $\ord_{\p}(c_4)=4k\ge0$
+and $c_4$ is the invariant of any integral model for $E_1$.
+
+This completes the task of sorting isogenous curves with the same
+$j$-invariant in a model-independent way, and hence of sorting each
+isogeny class of curves.
+
+\end{document}
