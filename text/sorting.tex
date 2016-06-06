@@ -79,7 +79,8 @@
 
 
 \title{Notes on sorting number field elements, prime ideals and
-  isogenous elliptic curves over number fields} \author{John Cremona}
+  isogenous elliptic curves over number fields} \author{John Cremona\\Aurel
+  Page\\Andrew V. Sutherland}
 
 \begin{document}
 \maketitle
@@ -156,7 +157,7 @@ On balance we decided to use the first sorting method based on the
 power basis coordinates in a common fixed ambient field (with fixed
 defining polynomial and generator).
 
-\section{Sorting prime ideals}
+\section{Sorting prime ideals}\label{sec:primes}
 Fix a number field $K=\Q(\alpha)$ with defining polynomial
 $f(X)\in\Z[X]$ and generator $\alpha$ as above.  We do not assume that
 $K/\Q$ is Galois.
@@ -191,8 +192,8 @@ $\{0,1,\dots,p-1\}$, and we order these factors first by degree and
 then by lexicographical ordering of the coefficients.
 
 To each factor $h_i(X)$ we associate the ideal $\p_i=(p,h_i(\alpha))$
-which has $f(\pi_i/p)=\deg h_i$, and the ordering of the $h_i$ thus
-induces the desired ordering of the primes $\p_i$ with the same
+which has $f(\p_i/p)=\deg h_i$, and the ordering of the $h_i$ thus
+induces the desired ordering of the primes~$\p_i$ with the same
 degree.
 
 To compute the associated sorting key attahed to a prime~$\p$
@@ -208,71 +209,102 @@ the irreducible factors $h(X)$ of $f(X)$ over $\Q_p$, such that $\deg h
 \[
   f(X) = h_1(X)h_2(X)\dots h_g(X)
 \]
-with the $h_i(X)$ monic and irreducible in $\Z_p[X]$, sorted as
-follows: first by degree, then by lexicographical order of the
-coefficient vectors, where $\Z_p$ is ordered lexicographically by
-$p$-adic digits.  In what follows it will be sufficient to know the
-$h_i$ to finite $p$-adic precision.
+with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort prime ideals
+by norm and ramification index, it is enough to describe an order on polynomials
+of the same degree.
 
-Let $k\ge1$ be an integer such that the $h_i(X)$ are distinct
-modulo~$p^k$.  We may take $k=1$ if and only if $p$ is unramified (in
-the sense that it does not divide $\disc f$).  Denote by $h_i^k(X)$
-the unique monic polynomial in $\Z[X]$ with coefficients $c$
-satisfying $0\le c\le p^k-1$ which is congruent to $h_i(X)\pmod{p^k}$.
-Then the ordering of the $h_i(X)$ of the same degree defined in the
-previous paragraph as the same as the ordering of the $h_i^k(X)$ by
-lexicographical ordering of their integer coefficient vectors.
-
-For each prime $\p\mid p$ there is a unique index~$i$ such that
-$\ord_{\p}(h_i^k(\alpha))$ is strictly greater than all other
-$\ord_{\p}(h_j^k(\alpha))$.  For example, in the unramified case when
-$k=1$, $\ord_{\p}(h_i^1(\alpha))>0$ for one value of~$i$, while
-$\ord_{\p}(h_j^1(\alpha))=0$ for $j\not=i$.  We prove this as follows:
-
-For each $i$ let $\alpha_i\in\Qpbar$ be a root of $h_i(X)$.  There are
-$g$ different embeddings of $K$ into $\Qpbar$, up to conjugacy,
-defined by mapping $\alpha$ to $\alpha_i$ for $1\le i\le g$.  Since
-$h_i(\alpha_i)=0$ while $h_i(\alpha_j)\not=0$ for $j\not=i$, we have
-that $\lim_{k\to\infty}h_i^k(\alpha_i)=0$ while
-$\lim_{k\to\infty}h_i^k(\alpha_j)\not=0$ for $j\not=0$.
-
-Each field $\Q_p(\alpha_i)$ is the completions $K_{\p_i}$ of $K$ at
-some prime~$\p_i$ above~$p$, and the absolute value in each
-$\Q_p(\alpha_i)$ is that induced by the $\p_i$-adic valuation on $K$
-and on $\Q_p(\alpha_i)$.  Hence the limits in the previous paragraph
-are equivalent to saying that
+We sort polynomials in~$\Z_p[X]$ of degree~$d$ as follows. Such a polynomial~$P$
+can be written
 \[
-    \lim_{k\to\infty}\ord_{\p_i}(h_i^k(\alpha)) = \infty,
+  (a_{0,0}+a_{0,1}p+a_{0,2}p^2+\dots) + (a_{1,0}+a_{1,1}p+\dots)X
+  + \dots + (a_{d,0}+a_{d,1}p+\dots)X^d,
 \]
-while $\ord_{\p_j}(h_i^k(\alpha))$ remains bounded as $k\to\infty$ for
-$j\not=i$.  Thus for large enough $k$, $\ord_{\p_i}(h_i^k(\alpha))$ is
-strictly greater that $\ord_{\p_i}(h_j^k(\alpha))$ for all $j\not=i$.
-We can use this fact to uniquely assigned one of the $h_i^k$ to each
-$\p_i$ and use the ordering of the $h_i$ defined above to order the
-$\p_i$.
+with and~$a_{i,j}\in\Z\cap[0,p-1]$. We can then attach to~$P$ the infinite
+vector~$(a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots)$,
+and we sort polynomials by lexicographic order of such vectors. This order can
+be decided at finite precision, provided that the polynomials are known to be
+distinct, which is the case for the~$h_i$.
 
-In order to implement this in practice we need to know how large value
-of $k$ is needed.  Is it sufficient for $k$ to be such that the sets
-$\{\ord_{\p_i}(h_j^k(\alpha)) \mid 1\le j\le g\}$ have a unique
-maximal element, for all~$i$?  If so we can start with some $k$ and
-increase it until this property holds.  This will be easier than
-deciding in advance which $k$ work, in terms of the $p$-adic valuation
-of $\disc f$ perhaps.
+%In what follows it will be sufficient to know the
+%$h_i$ to finite $p$-adic precision.
+%Let $k\ge1$ be an integer such that the $f_i(X)$ are distinct
+%modulo~$p^k$.  We may take $k=1$ if and only if $p$ is unramified (in
+%the sense that it does not divide $\disc f$).  Denote by $h_i^k(X)$
+%the unique monic polynomial in $\Z[X]$ with coefficients $c$
+%satisfying $0\le c\le p^k-1$ which is congruent to $h_i(X)\pmod{p^k}$.
+%Then the ordering of the $h_i(X)$ of the same degree defined in the
+%previous paragraph as the same as the ordering of the $h_i^k(X)$ by
+%lexicographical ordering of their integer coefficient vectors.
 
-\subsection{Example}
+We now explain how to compute the bijection between the~$h_i$ and the primes
+above~$p$. Let~$h\in\Z_p[X]$ be one of the~$h_i$, and let~$\p$ be a prime
+above~$p$. The valuation~$v_{\p}$ on~$K$ extends to~$K\otimes_{\Q}\Q_p = \prod_i
+\Q_p[X]/h_i(X)$ by using the valuation on the factor corresponding to~$\p$,
+which is a $p$-adic field. Thus we have~$v_{\p}(h(\alpha)) = \infty$ if and only
+if~$\p$ corresponds to~$h$, but this valuation cannot be computed using finite
+approximations to~$h$. For all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
+= \min(e(\p/p)k, v_\p(h(\alpha)))$, so this valuation is always~$e(\p/p)k$
+if~$h$ corresponds to~$\p$, and is bounded above otherwise. The
+valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
+to~$h$, and we can therefore compute the bijection.
+
+Note that the $p$-adic polynomial factorisation alorithm Round 4 actually
+computes the prime ideals corresponding to the various $p$-adic factors, but
+this part of the output is not available in the standard mathematical softwares.
+The discussion above allows us to recover the bijection without this refined
+output.
+
+%For each prime $\p\mid p$ there is a unique index~$i$ such that
+%$\ord_{\p}(h_i^k(\alpha))$ is strictly greater than all other
+%$\ord_{\p}(h_j^k(\alpha))$.  For example, in the unramified case when
+%$k=1$, $\ord_{\p}(h_i^1(\alpha))>0$ for one value of~$i$, while
+%$\ord_{\p}(h_j^1(\alpha))=0$ for $j\not=i$.  We prove this as follows:
+%
+%For each $i$ let $\alpha_i\in\Qpbar$ be a root of $h_i(X)$.  There are
+%$g$ different embeddings of $K$ into $\Qpbar$, up to conjugacy,
+%defined by mapping $\alpha$ to $\alpha_i$ for $1\le i\le g$.  Since
+%$h_i(\alpha_i)=0$ while $h_i(\alpha_j)\not=0$ for $j\not=i$, we have
+%that $\lim_{k\to\infty}h_i^k(\alpha_i)=0$ while
+%$\lim_{k\to\infty}h_i^k(\alpha_j)\not=0$ for $j\not=0$.
+%
+%Each field $\Q_p(\alpha_i)$ is the completions $K_{\p_i}$ of $K$ at
+%some prime~$\p_i$ above~$p$, and the absolute value in each
+%$\Q_p(\alpha_i)$ is that induced by the $\p_i$-adic valuation on $K$
+%and on $\Q_p(\alpha_i)$.  Hence the limits in the previous paragraph
+%are equivalent to saying that
+%\[
+%    \lim_{k\to\infty}\ord_{\p_i}(h_i^k(\alpha)) = \infty,
+%\]
+%while $\ord_{\p_j}(h_i^k(\alpha))$ remains bounded as $k\to\infty$ for
+%$j\not=i$.  Thus for large enough $k$, $\ord_{\p_i}(h_i^k(\alpha))$ is
+%strictly greater that $\ord_{\p_i}(h_j^k(\alpha))$ for all $j\not=i$.
+%We can use this fact to uniquely assigned one of the $h_i^k$ to each
+%$\p_i$ and use the ordering of the $h_i$ defined above to order the
+%$\p_i$.
+%
+%In order to implement this in practice we need to know how large value
+%of $k$ is needed.  Is it sufficient for $k$ to be such that the sets
+%$\{\ord_{\p_i}(h_j^k(\alpha)) \mid 1\le j\le g\}$ have a unique
+%maximal element, for all~$i$?  If so we can start with some $k$ and
+%increase it until this property holds.  This will be easier than
+%deciding in advance which $k$ work, in terms of the $p$-adic valuation
+%of $\disc f$ perhaps.
+
+\subsection{Examples}
 We take an example from
-\url{http://wstein.org/129/ant/html/node29.html} where $K$ is a
+\url{http://wstein.org/129/ant/html/node29.html} where $K=\Q(\alpha)$ is a
 non-Galois cubic with $2$ as an essential discriminant divisor.  Let
-$f(X) = X^3+X^2-2X+8$, with discriminant $\disc f = -2^2\cdot503$.
+$f(X) = X^3+X^2-2X+8$ be the minimal polynomial of~$\alpha$, with discriminant
+$\disc f = -2^2\cdot503$.
 
-Let $p=2$ and $k=2$; the $2$-adic factors of $f$ are, reduced
-modulo~$4$: $h_1^2=X$, $h_2^2=X+2$, $h_3^2=X+3$.  So there are $3$
+Let $p=2$ and $k=2$; the $2$-adic factors of $f$ are: $h_1=X+O(2^2)$,
+$h_2=X+2+O(2^2)$, $h_3=X+3+O(2^2)$.  So there are $3$
 primes above $2$ (which is in fact unramified in $K$).  Calling these
 $\p_a$, $\p_b$, $\p_c$ in random order we find that
 \begin{itemize}
-\item the $\p_a$-valuations of the $h_i^2$ are $(1,2,0)$
-\item the $\p_b$-valuations of the $h_i^2$ are $(0,0,2)$
-\item the $\p_c$-valuations of the $h_i^2$ are $(2,1,0)$
+  \item the $\p_a$-valuations of the $(2^2,h_i(\alpha))$ are $(1,2,0)$,
+  \item the $\p_b$-valuations of the $(2^2,h_i(\alpha))$ are $(0,0,2)$,
+  \item the $\p_c$-valuations of the $(2^2,h_i(\alpha))$ are $(2,1,0)$,
 \end{itemize}
 and hence $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
 
@@ -282,9 +314,139 @@ unramified one first and the ramified one second, so we do not have to
 look at the $p$-adic factorization of $f(X)$ in this case.  In fact,
 with $k=2$ we find factors $X+170313$ and $X^2+82697X+130849$.
 
+We illustrate the order on $p$-adic polynomials on another example. Let~$f(x) =
+x^{10} - 3x^9 - 35x^8 + 120x^7 + 242x^6 - 1080x^5 + 44x^4 + 2343x^3 -
+1631x^2 + 111x + 79$, which is irreducible over~$\Q$. Over~$\Q_3$, $f$ splits as
+a product of~$5$ polynomials of degree~$2$: $f = h_1h_2h_3h_4h_5$,
+$h_i\in\Z_3[x]$. Modulo~$3$, we have
+\begin{itemize}
+  \item $h_1 = x^2 + 1 +O(3)$,
+  \item $h_2 = x^2 + 2x + 2 + O(3)$,
+  \item $h_3 = x^2 + x + 2 + O(3)$,
+  \item $h_4 = x^2 + 2x + 2 + O(3)$,
+  \item $h_5 = x^2 + x + 2 + O(3)$.
+\end{itemize}
+The modulo~$3$ approximation is not sufficient to distinguish them all,
+but we get the following initial segments of the associated vectors (omitting
+the maximal degree term since they are all monic):
+\begin{itemize}
+  \item $(1,0,\dots)$,
+  \item $(2,2,\dots)$,
+  \item $(2,1,\dots)$,
+  \item $(2,2,\dots)$,
+  \item $(2,1,\dots)$,
+\end{itemize}
+so we have~$h_1 < h_3,h_5 < h_2,h_4$. Modulo~$9$, we get
+\begin{itemize}
+  \item $h_1 = x^2 + 3x + 1 + O(3^2)$,
+  \item $h_2 = x^2 + 5x + 5 + O(3^2)$,
+  \item $h_3 = x^2 + 7x + 2 + O(3^2)$,
+  \item $h_4 = x^2 + 5x + 5 + O(3^2)$,
+  \item $h_5 = x^2 + 4x + 5 + O(3^2)$.
+\end{itemize}
+This is still not enough to distinguish them, but
+we get the refined initial segments
+\begin{itemize}
+  \item $(1,0,0,1,\dots)$,
+  \item $(2,2,1,1,\dots)$,
+  \item $(2,1,0,2,\dots)$,
+  \item $(2,2,1,1,\dots)$,
+  \item $(2,1,1,1,\dots)$,
+\end{itemize}
+so we have~$h_1<h_3<h_5<h_2,h_4$. Finally, modulo~$27$ we have
+\begin{itemize}
+  \item $h_1 = x^2 + 3x + 1 + O(3^3)$,
+  \item $h_2 = x^2 + 5x + 5 + O(3^3)$,
+  \item $h_3 = x^2 + 7x + 11 + O(3^3)$,
+  \item $h_4 = x^2 + 23x + 23 + O(3^3)$,
+  \item $h_5 = x^2 + 13x + 14 + O(3^3)$.
+\end{itemize}
+This is now enough to distinguish all the~$h_i$, and we obtain the initial segments
+\begin{itemize}
+  \item $(1,0,0,1,0,0\dots)$,
+  \item $(2,2,1,1,0,0,\dots)$,
+  \item $(2,1,0,2,1,0,\dots)$,
+  \item $(2,2,1,1,2,2,\dots)$,
+  \item $(2,1,1,1,1,1,\dots)$,
+\end{itemize}
+yielding the order~$h_1 < h_3 < h_5 < h_2 < h_4$. The number field~$K =
+\Q(\alpha)$ generated by a root~$\alpha$ of~$f$ (LMFDB
+label~\texttt{10.10.24952891341003125.1}) has discriminant~$5^5 41^8$.
+In~$K$, the prime~$3$ decomposes as a product of~$5$ prime ideals of norm~$9$,
+which we denote~$\p_a, \dots, \p_e$ in arbitrary order. We know that we need
+precision at least~$O(3^3)$ to distinguish the polynomials~$h_i$, so we compute
+the valuations~$v_\p((3^3,h_i(\alpha)))$. We obtain:
+\begin{itemize}
+  \item The~$\p_a$-valuations of~$(3^3,h_i(\alpha))$ are~$(0,0,0,0,3)$,
+  \item The~$\p_b$-valuations of~$(3^3,h_i(\alpha))$ are~$(0,3,0,2,0)$,
+  \item The~$\p_c$-valuations of~$(3^3,h_i(\alpha))$ are~$(3,0,1,0,0)$,
+  \item The~$\p_d$-valuations of~$(3^3,h_i(\alpha))$ are~$(0,2,0,3,0)$,
+  \item The~$\p_e$-valuations of~$(3^3,h_i(\alpha))$ are~$(1,0,3,0,0)$,
+\end{itemize}
+and hence~$\p_a\leftrightarrow h_5$, $\p_b\leftrightarrow h_2$,
+$\p_c\leftrightarrow h_1$, $\p_d\leftrightarrow h_4$, $\p_e\leftrightarrow h_3$.
+Since these ideals all have norm~$9$ and ramification index~$1$, our ordering of
+the primes above~$3$ is~$\p_c < \p_e < \p_a < \p_b < \p_d$.
+
 \section{Sorting all integral ideals}
 
-Work in progress.
+Fix a number field $K=\Q(\alpha)$ with defining polynomial
+$f(X)\in\Z[X]$ and generator $\alpha$ as above. 
+We now define a total order on the set of all integral ideals of~$K$.
+We always order ideals by norm, and then define some criteria to sort ideals of
+the same norm. The order we choose will have the property that prime ideals are
+smaller than every nonprime ideal of the same norm, and are ordered in the same
+way as before.
+
+\subsection{Ideals of prime power norm}\label{sec:primepowernorm}
+
+We first define an order on the set of ideals of prime power norm. Let~$\a$ be
+an ideal of norm~$p^n$, and let~$\p_1,\dots,\p_g$ be the prime ideals of~$K$
+above~$p$, ordered as in Section~\ref{sec:primes}. We have~$\a = p_1^{v_1}\dots
+p_g^{v_g}$ for some integers~$v_i\ge 0$. We define the weight of this
+factorisation to be~$v_1+\dots+v_g$. We order ideals of norm a power of $p$ by
+increasing norm first, then increasing weight, and finally by reverse
+lexicographic order of the vector of exponents~$(v_1,\dots,v_g)$. For this
+order, the prime ideals come first, and are ordered in the same way as
+previously.
+
+Example: let~$K$ be a number field and~$p$ a prime number that decomposes in~$K$
+as the product~$\p_1\p_2\p_3\p_4$ where~$\p_1$, $\p_2$ and~$\p_3$ have inertial
+degree~$1$ and~$\p_4$ has inertial degree~$2$. We assume that the order defined
+in Section~\ref{sec:primes} gives~$\p_1 < \p_2 < \p_3$. We first consider ideals
+of norm~$p$. The only such ideals are~$\p_1$, $\p_2$ and~$\p_3$, and they have weight~$1$
+and exponent vectors~$(1,0,0,0)$, $(0,1,0,0)$ and~$(0,0,1,0)$. Since
+lexicographically we have~$(0,0,1,0)<(0,1,0,0)<(1,0,0,0)$, the reverse
+lexicographic order gives~$\p_1<\p_2<\p_3$. Now
+consider ideals of norm~$p^2$: $\p_4$, $\p_1^2$, $\p_2^2$, $\p_3^2$, $\p_1\p_2$,
+$\p_1\p_3$ and~$\p_2\p_3$. The corresponding exponent vectors are~$(0,0,0,1)$,
+$(2,0,0,0)$, $(0,2,0,0)$, $(0,0,2,0)$, $(1,1,0,0)$, $(1,0,1,0)$ and~$(0,1,1,0)$,
+with weights~$1,2,2,2,2,2,2$. The order we defined is therefore~$\p_4 < \p_1^2 <
+\p_1\p_2 < \p_1\p_3 < \p_2^2 < \p_2\p_3 < \p_3^2$. The reader can check that the
+ideals of norm~$p^3$ are~$\p_4\p_1 < \p_4\p_2 < \p_4\p_3 < \p_1^3 < \p_1^2\p_2 <
+\p_1^2\p_3 < \p_1\p_2^2 < \p_1\p_2\p_3 < \p_1\p_3^2 < \p_2^3 < \p_2^2\p_3 <
+\p_2\p_3^2 < \p_3^3$.
+
+\subsection{Arbitrary integral ideals}
+
+We finally define an order on the set of all integral ideals. We first order
+them by norm, so we only have to define an order on nonzero ideals of the same
+norm. Let~$\a$ be an ideal of norm~$N = p_1^{a_1}\dots p_k^{a_k}$ with~$p_1 <
+\dots < p_k$. Then~$\a$ has a unique factorisation as~$\a = \a_1\dots\a_k$
+where~$\a_i$ has norm~$p_i^{a_i}$. We order ideals of norm~$N$ according to the
+lexicographic order of the $k$-uple~$(\a_1,\dots,\a_k)$.
+
+Example: let~$K$ be a number field, and assume that~$2$ decomposes
+as~$\p_1\p_2\p_3$ where~$\p_1<\p_2$ have inertial degree~$1$ and~$\p_3$ has
+inertial degree~$2$, and that~$3$ decomposes as~$\q_1\q_2$ where~$\q_1$ has
+degree~$1$ and~$\q_2$ has degree~$3$. Let us order ideals of norm~$18$. Such an
+ideal is a product of an ideal of norm~$2$ and an ideal of norm~$3$. The ideals
+of norm~$2$ are~$\p_1 < \p_2$, and the only ideal of norm~$9$ is~$\q_1$. The
+ideals of norm~$18$ are therefore~$\p_1\q_1 < \p_2\q_1$. Let us now order ideals
+of norm~$108 = 2^2\cdot 3^3$. The ideals of norm~$4$ are~$\p_3 < \p_1^2 < \p_1\p_2 <
+\p_2^2$, and the ideals of norm~$27$ are~$\q_2 < \q_1^3$. The ideals of
+norm~$108$ are therefore~$\p_3\q_2 < \p_3\q_1^3 < \p_1^2\q_2 < \p_1^2\q_1^3 <
+\p_1\p_2\q_2 < \p_1\p_2\q_1^3 < \p_2^2\q_2 < \p_2^2\q_1^3$.
 
 \section{Sorting isogenous elliptic curves}
 

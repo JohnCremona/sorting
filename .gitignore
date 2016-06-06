@@ -18,3 +18,5 @@
 *.old
 *.cls
 *.sws
+.*.swa
+.*.swp
