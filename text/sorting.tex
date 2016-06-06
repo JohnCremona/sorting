@@ -239,12 +239,19 @@ distinct, which is the case for the~$h_i$.
 We now explain how to compute the bijection between the~$h_i$ and the primes
 above~$p$. Let~$h\in\Z_p[X]$ be one of the~$h_i$, and let~$\p$ be a prime
 above~$p$. The valuation~$v_{\p}$ on~$K$ extends to~$K\otimes_{\Q}\Q_p = \prod_i
-\Q_p[X]/h_i(X)$ by using the valuation on the factor corresponding to~$\p$,
-which is a $p$-adic field. Thus we have~$v_{\p}(h(\alpha)) = \infty$ if and only
+\Q_p[X]/h_i(X)$ in the following way: let~$j$ be such that~$h_{j}$ corresponds
+to~$\p$, and let~$v_j$ be the valuation of the $p$-adic field~$\Q_p[X]/h_j(X)$;
+then define the extension of~$v_\p$ to be the composition
+\[
+  K\otimes_{\Q}\Q_p \longrightarrow \Q_p[X]/h_j(X) \stackrel{v_j}{\longrightarrow} \Z\cup\{\infty\}.
+\]
+%by using the valuation on the factor corresponding to~$\p$,
+%which is a $p$-adic field.
+We then have~$v_{\p}(h(\alpha)) = \infty$ if and only
 if~$\p$ corresponds to~$h$, but this valuation cannot be computed using finite
 approximations to~$h$. For all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
 = \min(e(\p/p)k, v_\p(h(\alpha)))$, so this valuation is always~$e(\p/p)k$
-if~$h$ corresponds to~$\p$, and is bounded above otherwise. The
+if~$h$ corresponds to~$\p$, and is bounded above independently of~$k$ otherwise. The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and we can therefore compute the bijection.
 
@@ -440,7 +447,7 @@ Example: let~$K$ be a number field, and assume that~$2$ decomposes
 as~$\p_1\p_2\p_3$ where~$\p_1<\p_2$ have inertial degree~$1$ and~$\p_3$ has
 inertial degree~$2$, and that~$3$ decomposes as~$\q_1\q_2$ where~$\q_1$ has
 degree~$1$ and~$\q_2$ has degree~$3$. Let us order ideals of norm~$18$. Such an
-ideal is a product of an ideal of norm~$2$ and an ideal of norm~$3$. The ideals
+ideal is a product of an ideal of norm~$2$ and an ideal of norm~$9$. The ideals
 of norm~$2$ are~$\p_1 < \p_2$, and the only ideal of norm~$9$ is~$\q_1$. The
 ideals of norm~$18$ are therefore~$\p_1\q_1 < \p_2\q_1$. Let us now order ideals
 of norm~$108 = 2^2\cdot 3^3$. The ideals of norm~$4$ are~$\p_3 < \p_1^2 < \p_1\p_2 <
