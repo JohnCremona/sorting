@@ -2,7 +2,11 @@
 \usepackage{amsmath, amsfonts, amsthm, amssymb,fullpage}
 %\usepackage{sagetex}
 \usepackage{comment}
-\usepackage{url}
+\usepackage{hyperref}
+\usepackage{color}
+\definecolor{mylinkcolor}{rgb}{0.5,0.0,0.0}
+\definecolor{myurlcolor}{rgb}{0.0,0.0,0.75}
+\hypersetup{colorlinks=true,urlcolor=myurlcolor,citecolor=myurlcolor,linkcolor=mylinkcolor,linktoc=page,breaklinks=true}
 
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{cor}[thm]{Corollary}
@@ -185,49 +189,43 @@ Our general method is simplest when $p$ is unramified, not just in $K$
 but in the order $\Z[\alpha]$; this holds precisely when $p\nmid [\OO_K:\Z[\alpha]]\disc(K)$, equivalently, $p^2\nmid\disc(g)$, which applies to all but finitely many $p$.  In this case $g(X)$ factors modulo~$p$ into distinct irreducible elements of $\Fp[X]$, and we may
 write
 \[
-    g(X) \equiv \prod_{i=1}^{g}h_i(X) \pmod{p},
+    g(X) \equiv \prod_i h_i(X) \pmod{p},
 \]
 with the factors $h_i(X)\in\Z[X]$ monic and such that their reductions
 modulo~$p$ are distinct and irreducible.  We may assume that the
-coefficients of each $h_i(X)$ are reduced modulo~$p$ to lie in
-$\{0,1,\dots,p-1\}$, and we order these factors first by degree and
-then lexicographically according to their coefficient vectors in $\{0,\ldots,p-1\}^f$.
+coefficients of each $h_i(X)$ are reduced modulo~$p$ to integers in the interval $[0,p-1]$, and we order these factors first by degree and then lexicographically by their coefficient vectors in $[0,p-1]^f$.
 
-To each factor $h_i(X)$ we associate the ideal $\p_i=(p,h_i(\alpha))$
-which has $f(\p_i/p)=\deg h_i$, and the ordering of the $h_i$ thus
-induces the desired ordering of the primes~$\p_i$ with the same
-degree.
-
-To compute the associated sorting key attached to a prime~$\p$
-above~$p$: factor $g(X)$ modulo~$p$ as above, let $h(X)$ be the unique
-$h_i(X)$ such that $\ord_{\p}(h_i(\alpha))>0$; then the key is the
-coefficient vector of $h_i$ in $\F_p^f$.
+The Dedekind-Kummer theorem allows us to associate to each factor $h_i(X)$ the prime ideal $\p_i=(p,h_i(\alpha))$ above $p$,
+with residue degree $f(\p_i/p)=\deg h_i$ and norm $N(\p_i)=p^{\deg h_i}$.
+We then have $p\OO_K=\prod_i \p_i$ and our ordering of the $h_i$ induces an ordering of the primes~$\p_i$ above $p$.
 
 \subsection{The general case, including ramified and unramified primes}
 
 There is a bijection between the distinct primes $\p$ above $p$ and
-the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$, such that $\deg h
-= e(\p/p)f(\p/p)$.  Write
+the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$ in which $\deg h
+= e(\p/p)f(\p/p)$ \cite{something-or-prove-it}.  Write
 \[
   g(X) = h_1(X)h_2(X)\dots h_g(X)
 \]
 with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort prime ideals
 by norm and ramification index, it is enough to describe an order on polynomials
-of the same degree (and in fact we are interested only in those polynomials $h_i(X)$
+of the same degree (in fact we are interested only in those polynomials $h_i(X)$
 that not only have the same degree, but correspond to primes $\p_i$ with the same
-ramification index and residue degree).
+ramification index and residue degree, which may be a proper subset).
 
 We sort polynomials in~$\Z_p[X]$ of degree~$d$ as follows. Such a polynomial~$P$
-can be written
+can be written in the form
 \[
   (a_{0,0}+a_{0,1}p+a_{0,2}p^2+\dots) + (a_{1,0}+a_{1,1}p+\dots)X
   + \dots + (a_{d,0}+a_{d,1}p+\dots)X^d,
 \]
 with and~$a_{i,j}\in\Z\cap[0,p-1]$. We can then attach to~$P$ the infinite
-vector~$$(a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots),$$
+vector
+\[
+(a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots)\in [0,p-1]^\infty,
+\]
 and we sort polynomials according to the lexicographic ordering of such vectors.
-This order can
-be decided at finite precision, provided that the polynomials are known to be
+Comparisons can be made using finite precision, provided that the polynomials are known to be
 distinct, which is the case for the~$h_i$.
 
 %In what follows it will be sufficient to know the
@@ -243,28 +241,30 @@ distinct, which is the case for the~$h_i$.
 
 We now explain how to compute the bijection between the~$h_i$ and the primes
 above~$p$. Let~$h\in\Z_p[X]$ be one of the~$h_i$, and let~$\p$ be a prime
-above~$p$. The valuation~$v_{\p}$ on~$K$ extends to~$K\otimes_{\Q}\Q_p = \prod_i
-\Q_p[X]/h_i(X)$ in the following way: let~$j$ be such that~$h_{j}$ corresponds
-to~$\p$, and let~$v_j$ be the valuation of the $p$-adic field~$\Q_p[X]/h_j(X)$;
-then define the extension of~$v_\p$ to be the composition
+above~$p$. The valuation~$v_{\p}$ on the number field~$K$ (a finite \'etale $\Q$-algebra) extends to the \'etale $\Q_p$-algebra ~$K\otimes_{\Q}\Q_p = \prod_i
+\Q_p[X]/(h_i(X))$ obtained via base-change in the following way.
+Let~$j$ be such that~$h_{j}$ corresponds
+to~$\p$, and let~$v_j$ be the valuation of the $p$-adic field~$\Q_p[X]/(h_j(X))$.
+Define the extension of~$v_\p$ to $K\otimes_\Q\Q_p$ to be the composition of the maps
 \[
-  K\otimes_{\Q}\Q_p \longrightarrow \Q_p[X]/h_j(X) \stackrel{v_j}{\longrightarrow} \Z\cup\{\infty\}.
+  K\otimes_{\Q}\Q_p \longrightarrow \Q_p[X]/(h_j(X)) \stackrel{v_j}{\longrightarrow} \Z\cup\{\infty\}.
 \]
 %by using the valuation on the factor corresponding to~$\p$,
 %which is a $p$-adic field.
 We then have~$v_{\p}(h(\alpha)) = \infty$ if and only
-if~$\p$ corresponds to~$h$, but this valuation cannot be computed using finite
-approximations to~$h$. For all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
-= \min(e(\p/p)k, v_\p(h(\alpha)))$, so this valuation is always~$e(\p/p)k$
-if~$h$ corresponds to~$\p$, and is bounded above independently of~$k$ otherwise. The
+if~$\p$ corresponds to~$h$.
+This valuation cannot be computed using finite
+approximations to~$h$, however, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
+= \min(e(\p/p)k, v_\p(h(\alpha)))$ equal to~$e(\p/p)k$
+if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
-to~$h$, and we can therefore compute the bijection.
+to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maxima, this maxima occurs for the polynomial $h_i(X)$ corresponding to $\p$.
+Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maxima works).
 
-Note that the $p$-adic polynomial factorisation algorithm Round 4 actually
+We remark that ``Round 4" of the $p$-adic polynomial factorisation algorithm implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{something-maybe-Cohen?}
 computes the prime ideals corresponding to the various $p$-adic factors, but
-this part of the output is not available in the standard mathematical softwares.
-The discussion above allows us to recover the bijection without this refined
-output.
+this part of the output is not available via the standard interface.
+The discussion above allows us to recover the bijection without requiring direct access to this implementation (which may not be the same on other computer algebra systems in any case).
 
 %For each prime $\p\mid p$ there is a unique index~$i$ such that
 %$\ord_{\p}(h_i^k(\alpha))$ is strictly greater than all other
@@ -303,16 +303,13 @@ output.
 %of $\disc f$ perhaps.
 
 \subsection{Examples}
-We take an example from
-\url{http://wstein.org/129/ant/html/node29.html} where $K=\Q(\alpha)$ is a
-non-Galois cubic with $2$ as an essential discriminant divisor.  Let
-$g(X) = X^3+X^2-2X+8$ be the minimal polynomial of~$\alpha$, with discriminant
-$\disc g = -2^2\cdot503$.
+Let $K=\Q(\alpha)$ be non-Galois cubic field \href{www.lmfdb.org/NumberField/3.1.503.1}{3.1.503.1} of discriminant $-503$ with canonical defining polynomial $g(x)=X^3-X^2+2X+8$.
+The prime $2$ is unramified, but it divides $\disc(g(X))=-2^2\cdot 503$ and is an essential divisor of $[\OO_K:\Z[\alpha]]$ in the sense that this is true for every algebraic integer $\alpha$ in $K$ (this example, due to Dedekind, is the standard example of a non-monogenic field).
 
-Let $p=2$ and $k=2$; the $2$-adic factors of $f$ are: $h_1=X+O(2^2)$,
-$h_2=X+2+O(2^2)$, $h_3=X+3+O(2^2)$.  So there are $3$
-primes above $2$ (which is in fact unramified in $K$).  Calling these
-$\p_a$, $\p_b$, $\p_c$ in random order we find that
+Let $p=2$ and $k=2$; the $2$-adic factors of $g(X)$ are: $h_1=X+O(2^2)$,
+$h_2=X+2+O(2^2)$, $h_3=X+1+O(2^2)$.  So there are $3$
+primes above $2$, each with residue degre $1$.
+Calling these $\p_a$, $\p_b$, $\p_c$ in random order we find that
 \begin{itemize}
   \item the $\p_a$-valuations of the $(2^2,h_i(\alpha))$ are $(1,2,0)$,
   \item the $\p_b$-valuations of the $(2^2,h_i(\alpha))$ are $(0,0,2)$,
@@ -321,10 +318,10 @@ $\p_a$, $\p_b$, $\p_c$ in random order we find that
 and hence $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
 
 Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
-one of which is ramified (with $e=2$).  In our ordering we put the
-unramified one first and the ramified one second, so we do not have to
+one of which is ramified (with $e=2$). Our ordering puts the
+unramified prime first and the ramified prime second, so we do not even need to
 look at the $p$-adic factorization of $g(X)$ in this case.  In fact,
-with $k=2$ we find factors $X+170313$ and $X^2+82697X+130849$.
+with $k=2$ we find factors $X-61080$ and $X^2+61079X+87617$.
 
 We illustrate the order on $p$-adic polynomials on another example. Let~$g(x) =
 x^{10} - 3x^9 - 35x^8 + 120x^7 + 242x^6 - 1080x^5 + 44x^4 + 2343x^3 -
@@ -501,7 +498,7 @@ hence given a numerical index, starting at 1, which forms the third
 part of the label.  In the rest of this section we describe methods
 used to sort the curves in each isogeny class.
 
-\subsection{Over $\Q$}
+\subsection{Over \texorpdfstring{$\Q$}{\bf Q}}
 
 Every elliptic curve over $\Q$ has a unique Weierstrass model which is
 integral, globally minimal and with coefficients $a_1,a_3\in\{0,1\}$
