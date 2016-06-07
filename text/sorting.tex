@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage{amsmath, amsfonts, amsthm, amssymb}
+\usepackage{amsmath, amsfonts, amsthm, amssymb,fullpage}
 %\usepackage{sagetex}
 \usepackage{comment}
 \usepackage{url}
@@ -78,9 +78,9 @@
 \DeclareMathOperator{\im}{im}
 
 
-\title{Notes on sorting number field elements, prime ideals and
-  isogenous elliptic curves over number fields} \author{John Cremona\\Aurel
-  Page\\Andrew V. Sutherland}
+\title{Notes on sorting number field elements, prime ideals\\and
+  isogenous elliptic curves over number fields}
+\author{John Cremona, Aurel Page, and Andrew V. Sutherland}
 
 \begin{document}
 \maketitle
@@ -92,126 +92,130 @@ curves in an isogeny class over a number field.
 \section{Sorting number field elements}
 \subsection{Defining the number field}
 We assume that every number field $K$ is given in the form
-$K=\Q(\alpha)$ where the minimal polynomial $f(X)$ of $\alpha$ is
-canonically determined by the field $K$.  In practice, $f(X)$ is the
+$K=\Q(\alpha)$ where $\alpha$ is an algebraic integer whose
+minimal polynomial $g(X)$ is canonically determined by the field $K$.
+In practice, $g(X)$ is the
 polynomial returned by the {\tt Pari} function {\tt polredabs} which
 is guaranteed to always return the same polynomial, given any
 polynomial defining a number field isomorphic to $K$.  This canonical
-polynomial $f(X)$ is thus fixed one and for all; it is monic and
+polynomial $g(X)$ is thus fixed one and for all; it is monic and
 integral.
 
 We do not assume that $\Z[\alpha]$ is the full ring of integers
-$\OO_K$, since in any case there exist number fields whose rings of
-integers are not monogenic over $\Z$.
+$\OO_K$.  Indeed, for most number fields $K$ this condition is
+not satisfied by any choice of $\alpha$ (in general the ring $\OO_K$
+will not be monogenic over $\Z$).
 
-We emphasise that both the defining polynomial $f(X)$ and the generator
+We emphasise that both the defining polynomial $g(X)$ and the generator
 $\alpha$ of~$K$ are fixed.  In other words we are fixing the structure
-of $K$ not just as a field but as a $\Q[X]$-algebra, where the
-structure map $\Q[X]\to K$ has kernel $(f(X))$ and $\alpha$ is the
-image of $X$.
+of $K=\Q[X]/(g(X))$ not just as a field, but as a $\Q[X]$-algebra, where the
+structure map $\Q[X]\to K$ has kernel $(g(X))$ and $\alpha$ is the
+image of $X$ in $K$.
 
-\subsection{Sorting elements of $K$}
+\subsection{Ordering the elements of a fixed number field}\label{sec:ordfix}
 Given $K=\Q(\alpha)$ as above, with degree $d=[K:\Q]=\deg f$, every
-element $\beta\in K$ has a unique expression as a polynomial in
+element $\beta\in K$ can be uniquely expressed as a polynomial in
 $\alpha$ of degree at most $d-1$, say
-$\beta=\sum_{i=0}^{d-1}b_i\alpha^i$ and we use the coefficient vector
+$\beta=\sum_{i=0}^{d-1}b_i\alpha^i$, and we use the coefficient vector
 $(b_0,b_1,\dots,b_{d-1})\in\Q^d$ as a sorting key, where $\Q^d$ is
-sorted lexicographically.  To remove any ambiguity, if also
+sorted lexicographically.  To remove any ambiguity, if
 $\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$ then $\beta<\gamma$ if and only
-if for the \textit{smallest} index~$i$ for which $b_i\not=c_i$ we have
-$b_i<c_i$.
+if we have $b_i<c_i$ for the \textit{least} index~$i$ such that $b_i\not=c_i$.
 
-As a corollary, the induced ordering on $\Q$ viewed as a subset of $K$
-is the natural one.
+The induced ordering on $\Q$ viewed as a subset of $K$
+is the same as the standard ordering of $\Q$
 
 \subsection{An incomplete alternative sorting method}
 
-The sorting of algebraic numbers defined above relies on all numbers
-to be sorted lying in one fixed number field, with a fixed generator,
-and the ordering will depend on this common ambient field.  For
-example, two elements of $K=\Q(\sqrt{2})$ may have one order in $K$
-but a different order in a larger field such as
-$\Q(\sqrt{2},\sqrt{3})$.
+If $\beta$ and $\gamma$ are algebraic numbers contained in a number
+field $K$ then we may order them as above, but we should note that
+this ordering depend on $K$ (and our fixed representation $K=\Q(\alpha)$).
+The order may change if we enlarge $K$; for example, in the field
+$K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 < \alpha$
+(because $(0,1,-1) < (0,1,0)$), but if
+embed $K$ in its Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 - 3X + 1)$$
+via the map $\pi:K\to L$ defined by  $\pi(\alpha) = \beta^5 - 2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$,
+in the field $L$ we have $\pi(\alpha-\alpha^2) > \pi(\alpha)$
+(because $(2,-4,5,-5,3,-1)>(0,2,-1,2,-2,1)$).
 
-It is tempting to try to define an ordering on all of $\Qbar$ which
-relies on no such choices.  Every $\beta\in\Qbar$ is a root of a
-unique polynomial $g(X)\in\Z[X]$ which is primitive and irreducible
-and with positive leading coefficient.  Using the coefficient sequence
-of $g$ as a key allows comparison of any two non-conjugate algebraic
-numbers.  Numbers of lower degree come before numbers of higher
-degree; for those of the same degree, if the leading coefficient was
-given priority, this ordering would even place all algebraic integers
-before all non-integers.
+It is tempting to try to define an ordering on $\Qbar$ that would
+allow us to consistently order all algebraic numbers, independent
+of a choice an ambient number field.  Every $\beta\in\Qbar$ is a root of a
+unique irreducible primitive polynomial $g(X)\in\Z[X]$  with positive
+leading coefficient.  Using the coefficient sequence
+of $g$ as a key, we can unambiguously  compare any two non-conjugate algebraic
+numbers. By first sorting on $\deg(g)$ we can ensure that algebraic numbers of
+lower degree come before those of higher degree.
 
-However, in order to be completely deterministic we would have to
-define an ordering of each set of Galois conjugates, which share the
-same polynomial $g(X)$.  This could be done, for example, by fixing an
-embedding of $\Qbar$ into $\C$ and using lexicgraphical ordering of
-real and imaginary parts on $\C$.  But then to apply the ordering to
-elements of a number field $K=\Q(\alpha)$ would require fixing for
-each such field an embedding into $\Qbar$, with these embeddings being
-compatible with respect to inclusions.  This may well be possible
-though not easy to implement.
+However, to obtain a total order on $\Qbar$ we must also specify
+an ordering of each set of Galois conjugates, algebraic numbers
+that are roots of the same polynomial $g(X)$.  This could be done, for example, by fixing an
+embedding of $\Qbar$ into $\C$ and representing elements of $\C$ as
+vectors in $\R^2$ ordered lexicographically. But to apply this ordering to
+elements of a number field $K=\Q(\alpha)$ would require fixing an
+embedding of every such $K$ into $\Qbar$ in a way that is compatible
+with respect to inclusion.  This may be possible but it
+is certainly not easy to defined and implement.
 
-On balance we decided to use the first sorting method based on the
-power basis coordinates in a common fixed ambient field (with fixed
-defining polynomial and generator).
+On balance we decided to use the ordering defined in \S\ref{sec:ordfix}, which allows us to compare algebraic numbers only as elements of a chosen ambient field with a fixed defining polynomial and generator.
 
 \section{Sorting prime ideals}\label{sec:primes}
-Fix a number field $K=\Q(\alpha)$ with defining polynomial
-$f(X)\in\Z[X]$ and generator $\alpha$ as above.  We do not assume that
-$K/\Q$ is Galois.
+Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with defining polynomial
+$g\in\Z[X]$ and generator $\alpha$ as above, and let $\OO_K$ denote its ring of integers.
+We do not assume that $K/\Q$ is Galois or that $\OO_K=\Z[\alpha]$.
+By a \emph{prime} of $K$ (or of $\OO_K$) we mean a prime ideal in the ring $\OO_K$; for primes of $\Q$ we may also use $p$ to denote the prime ideal $(p)$.
 
-We wish to define a linear order on the set of all prime ideals~$\p$
-of $K$.  Denote by $p$ the underlying rational prime, $e=e(\p/p)$ the
-ramification index and $f=f(\p/p)$ the residue field degree
-$[\OO_K/\p:\F_p]$.  The norm is $N(\p)=p^f$.
+We wish to define a total order on the set of prime ideals~$\p$
+of $\OO_K$.  Let $(p)=\p\cap \Z$ be the prime of $\Z$ lying below $\p$,
+let $e=e(\p/p)$ be the ramification index (the multiplicity of $\p$ in the prime factorization of $(p)$ in the Dedekind domain $\OO_K$), and let $f=f(\p/p)$ the residue field degree $[\OO_K/\p:\F_p]$.
+The (absolute) norm of $\p$ is then $N(\p)=p^f$.
 
 In \Sage, if $\p=${\tt P} is the prime ideal then its norm is
-$N(\p)=${\tt P.norm()}, the underlying prime is $p=${\tt
-  P.smallest\_integer()}, the residue degree is $f=${\tt
-  P.residue\_class\_degree()} (so that $N(\p)=p^f$), and the
-ramification index is $e=${\tt P.ramification\_index()}.
+$N(\p)=${\tt P.norm()}, the underlying prime $p$ can be computed as $p=${\tt
+ P.smallest\_integer()}, the
+ramification index is $e=${\tt P.ramification\_index()}, and the residue degree is $f=${\tt
+  P.residue\_class\_degree()}.
 
-We first sort by the norm, then by the ramification index. Now we have
-to sort primes with the same value of $p^{ef}$.
+We order the primes $\p$ first by norm and then by the ramification index.
+It remains only to order the primes~$\p$ of $K$ that lie above the same rational prime $p$ and have the same norm (hence the same residue degree) and ramification index.  Such primes will necessarily have the same value of $p^{ef}$; the converse need not hold (primes with the same value of $p^{ef}$ need not have the same norm), but this will not concern us since we order by norm first.
 
 \subsection{The case of unramified primes}
 
 Our general method is simplest when $p$ is unramified, not just in $K$
-but in the order $\Z[\alpha]$, i.e. when $p\nmid\disc(f)$.  In this
-case $f(X)$ factors modulo~$p$ into distinct irreducibles and we may
+but in the order $\Z[\alpha]$; this holds precisely when $p\nmid [\OO_K:\Z[\alpha]]\disc(K)$, equivalently, $p^2\nmid\disc(g)$, which applies to all but finitely many $p$.  In this case $g(X)$ factors modulo~$p$ into distinct irreducible elements of $\Fp[X]$, and we may
 write
 \[
-    f \equiv \prod_{i=1}^{g}h_i(X) \pmod{p},
+    g(X) \equiv \prod_{i=1}^{g}h_i(X) \pmod{p},
 \]
 with the factors $h_i(X)\in\Z[X]$ monic and such that their reductions
 modulo~$p$ are distinct and irreducible.  We may assume that the
-coeffients of each $h_i(X)$ are reduced modulo~$p$ to lie in
+coefficients of each $h_i(X)$ are reduced modulo~$p$ to lie in
 $\{0,1,\dots,p-1\}$, and we order these factors first by degree and
-then by lexicographical ordering of the coefficients.
+then lexicographically according to their coefficient vectors in $\{0,\ldots,p-1\}^f$.
 
 To each factor $h_i(X)$ we associate the ideal $\p_i=(p,h_i(\alpha))$
 which has $f(\p_i/p)=\deg h_i$, and the ordering of the $h_i$ thus
 induces the desired ordering of the primes~$\p_i$ with the same
 degree.
 
-To compute the associated sorting key attahed to a prime~$\p$
-above~$p$: factor $f(X)$ modulo~$p$ as above, let $h(X)$ be the unique
+To compute the associated sorting key attached to a prime~$\p$
+above~$p$: factor $g(X)$ modulo~$p$ as above, let $h(X)$ be the unique
 $h_i(X)$ such that $\ord_{\p}(h_i(\alpha))>0$; then the key is the
 coefficient vector of $h_i$ in $\F_p^f$.
 
 \subsection{The general case, including ramified and unramified primes}
 
 There is a bijection between the distinct primes $\p$ above $p$ and
-the irreducible factors $h(X)$ of $f(X)$ over $\Q_p$, such that $\deg h
+the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$, such that $\deg h
 = e(\p/p)f(\p/p)$.  Write
 \[
-  f(X) = h_1(X)h_2(X)\dots h_g(X)
+  g(X) = h_1(X)h_2(X)\dots h_g(X)
 \]
 with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort prime ideals
 by norm and ramification index, it is enough to describe an order on polynomials
-of the same degree.
+of the same degree (and in fact we are interested only in those polynomials $h_i(X)$
+that not only have the same degree, but correspond to primes $\p_i$ with the same
+ramification index and residue degree).
 
 We sort polynomials in~$\Z_p[X]$ of degree~$d$ as follows. Such a polynomial~$P$
 can be written
@@ -220,8 +224,9 @@ can be written
   + \dots + (a_{d,0}+a_{d,1}p+\dots)X^d,
 \]
 with and~$a_{i,j}\in\Z\cap[0,p-1]$. We can then attach to~$P$ the infinite
-vector~$(a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots)$,
-and we sort polynomials by lexicographic order of such vectors. This order can
+vector~$$(a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots),$$
+and we sort polynomials according to the lexicographic ordering of such vectors.
+This order can
 be decided at finite precision, provided that the polynomials are known to be
 distinct, which is the case for the~$h_i$.
 
@@ -301,8 +306,8 @@ output.
 We take an example from
 \url{http://wstein.org/129/ant/html/node29.html} where $K=\Q(\alpha)$ is a
 non-Galois cubic with $2$ as an essential discriminant divisor.  Let
-$f(X) = X^3+X^2-2X+8$ be the minimal polynomial of~$\alpha$, with discriminant
-$\disc f = -2^2\cdot503$.
+$g(X) = X^3+X^2-2X+8$ be the minimal polynomial of~$\alpha$, with discriminant
+$\disc g = -2^2\cdot503$.
 
 Let $p=2$ and $k=2$; the $2$-adic factors of $f$ are: $h_1=X+O(2^2)$,
 $h_2=X+2+O(2^2)$, $h_3=X+3+O(2^2)$.  So there are $3$
@@ -318,13 +323,13 @@ and hence $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
 Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
 one of which is ramified (with $e=2$).  In our ordering we put the
 unramified one first and the ramified one second, so we do not have to
-look at the $p$-adic factorization of $f(X)$ in this case.  In fact,
+look at the $p$-adic factorization of $g(X)$ in this case.  In fact,
 with $k=2$ we find factors $X+170313$ and $X^2+82697X+130849$.
 
-We illustrate the order on $p$-adic polynomials on another example. Let~$f(x) =
+We illustrate the order on $p$-adic polynomials on another example. Let~$g(x) =
 x^{10} - 3x^9 - 35x^8 + 120x^7 + 242x^6 - 1080x^5 + 44x^4 + 2343x^3 -
-1631x^2 + 111x + 79$, which is irreducible over~$\Q$. Over~$\Q_3$, $f$ splits as
-a product of~$5$ polynomials of degree~$2$: $f = h_1h_2h_3h_4h_5$,
+1631x^2 + 111x + 79$, which is irreducible over~$\Q$. Over~$\Q_3$, the polynomial $g(X)$ splits as
+a product of~$5$ polynomials of degree~$2$, that is, $g = h_1h_2h_3h_4h_5$ with
 $h_i\in\Z_3[x]$. Modulo~$3$, we have
 \begin{itemize}
   \item $h_1 = x^2 + 1 +O(3)$,
@@ -398,7 +403,7 @@ the primes above~$3$ is~$\p_c < \p_e < \p_a < \p_b < \p_d$.
 \section{Sorting all integral ideals}
 
 Fix a number field $K=\Q(\alpha)$ with defining polynomial
-$f(X)\in\Z[X]$ and generator $\alpha$ as above. 
+$g(X)\in\Z[X]$ and generator $\alpha$ as above. 
 We now define a total order on the set of all integral ideals of~$K$.
 We always order ideals by norm, and then define some criteria to sort ideals of
 the same norm. The order we choose will have the property that prime ideals are
@@ -650,7 +655,7 @@ condition reduces the set of admissible primes to one of density
 $1/2$.  Using our ordering of primes we can let $\p$ be the
 \textit{first} prime of $K$ with all the above properties, and because
 of the last condition we only need use the simple form of ordering of
-primes of equal norm based on the factorization of $f(X)$ modulo~$p$.
+primes of equal norm based on the factorization of $g(X)$ modulo~$p$.
 Note that the conditions we put on $\p$ are independent of the models
 for $E_1$ and~$E_2$.
 
