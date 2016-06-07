@@ -315,7 +315,7 @@ Calling these $\p_a$, $\p_b$, $\p_c$ in random order we find that
   \item the $\p_b$-valuations of the $(2^2,h_i(\alpha))$ are $(0,0,2)$,
   \item the $\p_c$-valuations of the $(2^2,h_i(\alpha))$ are $(2,1,0)$,
 \end{itemize}
-and hence $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
+thus $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
 
 Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
 one of which is ramified (with $e=2$). Our ordering puts the
@@ -545,24 +545,26 @@ The basic fact we need is that in almost all cases, the elliptic
 curves in an isogeny class have distinct $j$-invariants.
 
 \begin{thm}
-Let $K$ be a number field and $E_1$, $E_2$ elliptic curves defined
-over~$K$ which are isogenous over~$K$ but not isomorphic over~$K$.
+Let $K$ be a number field and let $E_1$, $E_2$ elliptic curves defined
+over~$K$ that are isogenous over $K$ but not isomorphic over $K$.
 Then either
 \begin{enumerate}
 \item $j(E_1)\not=j(E_2)$; or
-\item $E_1$ and $E_2$ have CM by some imaginary quadratic order $\OO$
-  of discriminant~$D<0$ such that $\sqrt{D}\notin K$ (so that the extra
+\item $E_1$ and $E_2$ both have CM by an imaginary quadratic order $\OO$
+  of discriminant~$D<0$ for which $\sqrt{D}\notin K$ (so that the extra
   endomorphisms are not defined over~$K$), $E_1$ and $E_2$ become
-  isomorphic over $L=K(\sqrt{D})$, and there are cyclic isogenies
-  between $E_1$ and $E_2$ of degree $|D|$ (if $D$ is odd), $|D|/4$
+  isomorphic over $L=K(\sqrt{D})$, and there is a rational cyclic isogeny $\phi\colon E_1\to E_2$
+   of degree $|D|$ (if $D$ is odd), $|D|/4$
   (if $D$ is even and $D\not=-4$) or~$2$ (if $D=-4$).
 \end{enumerate}
 Conversely if $E$ is an elliptic curve defined over $K$ with CM by an
-order of discriminant~$D$ not contained in $K$, then the quadratic
+order of discriminant~$D$ not contained in~$K$, then the quadratic
 twist of $E$ by $\sqrt{D}$ is isogenous but not isomorphic to~$E$
-over~$K$, and hence the isogeny class of $E$ consists of pairs of
-curves, the curves in each pair being quadratic twists of each other
-over $K(\sqrt{D})$.
+over~$K$; thus the isogeny class of $E$ consists of pairs of
+curves, the curves in each pair being quadratic twists that are isomorphic
+over $K(\sqrt{D})$ with CM by a quadratic order $\OO$ in that field (the
+order $\OO$ is the same for each pair of quadratic twists but may vary across pairs).
+
 \end{thm}
 
 \begin{proof}
@@ -571,12 +573,12 @@ generality we may take $\phi$ to be cyclic (since otherwise it factors
 through the multiplication-by-$m$ map on $E_1$ for some $m>1$).
 
 Assume that $j(E_1)=j(E_2)$.  Then there is an isomorphism
-$\alpha:E_2\to E_1$ defined over an extension $L$ of $K$ of degree at
+$\alpha:E_2\to E_1$ defined over an extension $L/K$ of degree at
 most~$6$, and no such isomorphism defined over $K$ itself, by
 assumption.
 
 The composite $\psi=\alpha\circ\phi$ is a cyclic endomorphism of
-$E_1$, showing that $E_1$ (and hence also $E_2$) has CM by some
+$E_1$, which implies that $\End(E_1)\ne \Z$, so $E_1$ (and therefore $E_2$) has CM by some
 imaginary quadratic order~$\OO$, of discriminant $D$, say.  Now $\psi$
 is defined over $L=K(\sqrt{D})$, and $L$ contains the field of
 definition of~$\alpha$, showing that $[L:K]=2$ and that $\alpha$ is
@@ -588,7 +590,7 @@ Let $\sigma$ denote the nontrivial element of $\Gal(L/K)$.
 Assume first that $j\not=0, 1728$, or equivalently that $D\not=-3,-4$.
 Then $\alpha^{\sigma}=-\alpha$, hence $\psi^{\sigma}=-\psi$.
 Moreover, the fact that $\psi$ has cyclic kernel implies that $\psi$
-is not divisible in $\End(E_1)$ by any integer $n>1$.  If $D$ is odd
+is not divisible in $\End(E_1)$ by any integer $n>1$.  If $D$ is odd,
 so that $\OO=\Z[(1+\sqrt{D})/2]$, this implies that
 $\psi=\pm\sqrt{D}$, so $\deg\psi=|D|$.  If $D$ is even then
 $\OO=\Z[(1+\sqrt{D})/2]$ and $\psi=\pm\sqrt{D}/2$ with degree $|D|/4$.
