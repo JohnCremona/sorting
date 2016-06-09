@@ -71,6 +71,7 @@
 \DeclareMathOperator{\Res}{Res}
 \DeclareMathOperator{\Gal}{Gal}
 \DeclareMathOperator{\End}{End}
+\DeclareMathOperator{\Aut}{Aut}
 \DeclareMathOperator{\Cl}{Cl}
 \def\<#1>{\left<#1\right>}
 \newcommand{\mat}[4]{\left(\begin{matrix} %
@@ -195,15 +196,24 @@ with the factors $h_i(X)\in\Z[X]$ monic and such that their reductions
 modulo~$p$ are distinct and irreducible.  We may assume that the
 coefficients of each $h_i(X)$ are reduced modulo~$p$ to integers in the interval $[0,p-1]$, and we order these factors first by degree and then lexicographically by their coefficient vectors in $[0,p-1]^f$.
 
-The Dedekind-Kummer theorem allows us to associate to each factor $h_i(X)$ the prime ideal $\p_i=(p,h_i(\alpha))$ above $p$,
-with residue degree $f(\p_i/p)=\deg h_i$ and norm $N(\p_i)=p^{\deg h_i}$.
-We then have $p\OO_K=\prod_i \p_i$ and our ordering of the $h_i$ induces an ordering of the primes~$\p_i$ above $p$.
+The Dedekind-Kummer theorem allows us to associate to each factor
+$h_i(X)$ the prime ideal $\p_i=(p,h_i(\alpha))$ above $p$, with
+residue degree $f(\p_i/p)=\deg h_i$ and norm $N(\p_i)=p^{\deg h_i}$.
+We then have $p\OO_K=\prod_i \p_i$ and our ordering of the $h_i$
+induces an ordering of the primes~$\p_i$ above $p$.  If we have any
+representation of $\p_i$ in the form $\p_i=(p,\beta)$ where
+$\beta=b(\alpha)$ for some $b(X)\in\Z[X]$, then we can recover
+$h_i(X)$ since $h_i(X)=\gcd(g(X),b(X))$ (with the $\gcd$ computated in
+$\F_p[X]$).  This follows from the observation that
+$\ord_{\p_i}(\beta)>0$ while $\ord_{\p_j}(\beta)=0$ for all primes
+$\p_j$ above~$p$ other than~$\p_i$.  This makes implentation of the
+sorting function on the primes above~$p$ very simple in this case.
 
 \subsection{The general case, including ramified and unramified primes}
 
 There is a bijection between the distinct primes $\p$ above $p$ and
 the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$ in which $\deg h
-= e(\p/p)f(\p/p)$ \cite{something-or-prove-it}.  Write
+= e(\p/p)f(\p/p)$ \cite[Theorem 3.8 (d)]{Janusz}.  Write
 \[
   g(X) = h_1(X)h_2(X)\dots h_g(X)
 \]
@@ -258,8 +268,8 @@ approximations to~$h$, however, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\
 = \min(e(\p/p)k, v_\p(h(\alpha)))$ equal to~$e(\p/p)k$
 if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
-to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maxima, this maxima occurs for the polynomial $h_i(X)$ corresponding to $\p$.
-Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maxima works).
+to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
+Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
 We remark that ``Round 4" of the $p$-adic polynomial factorisation algorithm implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{something-maybe-Cohen?}
 computes the prime ideals corresponding to the various $p$-adic factors, but
@@ -308,7 +318,7 @@ The prime $2$ is unramified, but it divides $\disc(g(X))=-2^2\cdot 503$ and is a
 
 Let $p=2$ and $k=2$; the $2$-adic factors of $g(X)$ are: $h_1=X+O(2^2)$,
 $h_2=X+2+O(2^2)$, $h_3=X+1+O(2^2)$.  So there are $3$
-primes above $2$, each with residue degre $1$.
+primes above $2$, each with residue degree $1$.
 Calling these $\p_a$, $\p_b$, $\p_c$ in random order we find that
 \begin{itemize}
   \item the $\p_a$-valuations of the $(2^2,h_i(\alpha))$ are $(1,2,0)$,
@@ -411,7 +421,7 @@ $g(X)\in\Z[X]$ and generator $\alpha$ as above.
 We now define a total order on the set of all integral ideals of~$K$.
 We always order ideals by norm, and then define some criteria to sort ideals of
 the same norm. The order we choose will have the property that prime ideals are
-smaller than every nonprime ideal of the same norm, and are ordered in the same
+smaller than every non-prime ideal of the same norm, and are ordered in the same
 way as before.
 
 \subsection{Ideals of prime power norm}\label{sec:primepowernorm}
@@ -570,30 +580,34 @@ order $\OO$ is the same for each pair of quadratic twists but may vary across pa
 \begin{proof}
 Let $\phi:E_1\to E_2$ be an isogeny defined over~$K$; without loss of
 generality we may take $\phi$ to be cyclic (since otherwise it factors
-through the multiplication-by-$m$ map on $E_1$ for some $m>1$).
+through the multiplication-by-$m$ map $[m]$ on $E_1$ for some $m>1$).
 
 Assume that $j(E_1)=j(E_2)$.  Then there is an isomorphism
 $\alpha:E_2\to E_1$ defined over an extension $L/K$ of degree at
 most~$6$, and no such isomorphism defined over $K$ itself, by
 assumption.
 
-The composite $\psi=\alpha\circ\phi$ is a cyclic endomorphism of
-$E_1$, which implies that $\End(E_1)\ne \Z$, so $E_1$ (and therefore $E_2$) has CM by some
-imaginary quadratic order~$\OO$, of discriminant $D$, say.  Now $\psi$
-is defined over $L=K(\sqrt{D})$, and $L$ contains the field of
-definition of~$\alpha$, showing that $[L:K]=2$ and that $\alpha$ is
-defined over~$L$.  Hence $E_1$ and $E_2$ become isomorphic over the
-quadratic extension~$L$.
+The composite $\psi=\alpha\circ\phi$ is a cyclic endomorphism of $E_1$
+of degree~${}>1$, which implies that $\End(E_1)\ne \Z$, so $E_1$ (and
+therefore also $E_2$) has CM by some imaginary quadratic order~$\OO$, of
+discriminant $D$, say.  Now $\psi$ is defined over $L=K(\sqrt{D})$,
+and $L$ contains the field of definition of~$\alpha$, showing that
+$[L:K]=2$ and that $\alpha$ is defined over~$L$.  Hence $E_1$ and
+$E_2$ become isomorphic over the quadratic extension~$L$ of $K$.
 
 Let $\sigma$ denote the nontrivial element of $\Gal(L/K)$.
 
 Assume first that $j\not=0, 1728$, or equivalently that $D\not=-3,-4$.
-Then $\alpha^{\sigma}=-\alpha$, hence $\psi^{\sigma}=-\psi$.
-Moreover, the fact that $\psi$ has cyclic kernel implies that $\psi$
-is not divisible in $\End(E_1)$ by any integer $n>1$.  If $D$ is odd,
-so that $\OO=\Z[(1+\sqrt{D})/2]$, this implies that
-$\psi=\pm\sqrt{D}$, so $\deg\psi=|D|$.  If $D$ is even then
-$\OO=\Z[(1+\sqrt{D})/2]$ and $\psi=\pm\sqrt{D}/2$ with degree $|D|/4$.
+Since the only nontrivial automorphism of $E_1$ is $[-1]$ it follows
+that $\alpha^{\sigma}=-\alpha$, where $-\alpha=[-1]\circ\alpha$. Hence
+$\psi^{\sigma}=-\psi$ (where again $-\psi=[-1]\circ\psi$).  Viewing
+$\psi$ as an element of the abstract order~$\OO$, this means that
+$\psi$ is ``pure imaginary''.  Moreover, the fact that $\psi$ has
+cyclic kernel implies that $\psi$ is not divisible in~$\OO$ by any
+integer $n>1$.  If $D$ is odd, so that $\OO=\Z[(1+\sqrt{D})/2]$, this
+implies that $\psi=\pm\sqrt{D}$, so $\deg\psi=|D|$.  If $D$ is even
+then $\OO=\Z[(1+\sqrt{D})/2]$ and $\psi=\pm\sqrt{D}/2$ with degree
+$|D|/4$.
 
 Suppose that $j=0$ and $D=-3$.  Without loss we may assume that $E_1$
 has equation $Y^2=X^3+a$ with $a\in K^*$; since $E_2$ becomes
@@ -615,9 +629,11 @@ may suppose that $E_1$ has equation $Y^2=X^3+aX$ and $E_2:
 Y^2=X^3-4aX$ for some $a\in K^*$.  Again it is well-known that these
 are $2$-isogenous.  Alternatively, an explicit computation (similar to
 that for $j=0$) shows that $\psi=\pm1\pm i$ with degree~$2$; note that
-in this case $\alpha^{\sigma}\not=\pm\alpha$.
+in this case $\alpha^{\sigma}\not=\pm\alpha$; instead,
+$\alpha^{\sigma}=\epsilon\circ\alpha$ where $\epsilon\in\Aut(E_1)$ has
+order~$4$.
 
-For the last part let $E$ have CM by the order $\OO$ of
+For the last part, let $E$ have CM by the order $\OO$ of
 discriminant~$D<0$ with $\sqrt{D}\notin K$.  Set $L=K(\sqrt{D})$ and
 let $E'$ be the $\sqrt{D}$-twist of $E$.  Assume first that
 $D\not=-4$; then $\OO$ contains a pure imaginary element $\psi$ which
@@ -652,7 +668,7 @@ of $K$ with certain properties.  Consider the set of primes such that
   $\ord_{\p}(j)=0$;
 \item $\p$ has degree~$1$;
 \item the Legendre symbol $(d/p)=-1$ where $p=N(\p)$;
-\item $p$ does not divide $\disc f$ where f is the defining polynomail
+\item $p$ does not divide $\disc f$ where $f$ is the defining polynomial
   of~$K$.
 \end{itemize}
 The first, second and last conditions only exclude finitely many
@@ -665,29 +681,36 @@ primes of equal norm based on the factorization of $g(X)$ modulo~$p$.
 Note that the conditions we put on $\p$ are independent of the models
 for $E_1$ and~$E_2$.
 
-In the case $j\not=1728$ we can assume that $E_1$ has equation
-$Y^2=X^3+aX+b$ with $b\not=0$, and $E_2: Y^2=X^3+d^2aX+d^3b$.  The
-conditions on $\p$ imply that $a,b$ may be chosen so that $\p\nmid b$.
-Hence exactly one of $b$, $bd^3$ is a quadratic residue modulo~$\p$,
-and we can use this distinction to order $E_1$ and~$E_2$.  In order to
-do this simply without changing the models, take any integral model
-for $E_1$ with invariants $c_4$, $c_6$ and $\Delta$, where
-$j=c_6^2/\Delta$; if $\p\nmid c_6$, which will be true unless the
-model is non-minimal at~$\p$, we compute the Legendre symbol
-$(c_6\pmod{\p}/p)=\pm1$ and put $E_1$ first if and only if the value
-is $+1$.  In case our model is nonminimal at~$\p$ we would have
+In the case $j\not=1728$ we can assume that $E_1$ and $E_2$ have
+equations $Y^2=X^3+aX+b$ and $Y^2=X^3+d^2aX+d^3b$ respectively, with
+$b\not=0$.  The conditions on $\p$ imply that $a,b$ may be chosen so
+that $\p\nmid b$.  Hence exactly one of $b$, $bd^3$ is a quadratic
+residue modulo~$\p$, and we can use this distinction to order $E_1$
+and~$E_2$.  In order to do this simply without changing the models,
+take any integral model for $E_1$ with invariants $c_4$, $c_6$ and
+$\Delta$, where $j=c_6^2/\Delta$; if $\p\nmid c_6$, which will be true
+unless the model is non-minimal at~$\p$, we compute the Legendre
+symbol $(c_6\pmod{\p}/p)=\pm1$ and put $E_1$ first if and only if the
+value is $+1$.  In case our model is nonminimal at~$\p$ we would have
 $\ord_{\p}(c_6)=6k$ and $\ord_{\p}(\Delta)=12k$ for some $k\ge1$.  Now
 take $\pi$ a uniformiser at~$\p$ which has non-positive valuations at
 all other primes and compute the symbol $(c_6/\pi^{6k}\pmod{\p}/p)$.
 Clearly the resulting value $\pm1$ is independent of the choice of
 model.
 
-A similar analysis and formula works when $j=1728$ using $c_4$ in
-place of $c_6$, dividing by $\pi^{4k}$ where $\ord_{\p}(c_4)=4k\ge0$
-and $c_4$ is the invariant of any integral model for $E_1$.
+A similar analysis works when $j=1728$ using $c_4$ in place of $c_6$,
+using the value of the Legendre symbol $(c_4/\pi^{4k}\pmod{\p}/p)$
+where $\ord_{\p}(c_4)=4k\ge0$ and $c_4$ is the invariant of any
+integral model for $E_1$.
 
 This completes the task of sorting isogenous curves with the same
 $j$-invariant in a model-independent way, and hence of sorting each
 isogeny class of curves.
 
+\bibliographystyle{abbrv}
+\begin{thebibliography}{10}
+\bibitem{Janusz} Gerald J. Jasusz, {\em Algebraic Number Fields} (2nd
+  edition, 1996).  Graduate Studies in Mathematics Volume 7, American
+  Mathematical Society, Providence, RI.
+\end{thebibliography}
 \end{document}
