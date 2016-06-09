@@ -43,7 +43,7 @@
 \def\b{{\mathbf b}}
 
 \def\v{{\mathbf v}}
-\def\c{{\mathfrak c}}
+%\def\c{{\mathfrak c}}
 \def\d{{\mathfrak d}}
 \def\m{{\mathfrak m}}
 \def\n{{\mathfrak n}}
@@ -271,7 +271,8 @@ valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
-We remark that ``Round 4" of the $p$-adic polynomial factorisation algorithm implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{something-maybe-Cohen?}
+We remark that ``Round 4" of the $p$-adic polynomial factorisation algorithm
+implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{Roblot}
 computes the prime ideals corresponding to the various $p$-adic factors, but
 this part of the output is not available via the standard interface.
 The discussion above allows us to recover the bijection without requiring direct access to this implementation (which may not be the same on other computer algebra systems in any case).
@@ -709,6 +710,9 @@ isogeny class of curves.
 
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
+\bibitem{Roblot} David Ford, Sebastian Pauli and Xavier-Fran\c cois Roblot, {\em
+  A fast algorithm for polynomial factorization over $\mathbb{Q}_p$}. J.
+  Th\'eor. Nombres Bordeaux 14 (2002), no. 1, 151--169.
 \bibitem{Janusz} Gerald J. Jasusz, {\em Algebraic Number Fields} (2nd
   edition, 1996).  Graduate Studies in Mathematics Volume 7, American
   Mathematical Society, Providence, RI.
