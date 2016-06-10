@@ -54,8 +54,12 @@ Zp_key = lambda a: a.list(start_val=0)
 # We'll need a key functino which depends on a p-adic precision k, and
 # which only uses the p-adic digits up to the coefficient of p^{k-1}:
 
+def padded_list(c,k):
+    a = c.list(start_val=0)
+    return a[:k] + [ZZ(0)]* (k-len(a))
+
 def ZpX_key(k):
-    return lambda f: [f.degree()] + flatten(zip(*[c.list(start_val=0)[:k] for c in f.list()]))
+    return lambda f: [f.degree()] + flatten(zip(*[padded_list(c,k) for c in f.list()]))
 
 # Sorting primes over a number field K.  The function make_keys(K,p)
 # finds and sorts all primes above p, creates a dictionary with keys
@@ -70,7 +74,7 @@ def make_keys(K,p):
     if not hasattr(K,'psort_dict'):
         K.psort_dict = {}
     if not p in K.psort_dict:
-        # create the sorting dict for primes above p
+        print("creating keys for primes above {}".format(p))
         key_dict = {}
         Fp = GF(p)
         g = K.defining_polynomial()
@@ -110,7 +114,10 @@ def make_keys(K,p):
             # distinct so we sort the p-adic factors accordingly (these
             # will be first sorted by degree)
             gfact.sort(key=ZpX_key(k1))
+            print("p-adic factors: {}".format(gfact))
+            print("with keys {}".format([ZpX_key(k1)(h) for h in gfact]))
             hh = [h.lift() % p**k1 for h  in gfact]
+            print("p-adic factors mod {}^{}: {}".format(p,k1,hh))
             degs = list(Set([h.degree() for h in gfact]))
             hd = dict([(d,[h for h in hh if h.degree()==d]) for d in degs])
 
@@ -125,7 +132,19 @@ def make_keys(K,p):
                 assert i>0
                 key_dict[P] = (P.norm(),e,i)
 
-        K.psort_dict[p] = key_dict
+        # Lastly we add a field j to each key (n,e,i) -> (n,j,e,i)
+        # which is its index in the sublist withe same n-value.  This
+        # will not affect sorting but is used in the label n.j.
+
+        vals = key_dict.values()
+        ns = Set([n for n,e,i in vals])
+        new_key_dict = {}
+        for P in key_dict:
+            k = key_dict[P]
+            j = 1 + sorted([v for v in vals if v[0]==k[0]]).index(k)
+            new_key_dict[P] = (k[0],j,k[1],k[2])
+
+        K.psort_dict[p] = new_key_dict
 
 # If P is a prime ideal in a number field this function returns its
 # sort key in the form (norm, e, i) with e the ramification index and
@@ -151,5 +170,5 @@ def prime_key(P):
 # 3 if (p) = P*Q^2 where P and Q both have degree 1.
 
 def prime_label(P):
-    n, e, i = prime_key(P)
-    return "%s.%s" % (n,i)
+    n, j, e, i = prime_key(P)
+    return "%s.%s" % (n,j)
