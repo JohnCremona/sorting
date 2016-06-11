@@ -3,7 +3,7 @@
 \\sort polynomials in Zp[X] of the same degree
 \\return 0 if not enough precision
 \\o/w return permutation
-\\polynomials assumed to be distinct
+\\polynomials assumed to be monic and distinct
 \\known up to O(p^r)
 sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
 {
@@ -11,6 +11,7 @@ sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
  perm = [];
  print(L);
  L = [liftint(Vec(polrecip(P))) | P <- L];
+ L = [v[1..#v-1] | v <- L];
  k = -1;
  while(k<r && #perm<#L,
   L2 = [concat(L2[i],L[i]%p) | i <- [1..#L]];
