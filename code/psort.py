@@ -1,28 +1,3 @@
-def primes_of_degree_iter(K, deg, condition=None, sort_key=None, maxnorm=Infinity):
-    for p in primes(2,stop=maxnorm):
-        if condition==None or condition(p):
-            PP = K.primes_above(p, degree=deg)
-            PP.sort(key=sort_key)
-            for P in PP:
-                if P.norm()<=maxnorm:
-                    yield P
-
-def primes_iter(K, condition=None, sort_key=None, maxnorm=Infinity):
-    d = K.degree()
-    dlist = d.divisors() if K.is_galois() else srange(1,d+1)
-    PPs = [primes_of_degree_iter(K,d, condition, sort_key)  for d in dlist]
-    Ps = [PP.next() for PP in PPs]
-    ns = [P.norm() for P in Ps]
-    while True:
-        nmin = min(ns)
-        if nmin > maxnorm:
-            raise StopIteration
-        i = ns.index(nmin)
-        P = Ps[i]
-        Ps[i] = PPs[i].next()
-        ns[i] = Ps[i].norm()
-        yield P
-
 # sort key for number field elements.  the list() method returns a
 # list of the coefficients in terms of the power basis, constant
 # first.
@@ -51,8 +26,10 @@ Zp_key = lambda a: a.list(start_val=0)
 # coefficient, then the 1st, etc.  The point of the flatten(zip()) is
 # essentially to transpose a matrix (list of lists)
 
-# We'll need a key functino which depends on a p-adic precision k, and
-# which only uses the p-adic digits up to the coefficient of p^{k-1}:
+# We need a key function which depends on a p-adic precision k, and
+# which only uses the p-adic digits up to the coefficient of p^{k-1}.
+# We use our own version of Sage's c.padded_list(k) which does not
+# always start with the p^0 coefficient.
 
 def padded_list(c,k):
     a = c.list(start_val=0)
@@ -61,16 +38,17 @@ def padded_list(c,k):
 def ZpX_key(k):
     return lambda f: [f.degree()] + flatten(zip(*[padded_list(c,k) for c in f.list()]))
 
-# Sorting primes over a number field K.  The function make_keys(K,p)
-# finds and sorts all primes above p, creates a dictionary with keys
-# the primes P and values their sort keys [norm,e,i] with i the index
-# from 1 in a list of all those primes with the same norm and
-# ramification index e.  This is stored in K in a dict called
-# psort_dict, whose keys are rational primes p.  Then the main key
-# function prime_key(P) will check to see if K already has sorted the
-# primes above the prime below p.
+# Sorting primes over a number field K.
 
 def make_keys(K,p):
+    """Find and sort all primes of K above p, and store their sort keys in
+    a dictionary with keys the primes P and values their sort keys
+    (n,j,e,i) with n the norm, e the ramificatino index, i the index
+    (from 1) in the list of all those primes with the same (n,e), and
+    j the index (from 1) in the sorted list of all with the same norm.
+    This dict is stored in K in a dict called psort_dict, whose keys
+    are rational primes p.
+    """
     if not hasattr(K,'psort_dict'):
         K.psort_dict = {}
     if not p in K.psort_dict:
@@ -146,15 +124,16 @@ def make_keys(K,p):
 
         K.psort_dict[p] = new_key_dict
 
-# If P is a prime ideal in a number field this function returns its
-# sort key in the form (norm, e, i) with e the ramification index and
-# i the index (starting at 1) in the sorted list of all primes with
-# the same norm and e.  The first time the function is called for a
-# prime of K above any fixed rational prime p, all the sort keys for
-# all P above p are computed and stored as an attribute of the field,
-# so that the rest can be retrieved instantly.
-
 def prime_key(P):
+    """Return the key (n,j,e,i) of a prime ideal P, where n is the norm, e
+    the ramification index, i the index in the sorted list of primes
+    with the same (n,e) and j the index in the sorted list or primes
+    with the same n.
+
+    The first time this is called for a prime P above a rational prime
+    p, all the keys for all primes above p are computed and stored in
+    the number field, by the make_keys function.
+    """
     p = P.smallest_integer()
     K = P.number_field()
     try:
@@ -163,12 +142,58 @@ def prime_key(P):
         make_keys(K,p)
         return K.psort_dict[p][P]
 
-# Using the sort key as above, a label for every prime may be
-# constructed.  This version is inadequate since if there are 2 primes
-# with the same norm n and different ram. indices then there will be
-# more than one with the label n.1.  This would be the case in degree
-# 3 if (p) = P*Q^2 where P and Q both have degree 1.
-
 def prime_label(P):
+    """ Return the label of a prime ideal.
+    """
     n, j, e, i = prime_key(P)
     return "%s.%s" % (n,j)
+
+
+def prime_from_label(K, lab):
+    """Return the prime of K from a label, or 0 is there is no such prime
+    """
+    n, j = [ZZ(c) for c in lab.split(".")]
+    p, f = n.factor()[0]
+    make_keys(K,p)
+    d = K.psort_dict[p]
+    try:
+        return next((P for P in d if d[P][:2]==(n,j)))
+    except StopIteration:
+        return 0
+
+def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=Infinity):
+    """Iterator through primes of K of degree deg, sorted using the
+    provided sort key, optionally with an upper bound on the norm.  If
+    condition is not None it should be a True/False function on
+    rational primes, inwhich case only primes P dividing p for which
+    condition(p) holds will be returned.  For example,
+    condition=lambda:not p.divides(6).
+    """
+    for p in primes(2,stop=maxnorm):
+        if condition==None or condition(p):
+            for P in sorted(K.primes_above(p, degree=deg), key=sort_key):
+                if P.norm()<=maxnorm:
+                    yield P
+
+def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
+    """Iterator through primes of K, sorted using the provided sort key,
+    optionally with an upper bound on the norm.  If condition is not
+    None it should be a True/False function on rational primes,
+    inwhich case only primes P dividing p for which condition(p) holds
+    will be returned.  For example, condition=lambda:not p.divides(6).
+    """
+    d = K.degree()
+    dlist = d.divisors() if K.is_galois() else srange(1,d+1)
+    PPs = [primes_of_degree_iter(K,d, condition, sort_key)  for d in dlist]
+    Ps = [PP.next() for PP in PPs]
+    ns = [P.norm() for P in Ps]
+    while True:
+        nmin = min(ns)
+        if nmin > maxnorm:
+            raise StopIteration
+        i = ns.index(nmin)
+        P = Ps[i]
+        Ps[i] = PPs[i].next()
+        ns[i] = Ps[i].norm()
+        yield P
+
