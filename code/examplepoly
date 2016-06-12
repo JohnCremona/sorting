@@ -1,0 +1,8 @@
+Need large precision at 3:
+x^4 - 8748*x^3 + 24977727*x^2 + 617645502008739*x + 216058595407965 
+
+As in Section 3.1 at 2:
+x^5 - 19*x^3 - 35*x^2 + 18*x - 29
+
+As in Section 3.2:
+x^4 - x^3 - 4*x^2 - 3*x + 79
