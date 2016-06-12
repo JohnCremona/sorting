@@ -100,14 +100,40 @@ nfprimesupto(nf,x) =
   [Lp[perm[i]] | i <- [1..#perm]]
 }
 
-\\nextprimeideal
+\\nextprimepower (including n, like nextprime)
+\\(could use congruence conditions)
+nextprimepower(n) =
+{
+  while(1,
+    if(ispseudoprimepower(n), return(n), n+=1)
+  )
+}
+
+\\nextprimeideal (different from pp)
+nextprimeideal(nf,pp) =
+{
+  my(p=pp.p,dec=idealprimedecsorted(nf,p),i=1,q,f,facto);
+  while(dec[i]!=pp, i++);
+  if(i<#dec && dec[i+1].f==pp.f, return(dec[i+1]));
+  q = p^(pp.f);
+  while(1,
+    q = nextprimepower(q+1);
+    facto = factor(q);
+    p = facto[1,1];
+    f = facto[1,2];
+    dec = idealprimedecsorted(nf,p);
+    for(i=1,#dec,
+      if(dec[i].f==f, return(dec[i]))
+    )
+  )
+}
 
 \\list of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
 intlinsols(a,k) =
 {
   my(n = #a,L = [], L2);
   if(n==1,
-    if(k%a[1], return([]), return([k\a[1]]))
+    if(k%a[1], return([]), return([[k\a[1]]]))
   );
   for(xn=0,k\a[n],
     L2 = intlinsols(a[1..n-1],k-xn*a[n]);
@@ -116,6 +142,7 @@ intlinsols(a,k) =
   L
 }
 
+\\auxiliary functions
 weightrev(L) =
 {
   [concat([vecsum(v)],-v) | v <- L];
@@ -173,33 +200,71 @@ idealsprimepowernorm(nf,p,k,dec = idealprimedecsorted(nf,p)) =
   [L2[perm[i]] | i <- [1..#perm]]
 }
 
-\\key function for prime power norm ideals
+\\number of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
+nbintlinsols(a,k) =
+{
+  my(P,T = 'T);
+  P = prod(i=1,#a,1/(1-T^a[i]+O(T^(k+1))));
+  polcoeff(P,k)
+}
 
-\\sorted list of prime power norm ideals up to norm X
+\\number of ideals of prime power norm
+nfnbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p)) =
+{
+  my(a = [pp.f | pp <- dec]);
+  nbintlinsols(a,k)
+}
 
+\\auxiliary functions
 lexallprods(nf,LL) =
 {
   my(L,k=#LL);
   if(k==0, return([1]));
+  if(#LL[1]==0, return([]));
   L = lexallprods(nf,LL[2..k]);
   L = [[idealmul(nf,a,b) | b <- L] | a <- LL[1]];
   concat(L)
 }
+finddec(nf,p,Lp,Ldec) =
+{
+  my(i = vecsearch(Lp,p));
+  if(i,
+    Ldec[i],
+  \\else
+    idealprimedecsorted(nf,p)
+  )
+}
 
 \\sorted list of ideals of a given norm
 \\N can be a factorisation matrix
-idealsofnorm(nf,N) =
+idealsofnorm(nf,N,Lp=[],Ldec=[]) =
 {
   my(k, primepow, facto=N);
   if(type(facto)!="t_MAT", facto=factor(N));
   k = #facto[,1];
-  primepow = [idealsprimepowernorm(nf,facto[i,1],facto[i,2]) | i<-[1..k]];
+  primepow = [idealsprimepowernorm(nf,facto[i,1],facto[i,2],finddec(nf,facto[i,1],Lp,Ldec)) | i<-[1..k]];
   lexallprods(nf,primepow)
 }
 
-\\cmp function for ideals
-
 \\sorted ideals up to norm X
+\\TODO optimise
+idealsupto(nf,x) =
+{
+  my(L,N=floor(x),Lp,Ldec);
+  Lp = primes([0,N]);
+  Ldec = [idealprimedecsorted(nf,p) | p<-Lp];
+  L = [1..N];
+  for(n=1,N,L[n] = idealsofnorm(nf,n,Lp,Ldec));
+  concat(L)
+}
+
+\\number of ideals of norm
+nfnbidealsofnorm(nf,N) =
+{
+  my(facto=N);
+  if(type(facto)!="t_MAT", facto=factor(N));
+  prod(i=1,#facto[,1], nfnbidealsprimepowernorm(nf,facto[i,1],facto[i,2]))
+}
 
 \\combinatorics functions
 \\...
@@ -209,3 +274,4 @@ idealsofnorm(nf,N) =
 \\label -> ideal
 
 \\nextideal
+
