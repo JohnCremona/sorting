@@ -9,7 +9,7 @@ sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
 {
  my(perm,k);
  perm = [];
- print(L);
+ \\print(L);
  L = [liftint(Vec(polrecip(P))) | P <- L];
  L = [v[1..#v-1] | v <- L];
  k = -1;
@@ -18,7 +18,7 @@ sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
   L \= p;
   perm = vecsort(L2,,1+8);
   k+=1;
-  print(k, " ", L2, " ", perm)
+  \\print(k, " ", L2, " ", perm)
  );
  if(k>=r, 0, perm)
 }
@@ -29,7 +29,7 @@ sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
 nfprimematch(nf,ha,p,r,dec=idealprimedec(nf,p)) =
 {
  my(cand);
- print("vals: ",[min(nfeltval(nf,ha,pr),(r-1)*pr.e) | pr<-dec]);
+ \\print("vals: ",[min(nfeltval(nf,ha,pr),(r-1)*pr.e) | pr<-dec]);
  cand = [pr | pr <- dec, nfeltval(nf,ha,pr) >= (r-1)*pr.e];
  if(#cand!=1, 0, cand[1])
 }
@@ -65,8 +65,7 @@ try_idealprimedecsorted(nf,p,r,dec) =
  my(facto,ha,L = [0 | pr <- dec], pp, x = variable(nf.pol),perm);
  facto = factorpadic(nf.pol,p,r);
  facto = facto[,1]~;
- if(#facto!=#dec, print("error: wrong number of primes or factors!", facto,\
-   "\n", dec); return(-1));
+ if(#facto!=#dec, error("Wrong number of primes or factors!",facto,"\n",dec));
  for(i=1,#facto,
   ha = subst(lift(facto[i]), x, Mod(x,nf.pol));
   pp = nfprimematch(nf,ha,p,r,dec);
@@ -266,12 +265,148 @@ nfnbidealsofnorm(nf,N) =
   prod(i=1,#facto[,1], nfnbidealsprimepowernorm(nf,facto[i,1],facto[i,2]))
 }
 
-\\combinatorics functions
-\\...
+\\auxiliary function
+vecreverse(v) =
+{
+  my(n=#v);
+  [v[n-i+1] | i <- [1..n]]
+}
+
+\\number of solutions x_i>=0 to:
+\\  sum_i a_i x_i = k
+\\  sum_i x_i = w
+\\  (a_i>0, k>0)
+\\flag=1: returns the vector of number of solutions of weights [1..w]
+nbintlinsols2(a,k,w,flag=0) =
+{
+  my(P, S = 'S, T = varhigher("T",S),v);
+  P = prod(i=1, #a, sum(j=0,k\a[i],(S^j+O(S^(w+1)))*T^(a[i]*j)) + O(T^(k+1)) );
+  if(flag,
+    v = vecreverse(Vec(Pol(polcoeff(P,k))));
+    if(#v<w+1, v = concat(v,[0|i<-[1..w+1-#v]]));
+    v = v[2..w+1];
+    v,
+  \\else
+    polcoeff(polcoeff(P,k),w)
+  )
+}
+
+\\auxiliary function
+\\ideal of prime power norm -> label
+ppn_ideal2label(nf, x, dec) =
+{
+  my(n=#dec, w, expo=[1..n], lab, a = [pp.f | pp <- dec], k, b=a);
+  for(i=1,n,
+    expo[i] = idealval(nf, x, dec[i])
+  );
+  w = vecsum(expo);
+  k = sum(i=1, n, expo[i]*a[i]);
+  lab = 1 + vecsum(nbintlinsols2(a,k,w-1,1));
+  for(i=1,n-1,
+    b = a[i+1..n];
+    for(xi=expo[i]+1,min(k\a[i],w),
+      lab += nbintlinsols2(b,k-a[i]*xi,w-xi)
+    );
+    k -= a[i]*expo[i];
+    w -= expo[i]
+  );
+  lab
+}
 
 \\ideal -> label
+ideal2label(nf,x) =
+{
+  my(facto=idealfactor(nf,x),Lp,lab=0,N=idealnorm(nf,x),p,k);
+  Lp = facto[,1];
+  Lp = [pp.p | pp <- Lp];
+  Lp = vecsort(Lp,,8);
+  for(i=1,#Lp,
+    p = Lp[i];
+    dec = idealprimedecsorted(nf,p);
+    k = valuation(N,p);
+    lab *= nfnbidealsprimepowernorm(nf,p,k,dec);
+    lab += ppn_ideal2label(nf,x,dec)-1
+  );
+  [N,lab+1]
+}
+
+\\auxiliary functions
+findweight(lab,sols) =
+{
+  my(tot=0,k=#sols);
+  for(w=1,k,
+    if(tot+sols[w]>=lab,
+      return([w,tot]),
+    \\else
+      tot += sols[w])
+  );
+  [-1,-1]\\should not be reached
+}
+findxi(lab,tot,b,k,w,ai) =
+{
+  my(sols);
+  forstep(xi=min(k\ai,w),0,-1,
+    sols = nbintlinsols2(b,k-ai*xi,w-xi);
+    if(tot+sols>=lab,
+      return([xi,tot]),
+    \\
+      tot += sols
+    )
+  );
+  [-1,-1]\\should not be reached
+}
+\\label -> ideal of prime power norm
+ppn_label2ideal(nf,lab,k,dec) =
+{
+  my(w, sols, a=[pp.f|pp<-dec], tot, n=#dec, xi, expo=[1..n]);
+  sols = nbintlinsols2(a,k,k+1,1);
+  [w,tot] = findweight(lab,sols);
+
+  for(i=1,n,
+    [xi,tot] = findxi(lab,tot,a[i+1..n],k,w,a[i]);
+    expo[i] = xi;
+    w -= xi;
+    k -= a[i]*xi;
+  );
+  \\print("check: ", lab==tot+1);
+  \\print("expo=", expo);
+  idealfactorback(nf,dec,expo)
+}
 
 \\label -> ideal
+\\first component can be a factorisation matrix
+label2ideal(nf,lab) =
+{
+  my(N=lab[1], res=1, facto=N, k, tot, dec, p);
+  if(type(facto)!="t_MAT", facto=factor(N));
+  k=#facto[,1];
+  lab = lab[2]-1;
+  forstep(i=k,1,-1,
+    p = facto[i,1];
+    e = facto[i,2];
+    dec = idealprimedecsorted(nf,p);
+    tot = nfnbidealsprimepowernorm(nf,p,e,dec);
+    res = idealmul(nf, res, ppn_label2ideal(nf, (lab%tot)+1, e, dec));
+    lab \= tot
+  );
+  res
+}
+
+\\valid label
+isvalidideallabel(nf,N,lab) =
+{
+  lab>0 && lab <= nfnbidealsofnorm(nf,N);
+}
+
+\\next label
+nextideallabel(nf,N,lab) =
+{
+  0
+}
 
 \\nextideal
+nextideal(nf,a) =
+{
+  0
+}
 
