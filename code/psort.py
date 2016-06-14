@@ -55,8 +55,9 @@ def make_keys(K,p):
     """
     if not hasattr(K,'psort_dict'):
         K.psort_dict = {}
+        K.primes_dict = {}
     if not p in K.psort_dict:
-        print("creating keys for primes above {}".format(p))
+        #print("creating keys for primes above {}".format(p))
         key_dict = {}
         Fp = GF(p)
         g = K.defining_polynomial()
@@ -96,10 +97,10 @@ def make_keys(K,p):
             # distinct so we sort the p-adic factors accordingly (these
             # will be first sorted by degree)
             gfact.sort(key=ZpX_key(k1))
-            print("p-adic factors: {}".format(gfact))
-            print("with keys {}".format([ZpX_key(k1)(h) for h in gfact]))
+            #print("p-adic factors: {}".format(gfact))
+            #print("with keys {}".format([ZpX_key(k1)(h) for h in gfact]))
             hh = [h.lift() % p**k1 for h  in gfact]
-            print("p-adic factors mod {}^{}: {}".format(p,k1,hh))
+            #print("p-adic factors mod {}^{}: {}".format(p,k1,hh))
             degs = list(Set([h.degree() for h in gfact]))
             hd = dict([(d,[h for h in hh if h.degree()==d]) for d in degs])
 
@@ -126,7 +127,9 @@ def make_keys(K,p):
             j = 1 + sorted([v for v in vals if v[0]==k[0]]).index(k)
             new_key_dict[P] = (k[0],j,k[1],k[2])
 
+        #print("Setting psort_dict and primes_dict for p={} for K={}".format(p,K))
         K.psort_dict[p] = new_key_dict
+        K.primes_dict[p] = sorted(PP,key=lambda P: new_key_dict[P])
 
 def prime_key(P):
     """Return the key (n,j,e,i) of a prime ideal P, where n is the norm, e
@@ -152,7 +155,6 @@ def prime_label(P):
     n, j, e, i = prime_key(P)
     return "%s.%s" % (n,j)
 
-
 def prime_from_label(K, lab):
     """Return the prime of K from a label, or 0 is there is no such prime
     """
@@ -175,7 +177,8 @@ def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=
     """
     for p in primes(2,stop=maxnorm):
         if condition==None or condition(p):
-            for P in sorted(K.primes_above(p, degree=deg), key=sort_key):
+            make_keys(K,p)
+            for P in K.primes_dict[p]:
                 if P.norm()<=maxnorm:
                     yield P
 
@@ -236,11 +239,17 @@ def exp_vec_wt(w, wts):
 def ppower_norm_ideals(K,p,f):
     r""" Return a sorted list of ideals of K of norm p^f with p prime
     """
-    PP = sorted(K.primes_above(p), key=prime_key)
-    # These vectors are sorted, first by unweighted weight (sum of
-    # values) then lexicographically with the reverse ordering on Z:
-    vv = exp_vec_wt(f,[P.residue_class_degree() for P in PP])
-    return [prod([P**v for P,v in zip(PP,v)]) for v in vv]
+    make_keys(K,p)
+    if not hasattr(K,'ppower_dict'):
+        K.ppower_dict = {}
+    if not (p,f) in K.ppower_dict:
+        PP = K.primes_dict[p]
+        # These vectors are sorted, first by unweighted weight (sum of
+        # values) then lexicographically with the reverse ordering on Z:
+        vv = exp_vec_wt(f,[P.residue_class_degree() for P in PP])
+        Qs = [prod([P**v for P,v in zip(PP,v)]) for v in vv]
+        K.ppower_dict[(p,f)] = Qs
+    return K.ppower_dict[(p,f)]
 
 def ppower_norm_ideal_index(Q):
     r""" Return the index (from 1) in the sorted list of ideals with the
@@ -248,7 +257,8 @@ def ppower_norm_ideal_index(Q):
     """
     P = Q.factor()[0][0]
     p = P.smallest_integer()
-    PP = sorted(K.primes_above(p), key=prime_key)
+    make_keys(K,p)
+    PP = K.primes_dict[p]
     vv = exp_vec_wt(ZZ(Q.norm()).log(p),
                     [P.residue_class_degree() for P in PP])
     v = [Q.valuation(P) for P in PP]
@@ -269,7 +279,8 @@ def ppower_norm_ideal_from_label(K,lab):
     """
     n, i = [int(c) for c in lab.split(".")]
     p, f = ZZ(n).factor()[0]
-    PP = sorted(K.primes_above(p), key=prime_key)
+    make_keys(K,p)
+    PP = K.primes_dict[p]
     ff = [P.residue_class_degree() for P in PP]
     v = exp_vec_wt(f,ff)[i-1]
     return prod([P**v for P,v in zip(PP,v)])
@@ -282,13 +293,16 @@ def ppower_norm_ideal_from_label(K,lab):
 ########################################################
 
 def ideals_of_norm(K,n):
-    r""" Return an iterator over all ideals of norm n (sorted).
+    r""" Return a list of all ideals of norm n (sorted).  Cached.
     """
-    if n==1:
-        yield K.ideal(1)
-    else:
-        for QQ in cartesian_product_iterator([ppower_norm_ideals(K,p,e) for p,e in n.factor()]):
-            yield prod(QQ)
+    if not hasattr(K,'ideal_norm_dict'):
+        K.ideal_norm_dict = {}
+    if not n in K.ideal_norm_dict:
+        if n==1:
+            K.ideal_norm_dict[n] = [K.ideal(1)]
+        else:
+            K.ideal_norm_dict[n] = [prod(Q) for Q in cartesian_product_iterator([ppower_norm_ideals(K,p,e) for p,e in n.factor()])]
+    return K.ideal_norm_dict[n]
 
 def ideals_key(I):
     r""" Return a sort key for ideals.
@@ -312,10 +326,7 @@ def ideal_from_label(K,lab):
     r""" Return the ideal with a given label.
     """
     n, j = [int(c) for c in lab.split(".")]
-    it = ideals_of_norm(K,ZZ(n))
-    for _ in range(j-1):
-        it.next()
-    return it.next()
+    return ideals_of_norm(K,ZZ(n))[j-1]
 
 def ideals_iterator(K,minnorm=1,maxnorm=Infinity):
     r""" Return an iterator over all ideals of norm n up to maxnorm (sorted).
