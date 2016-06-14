@@ -38,7 +38,11 @@ def padded_list(c,k):
 def ZpX_key(k):
     return lambda f: [f.degree()] + flatten(zip(*[padded_list(c,k) for c in f.list()]))
 
+###################################################
+#
 # Sorting primes over a number field K.
+#
+###################################################
 
 def make_keys(K,p):
     """Find and sort all primes of K above p, and store their sort keys in
@@ -196,4 +200,129 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
         Ps[i] = PPs[i].next()
         ns[i] = Ps[i].norm()
         yield P
+
+########################################################
+#
+# Sorting prime-power-norm ideals over a number field K.
+#
+########################################################
+
+# First some utility functions for working with weighted exponent
+# vectors:
+
+def exp_vec_wt_iter(w, wts):
+    r""" Unsorted iterator through all non-negative integer tuples v of
+    length len(wts) and weight w = sum(v[i](wts[i]).
+    """
+    #print("w=%s, wts=%s" % (w,wts))
+    if w==0:
+        yield [0 for _ in wts]
+    elif len(wts):
+        for v0 in range(1+w/wts[-1]):
+            w1 = w-wts[-1]*v0
+            if w1==0:
+                yield [0]* (len(wts)-1) + [v0]
+            elif len(wts)>1:
+                for v1 in exp_vec_wt_iter(w1,wts[:-1]):
+                    yield v1+[v0]
+
+def exp_vec_wt(w, wts):
+    r""" Sorted list of all non-negative integer tuples v of length
+    len(wts) and weight w = sum(v[i](wts[i]).  Sorting is first by
+    unweighted weight sum(v[i]) the reverse lex.
+    """
+    return sorted(list(exp_vec_wt_iter(w,wts)), key = lambda v: (sum(v),[-c for c in v]))
+
+def ppower_norm_ideals(K,p,f):
+    r""" Return a sorted list of ideals of K of norm p^f with p prime
+    """
+    PP = sorted(K.primes_above(p), key=prime_key)
+    # These vectors are sorted, first by unweighted weight (sum of
+    # values) then lexicographically with the reverse ordering on Z:
+    vv = exp_vec_wt(f,[P.residue_class_degree() for P in PP])
+    return [prod([P**v for P,v in zip(PP,v)]) for v in vv]
+
+def ppower_norm_ideal_index(Q):
+    r""" Return the index (from 1) in the sorted list of ideals with the
+    same prime-power norm.
+    """
+    P = Q.factor()[0][0]
+    p = P.smallest_integer()
+    PP = sorted(K.primes_above(p), key=prime_key)
+    vv = exp_vec_wt(ZZ(Q.norm()).log(p),
+                    [P.residue_class_degree() for P in PP])
+    v = [Q.valuation(P) for P in PP]
+    return 1+vv.index(v)
+
+def ppower_norm_ideal_key(Q):
+    r""" Sort key for ideals of prime power norm.
+    """
+    return (Q.norm(), ppower_norm_ideal_index(Q))
+
+def ppower_norm_ideal_label(Q):
+    r""" return the label of an ideal of prime-power norm.
+    """
+    return "{}.{}".format(Q.norm(),ppower_norm_ideal_index(Q))
+
+def ppower_norm_ideal_from_label(K,lab):
+    r""" return the ideal of prime-power norm from its label.
+    """
+    n, i = [int(c) for c in lab.split(".")]
+    p, f = ZZ(n).factor()[0]
+    PP = sorted(K.primes_above(p), key=prime_key)
+    ff = [P.residue_class_degree() for P in PP]
+    v = exp_vec_wt(f,ff)[i-1]
+    return prod([P**v for P,v in zip(PP,v)])
+
+
+########################################################
+#
+# Sorting integral ideals over a number field K.
+#
+########################################################
+
+def ideals_of_norm(K,n):
+    r""" Return an iterator over all ideals of norm n (sorted).
+    """
+    if n==1:
+        yield K.ideal(1)
+    else:
+        for QQ in cartesian_product_iterator([ppower_norm_ideals(K,p,e) for p,e in n.factor()]):
+            yield prod(QQ)
+
+def ideals_key(I):
+    r""" Return a sort key for ideals.
+    """
+    return [ppower_norm_ideal_key(P**e) for P,e in I.factor()]
+
+def ideal_norm_index(I):
+    r""" Return the index of this ideal among all ideals of the same norm.
+    """
+    for i,J in enumerate(ideals_of_norm(I.number_field(),I.norm())):
+        if I==J:
+            return i+1
+    return 0
+
+def ideal_label(I):
+    r""" Return the label of an ideal.
+    """
+    return "{}.{}".format(I.norm(),ideal_norm_index(I))
+
+def ideal_from_label(K,lab):
+    r""" Return the ideal with a given label.
+    """
+    n, j = [int(c) for c in lab.split(".")]
+    it = ideals_of_norm(K,ZZ(n))
+    for _ in range(j-1):
+        it.next()
+    return it.next()
+
+def ideals_iterator(K,minnorm=1,maxnorm=Infinity):
+    r""" Return an iterator over all ideals of norm n up to maxnorm (sorted).
+    """
+    for n in srange(minnorm,maxnorm+1):
+        for I in ideals_of_norm(K,n):
+            yield I
+
+
 
