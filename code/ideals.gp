@@ -72,8 +72,9 @@ try_idealprimedecsorted(nf,p,r,dec) =
   if(!pp, return(0));
   L[i] = pp
  );
+ \\print(L);
  perm = sortpadic(facto, p, r, [[pp.f,pp.e] | pp <- L]);
- if(perm,[dec[perm[i]] | i<-[1..#dec]],0)
+ if(perm,[L[perm[i]] | i<-[1..#L]],0)
 }
 idealprimedecsorted(nf,p) =
 {
@@ -208,7 +209,7 @@ nbintlinsols(a,k) =
 }
 
 \\number of ideals of prime power norm
-nfnbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p)) =
+nbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p)) =
 {
   my(a = [pp.f | pp <- dec]);
   nbintlinsols(a,k)
@@ -258,11 +259,11 @@ idealsupto(nf,x) =
 }
 
 \\number of ideals of norm
-nfnbidealsofnorm(nf,N) =
+nbidealsofnorm(nf,N) =
 {
   my(facto=N);
   if(type(facto)!="t_MAT", facto=factor(N));
-  prod(i=1,#facto[,1], nfnbidealsprimepowernorm(nf,facto[i,1],facto[i,2]))
+  prod(i=1,#facto[,1], nbidealsprimepowernorm(nf,facto[i,1],facto[i,2]))
 }
 
 \\auxiliary function
@@ -324,7 +325,7 @@ ideal2label(nf,x) =
     p = Lp[i];
     dec = idealprimedecsorted(nf,p);
     k = valuation(N,p);
-    lab *= nfnbidealsprimepowernorm(nf,p,k,dec);
+    lab *= nbidealsprimepowernorm(nf,p,k,dec);
     lab += ppn_ideal2label(nf,x,dec)-1
   );
   [N,lab+1]
@@ -385,7 +386,7 @@ label2ideal(nf,lab) =
     p = facto[i,1];
     e = facto[i,2];
     dec = idealprimedecsorted(nf,p);
-    tot = nfnbidealsprimepowernorm(nf,p,e,dec);
+    tot = nbidealsprimepowernorm(nf,p,e,dec);
     res = idealmul(nf, res, ppn_label2ideal(nf, (lab%tot)+1, e, dec));
     lab \= tot
   );
@@ -395,7 +396,7 @@ label2ideal(nf,lab) =
 \\valid label
 isvalidideallabel(nf,N,lab) =
 {
-  lab>0 && lab <= nfnbidealsofnorm(nf,N);
+  lab>0 && lab <= nbidealsofnorm(nf,N);
 }
 
 \\next label

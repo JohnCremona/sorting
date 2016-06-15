@@ -34,7 +34,7 @@ test2(nf,X) =
   X *= (1+10\poldegree(nf.pol));
   print(" test 2, X=", X);
   for(n=1,X,
-    nb = nfnbidealsofnorm(nf,n);
+    nb = nbidealsofnorm(nf,n);
     for(i=1,nb,
       if(ideal2label(nf,label2ideal(nf,[n,i]))!=[n,i],
       error("test2:",nf.pol,"\nlab=",[n,i]))
@@ -55,7 +55,7 @@ test3(nf,X,k) =
       try++;
       \\if(try%500==0, print(try));
       n = random([1,X]);
-      nb = nfnbidealsofnorm(nf,n));
+      nb = nbidealsofnorm(nf,n));
     i = random([1,nb]);
     if(ideal2label(nf,label2ideal(nf,[n,i]))!=[n,i],
       error("test3:",nf.pol,"\nlab=",[n,i]))
@@ -76,7 +76,7 @@ test4(nf,k) =
        || (dec[1].f<=2 && dec[2].f==2),
         N *= p^(max(dec[1].f,dec[2].f));
         i++;
-        nb = nfnbidealsofnorm(nf,N);
+        nb = nbidealsofnorm(nf,N);
         lab = random([1,nb]);
         if(ideal2label(nf,label2ideal(nf,[N,lab]))!=[N,lab],
           error("test4:",nf.pol,"\nlab=",[N,lab]))
@@ -89,15 +89,65 @@ test4(nf,k) =
   0
 }
 
-for(i=1,#Lpol,\
-  pol = Lpol[i];\
-  print("testing ", pol);\
-  nf = nfinit(pol);\
-  print("disc=", nf.disc);\
-  test1(nf,2000);\
-  test2(nf,3000);\
-  test3(nf,10^20,200);\
-  test3(nf,10^40,5);\
-  test4(nf,50);\
-);
+runtests() =
+{
+  for(i=1,#Lpol,
+    pol = Lpol[i];
+    print("testing ", pol);
+    nf = nfinit(pol);
+    print("disc=", nf.disc);
+    test1(nf,2000);
+    test2(nf,3000);
+    test3(nf,10^20,200);
+    test3(nf,10^40,5);
+    test4(nf,50);
+  );
+  0
+}
+
+nfeltformat(nf,x) =
+{
+  subst(lift(nfbasistoalg(nf,x)), variable(nf.pol), 'a);
+}
+
+writeideal(nf,x,filename,lab=ideal2label(nf,x)) =
+{
+  my(a,b);
+  [a,b] = idealtwoelt(nf,x);
+  a = nfeltformat(nf,a);
+  b = nfeltformat(nf,b);
+  write(filename, lab[1],".",lab[2], " (",a,", ",b,")");
+}
+
+dumpideallist(nf, filename, M=10000, k=10) =
+{
+  my(m,L,Llab,nb,n,i,x,lab);
+  write(filename, "# Defining polynomial\n", nf.pol);
+
+  m = 500;
+  write(filename, "# Primes of norm up to ", m);
+  L = nfprimesupto(nf,m);
+  Llab = addlabels(nf,L,1);
+  for(i=1,#L,writeideal(nf,L[i],filename,Llab[i]));
+  
+  m = 100;
+  write(filename, "# Ideals of norm up to ", m);
+  L = idealsupto(nf,m);
+  Llab = addlabels(nf,L,1);
+  for(i=1,#L,writeideal(nf,L[i],filename,Llab[i]));
+
+  write(filename, "# ", k, " random ideals of norm up to ", M);
+  for(t=1,k,
+    nb=0;
+    while(!nb,
+      n = random([1,M]);
+      nb = nbidealsofnorm(nf,n);
+    );
+    i = random([1,nb]);
+    lab = [n,i];
+    x = label2ideal(nf,lab);
+    writeideal(nf,x,filename,lab);
+  );
+  0
+}
 
