@@ -71,36 +71,33 @@ test4(nf,k) =
   p=2;
   while(i<k,
     dec = idealprimedec(nf,p);
-    if(#dec>1,
-      if( (dec[1].f==1 && dec[2].f==1)
-       || (dec[1].f<=2 && dec[2].f==2),
-        N *= p^(max(dec[1].f,dec[2].f));
-        i++;
-        nb = nbidealsofnorm(nf,N);
-        lab = random([1,nb]);
-        if(ideal2label(nf,label2ideal(nf,[N,lab]))!=[N,lab],
-          error("test4:",nf.pol,"\nlab=",[N,lab]))
-      )
+    if(#dec>1 && dec[1].f==1 && dec[2].f==1,
+      N *= p;
+      i++;
+      nb = nbidealsofnorm(nf,N);
+      lab = random([1,nb]);
+      if(ideal2label(nf,label2ideal(nf,[N,lab]))!=[N,lab],
+        error("test4:",nf.pol,"\nlab=",[N,lab]))
     );
     p = nextprime(p+1);
   );
-  \\print("  N=", N);
-  \\print("  nb=", nb);
+  print("  N=", N);
+  print("  nb=", nb);
   0
 }
 
-runtests() =
+runtests(run1=1,run2=1,run3a=1,run3b=1,run4=1) =
 {
   for(i=1,#Lpol,
     pol = Lpol[i];
     print("testing ", pol);
     nf = nfinit(pol);
     print("disc=", nf.disc);
-    test1(nf,2000);
-    test2(nf,3000);
-    test3(nf,10^20,200);
-    test3(nf,10^40,5);
-    test4(nf,50);
+    if(run1,test1(nf,2000));
+    if(run2,test2(nf,3000));
+    if(run3a,test3(nf,10^20,200));
+    if(run3b,test3(nf,10^40,5));
+    if(run4,test4(nf,50));
   );
   0
 }
@@ -119,20 +116,18 @@ writeideal(nf,x,filename,lab=ideal2label(nf,x)) =
   write(filename, lab[1],".",lab[2], " (",a,", ",b,")");
 }
 
-dumpideallist(nf, filename, M=10000, k=10) =
+dumpideallist(nf, filename, mpr=500, mid=100, M=10000, k=10) =
 {
   my(m,L,Llab,nb,n,i,x,lab);
   write(filename, "# Defining polynomial\n", nf.pol);
 
-  m = 500;
-  write(filename, "# Primes of norm up to ", m);
-  L = nfprimesupto(nf,m);
+  write(filename, "# Primes of norm up to ", mpr);
+  L = nfprimesupto(nf,mpr);
   Llab = addlabels(nf,L,1);
   for(i=1,#L,writeideal(nf,L[i],filename,Llab[i]));
   
-  m = 100;
-  write(filename, "# Ideals of norm up to ", m);
-  L = idealsupto(nf,m);
+  write(filename, "# Ideals of norm up to ", mid);
+  L = idealsupto(nf,mid);
   Llab = addlabels(nf,L,1);
   for(i=1,#L,writeideal(nf,L[i],filename,Llab[i]));
 
