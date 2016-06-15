@@ -63,6 +63,32 @@ test3(nf,X,k) =
   0
 }
 
+test4(nf,k) =
+{
+  my(i=0,N=1,nb,lab,p);
+  k *= (1+10\poldegree(nf.pol));
+  print(" test 4, k=", k);
+  p=2;
+  while(i<k,
+    dec = idealprimedec(nf,p);
+    if(#dec>1,
+      if( (dec[1].f==1 && dec[2].f==1)
+       || (dec[1].f<=2 && dec[2].f==2),
+        N *= p^(max(dec[1].f,dec[2].f));
+        i++;
+        nb = nfnbidealsofnorm(nf,N);
+        lab = random([1,nb]);
+        if(ideal2label(nf,label2ideal(nf,[N,lab]))!=[N,lab],
+          error("test4:",nf.pol,"\nlab=",[N,lab]))
+      )
+    );
+    p = nextprime(p+1);
+  );
+  \\print("  N=", N);
+  \\print("  nb=", nb);
+  0
+}
+
 for(i=1,#Lpol,\
   pol = Lpol[i];\
   print("testing ", pol);\
@@ -71,6 +97,7 @@ for(i=1,#Lpol,\
   test1(nf,2000);\
   test2(nf,3000);\
   test3(nf,10^20,200);\
-  test3(nf,10^40,5)\
+  test3(nf,10^40,5);\
+  test4(nf,50);\
 );
 
