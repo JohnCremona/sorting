@@ -179,7 +179,7 @@ def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=
         if condition==None or condition(p):
             make_keys(K,p)
             for P in K.primes_dict[p]:
-                if P.norm()<=maxnorm:
+                if P.residue_class_degree()==deg and P.norm()<=maxnorm:
                     yield P
 
 def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
