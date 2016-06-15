@@ -72,8 +72,9 @@ try_idealprimedecsorted(nf,p,r,dec) =
   if(!pp, return(0));
   L[i] = pp
  );
+ \\print(L);
  perm = sortpadic(facto, p, r, [[pp.f,pp.e] | pp <- L]);
- if(perm,[dec[perm[i]] | i<-[1..#dec]],0)
+ if(perm,[L[perm[i]] | i<-[1..#L]],0)
 }
 idealprimedecsorted(nf,p) =
 {
