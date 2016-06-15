@@ -59,7 +59,7 @@ def dump_ideal_list(K, filename, M=10000, k=10):
     def output_ideal(I,lab=None):
         if lab==None:
             lab = ideal_label(I)
-        out.write("{} {}\n".format(lab,I.gens()))
+        out.write("{} {}\n".format(lab,I.gens_two()))
 
     out.write("# Defining polynomial\n")
     out.write("{}\n".format(K.defining_polynomial()))
@@ -104,9 +104,42 @@ second part should have label given by the first part.
 def check_ideal_list(filename):
     Qx = PolynomialRing(QQ,'x')
 
+    c = 0
     for L in file(filename).readlines():
         if L[0]!='#':
             if 'x' in L:
                 K = NumberField(Qx(L),'a')
             else:
                 check_ideal(K,L)
+                c += 1
+    print("Checked {} ideals from file {}".format(c,filename))
+
+def check_gp(pol):
+    try:
+        os.remove("tt")
+    except OSError:
+        pass
+    gp.read("test.gp")
+    gp.eval('nf = nfinit({});'.format(pol))
+    gp.eval('dumpideallist(nf,"tt")')
+    check_ideal_list('tt')
+    os.remove("tt")
+
+import pymongo
+from pymongo import MongoClient
+# From atkin, lmfdb-ib points to lmfdb.warwick.ac.uk
+C = MongoClient(host='lmfdb-ib', port=int(37010))
+C['admin'].authenticate('lmfdb','lmfdb')
+fields = C.numberfields.fields
+fields_rand = C.numberfields.fields.rand
+
+def check_fields(deg=2, nfields=10):
+
+    res = fields.find({'degree':int(deg)},
+                      fields={'_id':False, 'coeffs':True}).limit(int(nfields))
+    Qx = PolynomialRing(QQ,'x')
+    for F in res:
+        pol = [ZZ(c) for c in F['coeffs'].split(',')]
+        pol = Qx(pol)
+        print("Checking field defined by {}".format(pol))
+        check_gp(pol)
