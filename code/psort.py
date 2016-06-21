@@ -167,6 +167,8 @@ def prime_from_label(K, lab):
     except StopIteration:
         return 0
 
+from sage.rings.infinity import Infinity
+from sage.arith.all import primes
 def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=Infinity):
     """Iterator through primes of K of degree deg, sorted using the
     provided sort key, optionally with an upper bound on the norm.  If
