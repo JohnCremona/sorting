@@ -271,7 +271,7 @@ approximations to~$h$, however, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\
 = \min(e(\p/p)k, v_\p(h(\alpha)))$ equal to~$e(\p/p)k$
 if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
-to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
+to~$h$, and if $k$ is such that the set $\{v_\p((p^k,h_i(\alpha)))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
 We remark that ``Round 4" of the $p$-adic polynomial factorization algorithm
@@ -336,7 +336,7 @@ Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
 one of which is ramified (with $e=2$). Our ordering puts the
 unramified prime first and the ramified prime second, so we do not even need to
 look at the $p$-adic factorization of $g(X)$ in this case.  In fact,
-with $k=2$ we find factors $X-61080$ and $X^2+61079X+87617$.
+with $k=2$ we find factors $X+191929+O(503^2)$ and $X^2+61079X+87617+O(503^2)$.
 
 For a larger example, let $K=\Q(\alpha)=\Q[X]/(g(X))$, where
 \[
