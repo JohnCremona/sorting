@@ -129,7 +129,7 @@ writeideal(nf,x,filename,lab=ideal2label(nf,x)) =
   write(filename, lab[1],".",lab[2], " (",a,", ",b,")");
 }
 
-dumpideallist(nf, filename, mpr=5000, mid=1000, M=100000, k=100) =
+dumpideallist(nf, filename, mpr=1000, mid=200, M=20000, k=20) =
 {
   my(m,L,Llab,nb,n,i,x,lab);
   write(filename, "# Defining polynomial\n", nf.pol);
