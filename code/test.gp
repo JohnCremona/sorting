@@ -107,16 +107,29 @@ nfeltformat(nf,x) =
   subst(lift(nfbasistoalg(nf,x)), variable(nf.pol), 'a);
 }
 
+checkidlab(nf,x,lab) =
+{
+  my(lab2,y);
+  lab2 = ideal2label(nf,x);
+  if(lab2!=lab, error("checkidlab1:",nf.pol,"\nx=",x,"\nlab=",lab));
+  y = label2ideal(nf,lab);
+  y = idealhnf(nf,y);
+  x = idealhnf(nf,x);
+  if(x!=y, error("checkidlab2:",nf.pol,"\nx=",x,"\nlab=",lab));
+  0
+}
+
 writeideal(nf,x,filename,lab=ideal2label(nf,x)) =
 {
   my(a,b);
+  checkidlab(nf,x,lab);
   [a,b] = idealtwoelt(nf,x);
   a = nfeltformat(nf,a);
   b = nfeltformat(nf,b);
   write(filename, lab[1],".",lab[2], " (",a,", ",b,")");
 }
 
-dumpideallist(nf, filename, mpr=500, mid=100, M=10000, k=10) =
+dumpideallist(nf, filename, mpr=5000, mid=1000, M=100000, k=100) =
 {
   my(m,L,Llab,nb,n,i,x,lab);
   write(filename, "# Defining polynomial\n", nf.pol);

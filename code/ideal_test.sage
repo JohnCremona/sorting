@@ -131,12 +131,13 @@ from pymongo import MongoClient
 C = MongoClient(host='lmfdb-ib', port=int(37010))
 C['admin'].authenticate('lmfdb','lmfdb')
 fields = C.numberfields.fields
-fields_rand = C.numberfields.fields.rand
 
-def check_fields(deg=2, nfields=10):
-
-    res = fields.find({'degree':int(deg)},
+def check_fields(deg=2, nfields=10, optimizerequest=True):
+    if optimizerequest:
+      res = fields.find({'degree':int(deg)},
                       fields={'_id':False, 'coeffs':True}).limit(int(nfields))
+    else:
+      res = fields.find({'degree':int(deg)}).limit(int(nfields))
     Qx = PolynomialRing(QQ,'x')
     for F in res:
         pol = [ZZ(c) for c in F['coeffs'].split(',')]
