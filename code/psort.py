@@ -1,3 +1,5 @@
+from sage.all import ZZ, GF, Set, prod, srange, flatten, cartesian_product_iterator
+
 # sort key for number field elements.  the list() method returns a
 # list of the coefficients in terms of the power basis, constant
 # first.
@@ -120,7 +122,6 @@ def make_keys(K,p):
         # will not affect sorting but is used in the label n.j.
 
         vals = key_dict.values()
-        ns = Set([n for n,e,i in vals])
         new_key_dict = {}
         for P in key_dict:
             k = key_dict[P]
@@ -191,8 +192,8 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     inwhich case only primes P dividing p for which condition(p) holds
     will be returned.  For example, condition=lambda:not p.divides(6).
     """
-    d = K.degree()
-    dlist = d.divisors() if K.is_galois() else srange(1,d+1)
+    deg = K.degree()
+    dlist = deg.divisors() if K.is_galois() else srange(1,deg+1)
     PPs = [primes_of_degree_iter(K,d, condition, sort_key)  for d in dlist]
     Ps = [PP.next() for PP in PPs]
     ns = [P.norm() for P in Ps]
@@ -257,8 +258,8 @@ def ppower_norm_ideal_index(Q):
     r""" Return the index (from 1) in the sorted list of ideals with the
     same prime-power norm.
     """
-    P = Q.factor()[0][0]
-    p = P.smallest_integer()
+    p = Q.factor()[0][0].smallest_integer()
+    K = Q.number_field()
     make_keys(K,p)
     PP = K.primes_dict[p]
     vv = exp_vec_wt(ZZ(Q.norm()).log(p),
@@ -284,8 +285,8 @@ def ppower_norm_ideal_from_label(K,lab):
     make_keys(K,p)
     PP = K.primes_dict[p]
     ff = [P.residue_class_degree() for P in PP]
-    v = exp_vec_wt(f,ff)[i-1]
-    return prod([P**v for P,v in zip(PP,v)])
+    vec = exp_vec_wt(f,ff)[i-1]
+    return prod([P**v for P,v in zip(PP,vec)])
 
 
 ########################################################
