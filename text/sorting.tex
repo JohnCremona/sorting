@@ -45,11 +45,14 @@
 \def\v{{\mathbf v}}
 %\def\c{{\mathfrak c}}
 \def\d{{\mathfrak d}}
+\def\D{{\mathfrak D}}
 \def\m{{\mathfrak m}}
 \def\n{{\mathfrak n}}
+\def\N{{\mathfrak N}}
 \def\p{{\mathfrak p}}
 \def\q{{\mathfrak q}}
 \def\r{{\mathfrak r}}
+\def\u{{\mathfrak u}}
 \def\DF{{\nabla\underline{F}}}
 \def\Qbar{\overline{\Q}}
 \def\Qpbar{\overline{\Q_p}}
@@ -111,7 +114,7 @@ $\OO_K$.  Indeed, for most number fields $K$ this condition is
 not satisfied by any choice of $\alpha$ (in general the ring $\OO_K$
 will not be monogenic over $\Z$).
 
-We emphasise that both the defining polynomial $g(X)$ and the generator
+We emphasize that both the defining polynomial $g(X)$ and the generator
 $\alpha$ of~$K$ are fixed.  In other words we are fixing the structure
 of $K=\Q[X]/(g(X))$ not just as a field, but as a $\Q[X]$-algebra, where the
 structure map $\Q[X]\to K$ has kernel $(g(X))$ and $\alpha$ is the
@@ -203,10 +206,10 @@ We then have $p\OO_K=\prod_i \p_i$ and our ordering of the $h_i$
 induces an ordering of the primes~$\p_i$ above $p$.  If we have any
 representation of $\p_i$ in the form $\p_i=(p,\beta)$ where
 $\beta=b(\alpha)$ for some $b(X)\in\Z[X]$, then we can recover
-$h_i(X)$ since $h_i(X)=\gcd(g(X),b(X))$ (with the $\gcd$ computated in
+$h_i(X)$ since $h_i(X)=\gcd(g(X),b(X))$ (with the $\gcd$ computed in
 $\F_p[X]$).  This follows from the observation that
 $\ord_{\p_i}(\beta)>0$ while $\ord_{\p_j}(\beta)=0$ for all primes
-$\p_j$ above~$p$ other than~$\p_i$.  This makes implentation of the
+$\p_j$ above~$p$ other than~$\p_i$.  This makes implementation of the
 sorting function on the primes above~$p$ very simple in this case.
 
 \subsection{The general case, including ramified and unramified primes}
@@ -271,7 +274,7 @@ valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
-We remark that ``Round 4" of the $p$-adic polynomial factorisation algorithm
+We remark that ``Round 4" of the $p$-adic polynomial factorization algorithm
 implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{Roblot}
 computes the prime ideals corresponding to the various $p$-adic factors, but
 this part of the output is not available via the standard interface.
@@ -432,7 +435,7 @@ We first define an order on the set of ideals of prime power norm. Let~$\a$ be
 an ideal of norm~$p^n$, and let~$\p_1,\dots,\p_r$ be the prime ideals of~$K$
 above~$p$, ordered as in Section~\ref{sec:primes}. We have~$\a = p_1^{v_1}\dots
 p_g^{v_r}$ for some integers~$v_i\ge 0$. We define the weight of this
-factorisation to be~$v_1+\dots+v_r$. We order ideals of norm a power of $p$ by
+factorization to be~$v_1+\dots+v_r$. We order ideals of norm a power of $p$ by
 increasing norm first, then increasing weight, and finally by reverse
 lexicographic order of the vector of exponents~$(v_1,\dots,v_r)$. For this
 order, the prime ideals come first, and are ordered in the same way as
@@ -460,7 +463,7 @@ ideals of norm~$p^3$ are~$\p_4\p_1 < \p_4\p_2 < \p_4\p_3 < \p_1^3 < \p_1^2\p_2 <
 We finally define an order on the set of all integral ideals. We first order
 them by norm, so we only have to define an order on nonzero ideals of the same
 norm. Let~$\a$ be an ideal of norm~$N = p_1^{a_1}\dots p_k^{a_k}$ with~$p_1 <
-\dots < p_k$. Then~$\a$ has a unique factorisation as~$\a = \a_1\dots\a_k$
+\dots < p_k$. Then~$\a$ has a unique factorization as~$\a = \a_1\dots\a_k$
 where~$\a_i$ has norm~$p_i^{a_i}$. We order ideals of norm~$N$ according to the
 lexicographic order of the $k$-uple~$(\a_1,\dots,\a_k)$.
 
@@ -648,52 +651,72 @@ $K(\sqrt{-1})$ where $-4$ becomes a $4$th power.
 
 \end{proof}
 
-Hence for any isogeny class of curves which either do not have CM or
-for which the extra endomorphisms are defined over $K$ itself, the
-$j$-invariants are distinct and we can sort the curves using their
-$j$-invariants as in Section~1.
+\subsection{Sorting isogenous elliptic curves over number fields}
 
-It remains to consider isogeny classes of curves with CM by order in
-an imaginary quadratic field $\Q(\sqrt{d})$ where $\sqrt{d}\notin K$.
-Note that if any one curve has this property then all $K$-isogenous
-curves also do, though they may have CM by different orders in
-$\Q(\sqrt{d})$.
+The theorem in the last subsection says that, for any isogeny class of
+curves defined over~$K$ which either do not have CM or which have
+``rational CM'' (meaning that the extra endomorphisms are defined over
+$K$ itself), the $j$-invariants of the curves in the class are
+distinct; we may therefore sort the curves using their $j$-invariants
+as in Section~1.
 
-So let $E_1$ and $E_2$ be $\sqrt{d}$-twists of each other with CM by
-the same order in $\Q(\sqrt{d})$.  As we have seen, they are isogenous
-over $K$ and in particular have the same conductor~$\n$.  Let
-$j=j(E_1)=j(E_2)$.  We may distinguish them using a prime ideal $\p$
-of $K$ with certain properties.  Consider the set of primes such that
-\begin{itemize}
-\item $\p$ does not divide $6d\n$;
-\item $\ord_{\p}(j-1728)=0$ if $j\not=1728$, otherwise
-  $\ord_{\p}(j)=0$;
-\item $\p$ has degree~$1$;
-\item the Legendre symbol $(d/p)=-1$ where $p=N(\p)$;
-\item $p$ does not divide $\disc f$ where $f$ is the defining polynomial
+However, in the case where the curves in the isogeny class do have
+rational CM, we adjust this sorting scheme as follows.  Observe that
+when two elliptic curves are isogenous, if one has CM then so does the
+other, and their endomorphism rings are (isomorphic to) orders in the
+same imaginary quadratic field, though in general different orders.
+In the case of rational CM, we first sort by the absolute value of the
+CM discriminant; this means that curves which have the same
+endomorphism ring are grouped together.  The number of isomorphism
+classes in each of these ``clusters'' of curves is equal to the class
+number of the associated CM discriminant.  Within each cluster, the
+$j$-invariants are distinct, though Galois conjugate, and we sort them
+as in Section~1.
+
+It remains to consider isogeny classes of curves with CM by an order
+in an imaginary quadratic field $\Q(\sqrt{d})$ where $\sqrt{d}\notin
+K$.  As before, if any one curve in the isogeny class has this
+property, then all $K$-isogenous curves also do, though they may have
+CM by different orders in $\Q(\sqrt{d})$.  As in the rational CM case,
+we first sort by the absolute value of the CM discriminant, and then
+by the $j$-invariant, but now there will be exactly two curves for
+which these are the same, which are $\sqrt{d}$-twists of each other.
+
+Let $E_1$ and $E_2$ be $\sqrt{d}$-twists of each other with CM by the
+same order in $\Q(\sqrt{d})$.  As we have seen, they are necessarily
+isogenous over $K$ and in particular have the same conductor~$\n$.
+Let $j=j(E_1)=j(E_2)$.  We may distinguish the curves using a prime
+ideal $\p$ of $K$ with certain properties.  Consider the set of
+primes~$\p$ of $K$ lying above a rational prime~$p$, such that
+\begin{enumerate}
+\item $p$ does not divide $6dN_{K/\Q}(\n)$;
+\item $p$ does not divide $\disc g$, where $g$ is the defining polynomial
   of~$K$.
-\end{itemize}
-The first, second and last conditions only exclude finitely many
-primes, and the third one excludes a set of density~$0$; the last
-condition reduces the set of admissible primes to one of density
-$1/2$.  Using our ordering of primes we can let $\p$ be the
-\textit{first} prime of $K$ with all the above properties, and because
-of the last condition we only need use the simple form of ordering of
-primes of equal norm based on the factorization of $g(X)$ modulo~$p$.
-Note that the conditions we put on $\p$ are independent of the models
-for $E_1$ and~$E_2$.
+\item the Legendre symbol $(d/p)=-1$;
+\item $\p$ has degree~$1$, and hence residue field~$\F_p$;
+\item $\ord_{\p}(j-1728)=0$ if $j\not=1728$, otherwise $\ord_{\p}(j)=0$;
+\end{enumerate}
+Conditions (1), (2) and~(5) only exclude finitely many primes; (4)
+excludes a set of density~$0$; and (3) still leaves a set of primes of
+$K$ of density~$1/2$.  Using our ordering of primes we can let $\p$ be
+the \textit{first} prime of $K$ with all the above properties, and
+because of condition~(2), we only need use the simple form of ordering
+of primes of equal norm based on the factorization of $g(X)$
+modulo~$p$.  Note that the conditions we put on $\p$ are independent
+of the models for $E_1$ and~$E_2$.
 
-In the case $j\not=1728$ we can assume that $E_1$ and $E_2$ have
+In the case $j\not=1728$, we can assume that $E_1$ and $E_2$ have
 equations $Y^2=X^3+aX+b$ and $Y^2=X^3+d^2aX+d^3b$ respectively, with
-$b\not=0$.  The conditions on $\p$ imply that $a,b$ may be chosen so
-that $\p\nmid b$.  Hence exactly one of $b$, $bd^3$ is a quadratic
-residue modulo~$\p$, and we can use this distinction to order $E_1$
-and~$E_2$.  In order to do this simply without changing the models,
-take any integral model for $E_1$ with invariants $c_4$, $c_6$ and
-$\Delta$, where $j=c_6^2/\Delta$; if $\p\nmid c_6$, which will be true
-unless the model is non-minimal at~$\p$, we compute the Legendre
-symbol $(c_6\pmod{\p}/p)=\pm1$ and put $E_1$ first if and only if the
-value is $+1$.  In case our model is nonminimal at~$\p$ we would have
+$b\not=0$.  The conditions on $\p$ imply that the coefficients $a,b$
+of the model for $E_1$ may be chosen so that $\p\nmid b$.  Hence
+exactly one of $b$, $bd^3$ is a quadratic residue modulo~$\p$, and we
+can use this distinction to order $E_1$ and~$E_2$.  In order to do
+this without having to change models, take any integral model for
+$E_1$ with invariants $c_4$, $c_6$ and $\Delta$, where
+$j-1728=c_6^2/\Delta$; if $\p\nmid c_6$, which will be true unless the
+model is non-minimal at~$\p$, we compute the Legendre symbol
+$(c_6\pmod{\p}/p)=\pm1$ and put $E_1$ first if and only if the value
+is $+1$.  In case our model is non-minimal at~$\p$, we will have
 $\ord_{\p}(c_6)=6k$ and $\ord_{\p}(\Delta)=12k$ for some $k\ge1$.  Now
 take $\pi$ a uniformiser at~$\p$ which has non-positive valuations at
 all other primes and compute the symbol $(c_6/\pi^{6k}\pmod{\p}/p)$.
@@ -707,14 +730,137 @@ integral model for $E_1$.
 
 This completes the task of sorting isogenous curves with the same
 $j$-invariant in a model-independent way, and hence of sorting each
-isogeny class of curves.
+isogeny class of curves.  In summary, we sort the curves in each
+isogeny class using as key the triple $(|D|,j,\epsilon)$ attached to
+each elliptic curve $E$ in the isogeny class, where
+\begin{itemize}
+\item $D=\disc\End(E)$ (so $D<0$ if $E$ has CM, otherwise $D=1$);
+\item $j=j(E)$, ordered as in Section~1;
+\item $\epsilon\in\{-1,1\}$ is minus the value of the Legendre symbol
+  defined above when $E$ has CM but not rational CM, and $\epsilon=0$
+  otherwise.
+\end{itemize}
+
+\section{Minimal twists of elliptic curves}
+
+\subsection{Basic notions}
+Let $E$ be an elliptic curve defined over the number field~$K$.  The
+twists of $E$ are the other elliptic curves $E'$ defined over~$K$ with
+$j(E)=j(E')$, or equivalently such that $E$ and~$E'$ become isomorphic
+over an extension of~$K$.
+
+When $j(E)\not=0,1728$ all twists of $E$ are \textit{quadratic twists}
+$E'=E^{(d)}$ which are isomorphic to~$E$ over quadratic
+extensions~$K(\sqrt{d})/K$; these are parametrized by $K^*/(K^*)^2$.
+For $j=1728$ and $j=0$, respectively, we must consider
+\textit{quartic} and \textit{sextic} twists, parametrized
+by~$K^*/(K^*)^4$ and $K^*/(K^*)^6$.  One can handle all these cases in
+one by saying that the twists of~$E$ are parametrized by
+$H^1(G_K,\Aut(E))$ where $G_K=\Gal(\Qbar/K)$, but here we will use the
+more elementary language since we want to be as explicit as possible.
+
+Our aim in this section is to define a \textit{minimal quadratic
+  twist} for every elliptic curve, and also a \textit{minimal twist}
+to cover the two exceptional $j$-invariants.  For $j(E)\not=0,1728$
+the minimal quadratic twist of $E$ depends only on $j(E)$, so our
+definition involves picking out a unique well-defined representative
+curve with each $j$-invariant.
+
+For minimal representatives with respect to the higher order twists,
+we can simply pick out one curve with $j=0$ and one with $j=1728$. For
+example, the curve with LMFDB label 27.a4 (Cremona label 27a3) has
+$j=0$, minimal conductor~$27$ (among all elliptic curves defined
+over~$\Q$ with $j(E)=0$) and minimal discriminant $-27$ (among all
+curves $j(E)=0$ and conductor~$27$).  Similarly, 32.a3 (Cremona label
+32a2 has minimal conductor $32$ and minimal discriminant $64$ among
+those with $j(E)=1728$.  Nevertheless, we will also define minimal
+quadratic twists for these $j$-invariants.
+
+In general we require that the definition of which curve is the
+minimal quadratic twist should depend only on the isomorphism class of
+the curves and not on properties of the specific models used.  In many
+cases it will suffice to consider the norms of the conductor~$\n$ and
+of the \textit{minimal discriminant ideal}~$\d$ (defined below), but
+we will need to examine further the situation where more than one
+quadratic twist has the same values for both of these.
+
+Recall that the minimal discriminant ideal is the integral ideal
+$\prod\p^{d_{\p}}$ whose valuation at each prime~$\p$ is that of the
+discriminant of the local minimal model at~$\p$.  For every
+Weierstrass model of $E$ with discriminant $\Delta\in K^*$ we have
+$(\Delta)=\n\u^{12}$ for some fractional ideal~$\u$, and for every
+other Weierstrass model with discriminant~$\Delta'$ we have
+$\Delta'/\Delta\in (K^*)^{12}$.  Hence the class of $\Delta$ modulo
+$12$th powers is a well-defined invariant of~$E$, as is the ideal
+class $[\u]$ of~$\u$.  This class is trivial if and only if $E$
+possesses a global minimal model.
+
+We first consider the case~$K=\Q$.
+
+\subsection{Minimal quadratic twists over $\Q$}
+
+We start by studying the situation where two elliptic curves $E_1$
+and~$E_2$ defined over~$\Q$, which are quadratic twists by $d$, have
+the same \textit{minimal discriminant}~$\Delta_{\text{min}}$.
+
+\begin{prop} Let $E_1$ and $E_2$ be elliptic curves defined over~$\Q$
+  which are non-isomorphic quadratic twists with the same minimal
+  discriminant.  Then $E_2$ is the $-1$-twist of~$E_1$, and
+  $j(E_1)=j(E_2)\not=1728$.
+\end{prop}
+\begin{proof}
+Suppose that $E_2$ is the $d$-twist of $E_1$, where without loss of
+generality $d$ is square-free, and $d\not=1$.  For a suitable choice
+of Weierstrass models, the discriminants of~$E_1$ and~$E_2$ are
+$\Delta_1$ and $\Delta_2=d^6\Delta_1$.  Since both sides are
+well-defined modulo $12$th powers and
+$\Delta_1\equiv\Delta_2\pmod{(\Q^*){}^{12}}$, it follows that $d^6$ is a
+$12$th power, which implies that $d=\pm1$ (since $d$ is square-free)
+and so $d=-1$.  For the last part, if $j(E_1)=j(E_2)=1728$, then with
+the same models the ratio of the $c_4$-invariants is $d^2=1$, giving
+$E_1\cong E_2$.  (In this case, $E_1$ is its own $-1$-twist.)
+\end{proof}
+
+Now fix a rational $j$-invariant $j$.  Among all elliptic curves $E$
+defined over~$\Q$ with $j(E)=j$, there is a finite subset with minimal
+conductor~$N$, and a subset of those for which
+$\left|\Delta_{\text{min}}\right|$ is minimal.  If this subset
+contains precisely one isomorphism class of curves, we define that to
+be the minimal quadratic twist.  Otherwise, the proposition shows that
+$j\not=1728$ and the subset contains precisely two curves which are
+$-1$-twists of each other.  Now the ratio of their $c_6$-invariants,
+which is well-defined modulo $6$th powers, is $(-1)^3=-1$, so exactly
+one of the two curves has positive $c_6$, and we choose this one as
+the minimal quadratic twist.
+
+\begin{rem}
+An alternative way to break the tie in the last situation, which is
+similar to the system proposed above for sorting isogenous quadratic
+twists, would be to take the first prime $p>3$ of good reduction and
+congruent to~$3\pmod4$ and pick the curve for which $(c_6/p)=+1$.  The
+method proposed here is simpler.
+\end{rem}
+
+In practice we can find the minimal quadratic twist of a curve $E$ as
+follows.  Start with an integral short Weierstrass model
+$Y^2=X^3+aX+b$ for $E$.  For each prime~$p$ dividing $\gcd(a,b)$, let
+$k$ be maximal such that $p^{2k}\mid a$ and $p^{3k}\mid b$, and
+replace $(a,b)$ by~$(a/p^{2k},b/p^{3k})$.  This gives a curve~$E_1$
+which it is easy to see is the minimal twist of~$E$ at all
+primes~$p>3$.  Now compute the $d$-twists of~$E_1$ for
+$d\in\{\pm1,\pm2,\pm3,\pm6\}$, or just $d\in\{1,2,3,6\}$ if
+$j(E)=1728$, and discard first those whose conductor is not minimal,
+and then those whose minimal discriminant is non-minimal among the
+curves still remaining. This will leave either one or two curves
+remaining; in the latter case exactly one will have positive $c_6$, we
+discard the other, and are left with the minimal quadratic twist.
 
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
 \bibitem{Roblot} David Ford, Sebastian Pauli and Xavier-Fran\c cois Roblot, {\em
   A fast algorithm for polynomial factorization over $\mathbb{Q}_p$}. J.
   Th\'eor. Nombres Bordeaux 14 (2002), no. 1, 151--169.
-\bibitem{Janusz} Gerald J. Jasusz, {\em Algebraic Number Fields} (2nd
+\bibitem{Janusz} Gerald J. Janusz, {\em Algebraic Number Fields} (2nd
   edition, 1996).  Graduate Studies in Mathematics Volume 7, American
   Mathematical Society, Providence, RI.
 \end{thebibliography}
