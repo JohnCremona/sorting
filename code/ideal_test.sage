@@ -136,7 +136,7 @@ fields = C.numberfields.fields
 def check_fields(deg=2, nfields=10, optimizerequest=True):
     if optimizerequest:
       res = fields.find({'degree':int(deg)},
-                      fields={'_id':False, 'coeffs':True}).limit(int(nfields))
+                      projection={'_id':False, 'coeffs':True}).limit(int(nfields))
     else:
       res = fields.find({'degree':int(deg)}).limit(int(nfields))
     Qx = PolynomialRing(QQ,'x')
