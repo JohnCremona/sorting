@@ -174,7 +174,7 @@ def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=
     """Iterator through primes of K of degree deg, sorted using the
     provided sort key, optionally with an upper bound on the norm.  If
     condition is not None it should be a True/False function on
-    rational primes, inwhich case only primes P dividing p for which
+    rational primes, in which case only primes P dividing p for which
     condition(p) holds will be returned.  For example,
     condition=lambda:not p.divides(6).
     """
@@ -189,12 +189,15 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     """Iterator through primes of K, sorted using the provided sort key,
     optionally with an upper bound on the norm.  If condition is not
     None it should be a True/False function on rational primes,
-    inwhich case only primes P dividing p for which condition(p) holds
+    in which case only primes P dividing p for which condition(p) holds
     will be returned.  For example, condition=lambda:not p.divides(6).
     """
-    deg = K.degree()
-    dlist = deg.divisors() if K.is_galois() else srange(1,deg+1)
-    PPs = [primes_of_degree_iter(K,d, condition, sort_key)  for d in dlist]
+    # print("starting primes_iter with K={}, maxnorm={}".format(K,maxnorm))
+    # The set of possible degrees f of primes is the set of cycle
+    # lengths in the Galois group acting as permutations on the roots
+    # of the defining polynomial:
+    dlist = Set(sum([list(g.cycle_type()) for g in K.galois_group('gap').group()],[]))
+    PPs = [primes_of_degree_iter(K,d, condition, sort_key, maxnorm=maxnorm)  for d in dlist]
     Ps = [PP.next() for PP in PPs]
     ns = [P.norm() for P in Ps]
     while True:
