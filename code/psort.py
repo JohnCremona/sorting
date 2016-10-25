@@ -197,17 +197,40 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     # lengths in the Galois group acting as permutations on the roots
     # of the defining polynomial:
     dlist = Set(sum([list(g.cycle_type()) for g in K.galois_group('gap').group()],[]))
+
+    # Create an array of iterators, one for each residue degree
     PPs = [primes_of_degree_iter(K,d, condition, sort_key, maxnorm=maxnorm)  for d in dlist]
-    Ps = [PP.next() for PP in PPs]
-    ns = [P.norm() for P in Ps]
+
+    # pop the first prime off each iterator (allowing for the
+    # possibility that there may be none):
+    Ps = [0 for d in dlist]
+    ns = [Infinity for d in dlist]
+    for i,PP in enumerate(PPs):
+        try:
+            P = PP.next()
+            Ps[i] = P
+            ns[i] = P.norm()
+        except StopIteration:
+            pass
+
     while True:
+        # find the smallest prime not yet popped; stop if this (hence
+        # all) has norm > maxnorm:
         nmin = min(ns)
         if nmin > maxnorm:
             raise StopIteration
+
+        # extract smallest prime and its index:
         i = ns.index(nmin)
         P = Ps[i]
-        Ps[i] = PPs[i].next()
-        ns[i] = Ps[i].norm()
+
+        # pop the next prime off that sub-iterator, detecting if it has finished:
+        try:
+            Ps[i] = PPs[i].next()
+            ns[i] = Ps[i].norm()
+        except StopIteration:
+            # prevent i'th sub-iterator from being used again
+            ns[i] = Infinity
         yield P
 
 ########################################################
