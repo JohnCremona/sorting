@@ -122,6 +122,7 @@ def check_gp(pol):
     gp.read("test.gp")
     gp.eval('nf = nfinit({});'.format(pol))
     gp.eval('dumpideallist(nf,"tt")')
+    print("gp data computed")
     check_ideal_list('tt')
     os.remove("tt")
 
@@ -131,15 +132,18 @@ from pymongo import MongoClient
 C = MongoClient(host='lmfdb-ib', port=int(37010))
 C['admin'].authenticate('lmfdb','lmfdb')
 fields = C.numberfields.fields
-fields_rand = C.numberfields.fields.rand
 
-def check_fields(deg=2, nfields=10):
-
-    res = fields.find({'degree':int(deg)},
-                      fields={'_id':False, 'coeffs':True}).limit(int(nfields))
+def check_fields(deg=2, nfields=10, optimizerequest=True):
+    if optimizerequest:
+      res = fields.find({'degree':int(deg)},
+                      projection={'_id':False, 'coeffs':True}).limit(int(nfields))
+    else:
+      res = fields.find({'degree':int(deg)}).limit(int(nfields))
     Qx = PolynomialRing(QQ,'x')
+    count = 0
     for F in res:
+        count += 1
         pol = [ZZ(c) for c in F['coeffs'].split(',')]
         pol = Qx(pol)
-        print("Checking field defined by {}".format(pol))
+        print("Checking field {}/{} defined by {}".format(count,nfields,pol))
         check_gp(pol)

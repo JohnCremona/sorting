@@ -1,5 +1,14 @@
 /* ideals.gp */
 
+\\for compatibility for older versions of gp
+sublist(v,a,b) =
+{
+  a = max(a,1);
+  b = min(b,#v);
+  if(#v==0 || b<a, return([]));
+  v[a..b]
+}
+
 \\sort polynomials in Zp[X] of the same degree
 \\return 0 if not enough precision
 \\o/w return permutation
@@ -221,7 +230,7 @@ lexallprods(nf,LL) =
   my(L,k=#LL);
   if(k==0, return([1]));
   if(#LL[1]==0, return([]));
-  L = lexallprods(nf,LL[2..k]);
+  L = lexallprods(nf,sublist(LL,2,k));
   L = [[idealmul(nf,a,b) | b <- L] | a <- LL[1]];
   concat(L)
 }
@@ -285,8 +294,7 @@ nbintlinsols2(a,k,w,flag=0) =
   if(flag,
     v = vecreverse(Vec(Pol(polcoeff(P,k))));
     if(#v<w+1, v = concat(v,[0|i<-[1..w+1-#v]]));
-    v = v[2..w+1];
-    v,
+    sublist(v,2,w+1),
   \\else
     polcoeff(polcoeff(P,k),w)
   )
@@ -364,7 +372,7 @@ ppn_label2ideal(nf,lab,k,dec) =
   [w,tot] = findweight(lab,sols);
 
   for(i=1,n,
-    [xi,tot] = findxi(lab,tot,a[i+1..n],k,w,a[i]);
+    [xi,tot] = findxi(lab,tot,sublist(a,i+1,n),k,w,a[i]);
     expo[i] = xi;
     w -= xi;
     k -= a[i]*xi;
