@@ -271,7 +271,7 @@ approximations to~$h$, however, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\
 = \min(e(\p/p)k, v_\p(h(\alpha)))$ equal to~$e(\p/p)k$
 if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
-to~$h$, and if $k$ is such that the set $\{v_\p((p^k,h_i(\alpha)))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
+to~$h$, and if $k$ is such that the set $\{v_\p(h_i(\alpha))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
 We remark that ``Round 4" of the $p$-adic polynomial factorization algorithm
@@ -336,7 +336,7 @@ Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
 one of which is ramified (with $e=2$). Our ordering puts the
 unramified prime first and the ramified prime second, so we do not even need to
 look at the $p$-adic factorization of $g(X)$ in this case.  In fact,
-with $k=2$ we find factors $X+191929+O(503^2)$ and $X^2+61079X+87617+O(503^2)$.
+with $k=2$ we find factors $X-61080$ and $X^2+61079X+87617$.
 
 For a larger example, let $K=\Q(\alpha)=\Q[X]/(g(X))$, where
 \[
@@ -528,7 +528,7 @@ and $a_3\in\{-1,0,1\}$.  We sort the curves using this coefficient
 vector $(a_1,a_2,a_3,a_4,a_6)$.  In fact, within on isogeny class the
 triple $(a_1,a_2,a_3)$ is constant\footnote{Siksek, Samir \textit{On
     standardized models of isogenous elliptic curves}. Math. Comp. 74
-  (2005), no. 250, 949–951} so it suffices to sort on $(a_4,a_6)$.
+  (2005), no. 250, 949-951} so it suffices to sort on $(a_4,a_6)$.
 
 This is the sorting used for the LMFDB labels for elliptic curves over
 $\Q$.  It differs from the Cremona labelling, in which the ``strong
@@ -797,7 +797,7 @@ possesses a global minimal model.
 
 We first consider the case~$K=\Q$.
 
-\subsection{Minimal quadratic twists over \texorpdfstring{$\Q$}{\textbf Q}}
+\subsection{Minimal quadratic twists over $\Q$}
 
 We start by studying the situation where two elliptic curves $E_1$
 and~$E_2$ defined over~$\Q$, which are quadratic twists by $d$, have
@@ -814,7 +814,7 @@ generality $d$ is square-free, and $d\not=1$.  For a suitable choice
 of Weierstrass models, the discriminants of~$E_1$ and~$E_2$ are
 $\Delta_1$ and $\Delta_2=d^6\Delta_1$.  Since both sides are
 well-defined modulo $12$th powers and
-$\Delta_1\equiv\Delta_2\pmod{\Q^{\times 12}}$, it follows that $d^6$ is a
+$\Delta_1\equiv\Delta_2\pmod{(\Q^*){}^{12}}$, it follows that $d^6$ is a
 $12$th power, which implies that $d=\pm1$ (since $d$ is square-free)
 and so $d=-1$.  For the last part, if $j(E_1)=j(E_2)=1728$, then with
 the same models the ratio of the $c_4$-invariants is $d^2=1$, giving
