@@ -6,7 +6,7 @@
     
     Useful functions in this file:
     
-       SplitPrime(K,p) --                   sorted list of the prime OK-ideals dividing (p)
+       SplitPrime(K,p)                      sorted list of the prime OK-ideals dividing (p)
        NumberOfIdealsOfPrimePowerNorm(K,q)  counts OK-ideals of prime power norm q
        NumberOfIdealsOfNorm(K,n)            counts OK-ideals of integer norm n
        IdealsOfPrimePowerNorm(q,OK)         sorted list of OK-ideals of prime power norm q
