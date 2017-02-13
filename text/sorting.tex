@@ -16,6 +16,7 @@
 \newtheorem{rem}[thm]{Remark}
 
 \def\Sage{{\tt Sage}}
+\def\Pari{{\tt Pari}}
 \def\Z{{\mathbb Z}}
 \def\Q{{\mathbb Q}}
 \def\R{{\mathbb R}}
@@ -103,7 +104,7 @@ We assume that every number field $K$ is given in the form
 $K=\Q(\alpha)$ where $\alpha$ is an algebraic integer whose
 minimal polynomial $g(X)$ is canonically determined by the field $K$.
 In practice, $g(X)$ is the
-polynomial returned by the {\tt Pari} function {\tt polredabs} which
+polynomial returned by the \Pari\ function {\tt polredabs} which
 is guaranteed to always return the same polynomial, given any
 polynomial defining a number field isomorphic to $K$.  This canonical
 polynomial $g(X)$ is thus fixed one and for all; it is monic and
@@ -140,7 +141,7 @@ field $K$ then we may order them as above, but we should note that
 this ordering depend on $K$ (and our fixed representation $K=\Q(\alpha)$).
 The order may change if we enlarge $K$; for example, in the field
 $K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 < \alpha$
-(because $(0,1,-1) < (0,1,0)$), but if
+(because $(0,1,-1) < (0,1,0)$), but if we
 embed $K$ in its Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 - 3X + 1)$$
 via the map $\pi:K\to L$ defined by  $\pi(\alpha) = \beta^5 - 2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$,
 in the field $L$ we have $\pi(\alpha-\alpha^2) > \pi(\alpha)$
@@ -163,7 +164,7 @@ vectors in $\R^2$ ordered lexicographically. But to apply this ordering to
 elements of a number field $K=\Q(\alpha)$ would require fixing an
 embedding of every such $K$ into $\Qbar$ in a way that is compatible
 with respect to inclusion.  This may be possible but it
-is certainly not easy to defined and implement.
+is certainly not easy to define and implement.
 
 On balance we decided to use the ordering defined in \S\ref{sec:ordfix}, which allows us to compare algebraic numbers only as elements of a chosen ambient field with a fixed defining polynomial and generator.
 
@@ -178,11 +179,11 @@ of $\OO_K$.  Let $(p)=\p\cap \Z$ be the prime of $\Z$ lying below $\p$,
 let $e=e(\p/p)$ be the ramification index (the multiplicity of $\p$ in the prime factorization of $(p)$ in the Dedekind domain $\OO_K$), and let $f=f(\p/p)$ the residue field degree $[\OO_K/\p:\F_p]$.
 The (absolute) norm of $\p$ is then $N(\p)=p^f$.
 
-In \Sage, if $\p=${\tt P} is the prime ideal then its norm is
-$N(\p)=${\tt P.norm()}, the underlying prime $p$ can be computed as $p=${\tt
- P.smallest\_integer()}, the
-ramification index is $e=${\tt P.ramification\_index()}, and the residue degree is $f=${\tt
-  P.residue\_class\_degree()}.
+%% In \Sage, if $\p=${\tt P} is the prime ideal then its norm is
+%% $N(\p)=${\tt P.norm()}, the underlying prime $p$ can be computed as $p=${\tt
+%%  P.smallest\_integer()}, the
+%% ramification index is $e=${\tt P.ramification\_index()}, and the residue degree is $f=${\tt
+%%   P.residue\_class\_degree()}.
 
 We order the primes $\p$ first by norm and then by the ramification index.
 It remains only to order the primes~$\p$ of $K$ that lie above the same rational prime $p$ and have the same norm (hence the same residue degree) and ramification index.  Such primes will necessarily have the same value of $p^{ef}$; the converse need not hold (primes with the same value of $p^{ef}$ need not have the same norm), but this will not concern us since we order by norm first.
@@ -197,7 +198,7 @@ write
 \]
 with the factors $h_i(X)\in\Z[X]$ monic and such that their reductions
 modulo~$p$ are distinct and irreducible.  We may assume that the
-coefficients of each $h_i(X)$ are reduced modulo~$p$ to integers in the interval $[0,p-1]$, and we order these factors first by degree and then lexicographically by their coefficient vectors in $[0,p-1]^f$.
+coefficients of each $h_i(X)$ are reduced modulo~$p$ to integers in the interval $[0,p-1]$, and we order these factors first by degree and then lexicographically by their coefficient vectors in $[0,p-1]^{f+1}$.
 
 The Dedekind-Kummer theorem allows us to associate to each factor
 $h_i(X)$ the prime ideal $\p_i=(p,h_i(\alpha))$ above $p$, with
@@ -274,11 +275,15 @@ valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and if $k$ is such that the set $\{v_\p((p^k,h_i(\alpha)))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
 
-We remark that ``Round 4" of the $p$-adic polynomial factorization algorithm
-implemented in \texttt{Pari} (and in \texttt{sage}?) \cite{Roblot}
-computes the prime ideals corresponding to the various $p$-adic factors, but
-this part of the output is not available via the standard interface.
-The discussion above allows us to recover the bijection without requiring direct access to this implementation (which may not be the same on other computer algebra systems in any case).
+We remark that ``Round 4" of the $p$-adic polynomial factorization
+algorithm implemented in \Pari\ \cite{Roblot} computes the prime
+ideals corresponding to the various $p$-adic factors, but this part of
+the output is not available via the standard interface.  The same is
+true in \Sage, which uses the \Pari\ library for $p$-adic
+factorization.  Nevertheless, the discussion above allows us to
+recover the bijection without requiring direct access to this
+implementation, which may not be the same in other computer algebra
+systems in any case.
 
 %For each prime $\p\mid p$ there is a unique index~$i$ such that
 %$\ord_{\p}(h_i^k(\alpha))$ is strictly greater than all other
@@ -526,9 +531,8 @@ Every elliptic curve over $\Q$ has a unique Weierstrass model which is
 integral, globally minimal and with coefficients $a_1,a_3\in\{0,1\}$
 and $a_3\in\{-1,0,1\}$.  We sort the curves using this coefficient
 vector $(a_1,a_2,a_3,a_4,a_6)$.  In fact, within on isogeny class the
-triple $(a_1,a_2,a_3)$ is constant\footnote{Siksek, Samir \textit{On
-    standardized models of isogenous elliptic curves}. Math. Comp. 74
-  (2005), no. 250, 949-951} so it suffices to sort on $(a_4,a_6)$.
+triple $(a_1,a_2,a_3)$ is constant (see \cite{Siksek}), so it suffices
+to sort on $(a_4,a_6)$.
 
 This is the sorting used for the LMFDB labels for elliptic curves over
 $\Q$.  It differs from the Cremona labelling, in which the ``strong
@@ -565,20 +569,22 @@ over~$K$ that are isogenous over $K$ but not isomorphic over $K$.
 Then either
 \begin{enumerate}
 \item $j(E_1)\not=j(E_2)$; or
-\item $E_1$ and $E_2$ both have CM by an imaginary quadratic order $\OO$
-  of discriminant~$D<0$ for which $\sqrt{D}\notin K$ (so that the extra
-  endomorphisms are not defined over~$K$), $E_1$ and $E_2$ become
-  isomorphic over $L=K(\sqrt{D})$, and there is a rational cyclic isogeny $\phi\colon E_1\to E_2$
-   of degree $|D|$ (if $D$ is odd), $|D|/4$
-  (if $D$ is even and $D\not=-4$) or~$2$ (if $D=-4$).
+\item $j(E_1)=j(E_2)$, and $E_1$ and $E_2$ both have CM by an
+  imaginary quadratic order $\OO$ of discriminant~$D<0$ for which
+  $\sqrt{D}\notin K$ (so that the extra endomorphisms are not defined
+  over~$K$); $E_1$ and $E_2$ become isomorphic over $L=K(\sqrt{D})$;
+  and there is a rational cyclic isogeny $\phi\colon E_1\to E_2$ of
+  degree $|D|$ (if $D$ is odd), $|D|/4$ (if $D$ is even and
+  $D\not=-4$) or~$2$ (if $D=-4$).
 \end{enumerate}
-Conversely if $E$ is an elliptic curve defined over $K$ with CM by an
+Conversely, if $E$ is an elliptic curve defined over $K$ with CM by an
 order of discriminant~$D$ not contained in~$K$, then the quadratic
 twist of $E$ by $\sqrt{D}$ is isogenous but not isomorphic to~$E$
-over~$K$; thus the isogeny class of $E$ consists of pairs of
-curves, the curves in each pair being quadratic twists that are isomorphic
-over $K(\sqrt{D})$ with CM by a quadratic order $\OO$ in that field (the
-order $\OO$ is the same for each pair of quadratic twists but may vary across pairs).
+over~$K$; thus the isogeny class of $E$ consists of pairs of curves,
+the curves in each pair being quadratic twists that are isomorphic
+over $K(\sqrt{D})$ with CM by a quadratic order $\OO$ in that
+field. The order $\OO$ is the same for each pair of quadratic twists,
+but may vary between pairs.
 
 \end{thm}
 
@@ -772,7 +778,7 @@ example, the curve with LMFDB label 27.a4 (Cremona label 27a3) has
 $j=0$, minimal conductor~$27$ (among all elliptic curves defined
 over~$\Q$ with $j(E)=0$) and minimal discriminant $-27$ (among all
 curves $j(E)=0$ and conductor~$27$).  Similarly, 32.a3 (Cremona label
-32a2 has minimal conductor $32$ and minimal discriminant $64$ among
+32a2) has minimal conductor $32$ and minimal discriminant $64$ among
 those with $j(E)=1728$.  Nevertheless, we will also define minimal
 quadratic twists for these $j$-invariants.
 
@@ -860,6 +866,8 @@ discard the other, and are left with the minimal quadratic twist.
 \bibitem{Roblot} David Ford, Sebastian Pauli and Xavier-Fran\c cois Roblot, {\em
   A fast algorithm for polynomial factorization over $\mathbb{Q}_p$}. J.
   Th\'eor. Nombres Bordeaux 14 (2002), no. 1, 151--169.
+\bibitem{Siksek} Samir Siksek, {\em On standardized models of
+  isogenous elliptic curves}. Math. Comp. 74 (2005), no. 250, 949--951.
 \bibitem{Janusz} Gerald J. Janusz, {\em Algebraic Number Fields} (2nd
   edition, 1996).  Graduate Studies in Mathematics Volume 7, American
   Mathematical Society, Providence, RI.
