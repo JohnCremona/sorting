@@ -1,12 +1,28 @@
 /* ideals.gp */
 
+/*
+
+main functions
+
+ideal2label(nf,x)
+label2ideal(nf,lab)
+
+nbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p))
+idealsprimepowernorm(nf,p,k,dec = idealprimedecsorted(nf,p))
+idealsofnorm(nf,N,Lp=[],Ldec=[])
+idealsupto(nf,x)
+
+*/
+
+/** list and sorting utilities **/
+
 \\for compatibility for older versions of gp
 sublist(v,a,b) =
 {
   a = max(a,1);
   b = min(b,#v);
   if(#v==0 || b<a, return([]));
-  v[a..b]
+  v[a..b];
 }
 
 \\sort polynomials in Zp[X] of the same degree
@@ -29,7 +45,68 @@ sortpadic(L,p,r,L2=[[]|i<-[1..#L]]) =
   k+=1;
   \\print(k, " ", L2, " ", perm)
  );
- if(k>=r, 0, perm)
+ if(k>=r, 0, perm);
+}
+
+\\auxiliary functions
+weightrev(L) =
+{
+  [concat([vecsum(v)],-v) | v <- L];
+}
+\\ componentwise max
+maxes(L) =
+{
+  my(M = L[1]);
+  for(i=2,#L,
+    for(j=1,#M,
+      if(L[i][j]>M[j],M[j]=L[i][j])
+    )
+  );
+  M;
+}
+
+
+
+/** useful combinatorics **/
+
+\\number of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
+nbintlinsols(a,k) =
+{
+  my(P,T = 'T);
+  P = prod(i=1,#a,1/(1-T^a[i]+O(T^(k+1))));
+  polcoeff(P,k);
+}
+
+\\list of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
+intlinsols(a,k) =
+{
+  my(n = #a,L = [], L2);
+  if(n==1,
+    if(k%a[1], return([]), return([[k\a[1]]]))
+  );
+  for(xn=0,k\a[n],
+    L2 = intlinsols(a[1..n-1],k-xn*a[n]);
+    L = concat(L, [concat(v,[xn]) | v <- L2])
+  );
+  L;
+}
+
+\\number of solutions x_i>=0 to:
+\\  sum_i a_i x_i = k
+\\  sum_i x_i = w
+\\  (a_i>0, k>0)
+\\flag=1: returns the vector of number of solutions of weights [1..w]
+nbintlinsols2(a,k,w,flag=0) =
+{
+  my(P, S = 'S, T = varhigher("T",S),v);
+  P = prod(i=1, #a, sum(j=0,k\a[i],(S^j+O(S^(w+1)))*T^(a[i]*j)) + O(T^(k+1)) );
+  if(flag,
+    v = Vecrev(Pol(polcoeff(P,k)));
+    if(#v<w+1, v = concat(v,[0|i<-[1..w+1-#v]]));
+    sublist(v,2,w+1),
+  \\else
+    polcoeff(polcoeff(P,k),w)
+  );
 }
 
 \\match prime ideals and polynomials
@@ -40,7 +117,7 @@ nfprimematch(nf,ha,p,r,dec=idealprimedec(nf,p)) =
  my(cand);
  \\print("vals: ",[min(nfeltval(nf,ha,pr),(r-1)*pr.e) | pr<-dec]);
  cand = [pr | pr <- dec, nfeltval(nf,ha,pr) >= (r-1)*pr.e];
- if(#cand!=1, 0, cand[1])
+ if(#cand!=1, 0, cand[1]);
 }
 
 \\add labels to a sorted list of ideals
@@ -65,7 +142,7 @@ addlabels(nf,L,flag=0) =
    \\else
      L[i] = [[N,lab],a]);
  );
- if(flag,L2,L)
+ if(flag,L2,L);
 }
 
 \\sorted prime ideals above p
@@ -83,7 +160,7 @@ try_idealprimedecsorted(nf,p,r,dec) =
  );
  \\print(L);
  perm = sortpadic(facto, p, r, [[pp.f,pp.e] | pp <- L]);
- if(perm,[L[perm[i]] | i<-[1..#L]],0)
+ if(perm,[L[perm[i]] | i<-[1..#L]],0);
 }
 idealprimedecsorted(nf,p) =
 {
@@ -92,7 +169,7 @@ idealprimedecsorted(nf,p) =
   res = try_idealprimedecsorted(nf,p,r,dec);
   r *= 3
  );
- res
+ res;
 }
 
 \\sorted prime ideals up to norm X
@@ -106,16 +183,14 @@ nfprimesupto(nf,x) =
   Lp = concat(Lp);
   Llab = concat(Llab);
   perm = vecsort(Llab,,1);
-  [Lp[perm[i]] | i <- [1..#perm]]
+  [Lp[perm[i]] | i <- [1..#perm]];
 }
 
 \\nextprimepower (including n, like nextprime)
 \\(could use congruence conditions)
 nextprimepower(n) =
 {
-  while(1,
-    if(ispseudoprimepower(n), return(n), n+=1)
-  )
+  while(!ispseudoprimepower(n),n++);n;
 }
 
 \\nextprimeideal (different from pp)
@@ -134,38 +209,9 @@ nextprimeideal(nf,pp) =
     for(i=1,#dec,
       if(dec[i].f==f, return(dec[i]))
     )
-  )
+  );
 }
 
-\\list of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
-intlinsols(a,k) =
-{
-  my(n = #a,L = [], L2);
-  if(n==1,
-    if(k%a[1], return([]), return([[k\a[1]]]))
-  );
-  for(xn=0,k\a[n],
-    L2 = intlinsols(a[1..n-1],k-xn*a[n]);
-    L = concat(L, [concat(v,[xn]) | v <- L2])
-  );
-  L
-}
-
-\\auxiliary functions
-weightrev(L) =
-{
-  [concat([vecsum(v)],-v) | v <- L];
-}
-maxes(L) =
-{
-  my(M = L[1]);
-  for(i=2,#L,
-    for(j=1,#M,
-      if(L[i][j]>M[j],M[j]=L[i][j])
-    )
-  );
-  M
-}
 idealspowers(nf,L,M) =
 {
   my(pow=L, a, pow2);
@@ -177,13 +223,15 @@ idealspowers(nf,L,M) =
     );
     pow[i] = pow2;
   );
-  pow
+  pow;
 }
+
+\\ fixme === idealfactorback(nf,L)
 idealprod(nf,L) =
 {
   my(res=1);
   for(i=1,#L,res = idealmul(nf,res,L[i]));
-  res
+  res;
 }
 idealmultlist(nf,pows,L) =
 {
@@ -192,7 +240,7 @@ idealmultlist(nf,pows,L) =
     expo = L[i];
     L2[i] = idealprod(nf,[pows[j][expo[j]+1] | j <- [1..#expo]]);
   );
-  L2
+  L2;
 }
 
 \\sorted list of ideals of a given prime power norm p^k
@@ -206,22 +254,14 @@ idealsprimepowernorm(nf,p,k,dec = idealprimedecsorted(nf,p)) =
   pow = idealspowers(nf,dec,M);
   L2 = idealmultlist(nf,pow,L);
   perm = vecsort(keys,,1);
-  [L2[perm[i]] | i <- [1..#perm]]
-}
-
-\\number of solutions x_i>=0 to sum_i a_i x_i = k (a_i>0, k>=0)
-nbintlinsols(a,k) =
-{
-  my(P,T = 'T);
-  P = prod(i=1,#a,1/(1-T^a[i]+O(T^(k+1))));
-  polcoeff(P,k)
+  [L2[perm[i]] | i <- [1..#perm]];
 }
 
 \\number of ideals of prime power norm
 nbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p)) =
 {
   my(a = [pp.f | pp <- dec]);
-  nbintlinsols(a,k)
+  nbintlinsols(a,k);
 }
 
 \\auxiliary functions
@@ -232,7 +272,7 @@ lexallprods(nf,LL) =
   if(#LL[1]==0, return([]));
   L = lexallprods(nf,sublist(LL,2,k));
   L = [[idealmul(nf,a,b) | b <- L] | a <- LL[1]];
-  concat(L)
+  concat(L);
 }
 finddec(nf,p,Lp,Ldec) =
 {
@@ -241,7 +281,7 @@ finddec(nf,p,Lp,Ldec) =
     Ldec[i],
   \\else
     idealprimedecsorted(nf,p)
-  )
+  );
 }
 
 \\sorted list of ideals of a given norm
@@ -252,11 +292,12 @@ idealsofnorm(nf,N,Lp=[],Ldec=[]) =
   if(type(facto)!="t_MAT", facto=factor(N));
   k = #facto[,1];
   primepow = [idealsprimepowernorm(nf,facto[i,1],facto[i,2],finddec(nf,facto[i,1],Lp,Ldec)) | i<-[1..k]];
-  lexallprods(nf,primepow)
+  lexallprods(nf,primepow);
 }
 
 \\sorted ideals up to norm X
 \\TODO optimise
+\\ FIXME: === concat(ideallist(nf,x)) up to ordering...
 idealsupto(nf,x) =
 {
   my(L,N=floor(x),Lp,Ldec);
@@ -264,7 +305,7 @@ idealsupto(nf,x) =
   Ldec = [idealprimedecsorted(nf,p) | p<-Lp];
   L = [1..N];
   for(n=1,N,L[n] = idealsofnorm(nf,n,Lp,Ldec));
-  concat(L)
+  concat(L);
 }
 
 \\number of ideals of norm
@@ -272,32 +313,7 @@ nbidealsofnorm(nf,N) =
 {
   my(facto=N);
   if(type(facto)!="t_MAT", facto=factor(N));
-  prod(i=1,#facto[,1], nbidealsprimepowernorm(nf,facto[i,1],facto[i,2]))
-}
-
-\\auxiliary function
-vecreverse(v) =
-{
-  my(n=#v);
-  [v[n-i+1] | i <- [1..n]]
-}
-
-\\number of solutions x_i>=0 to:
-\\  sum_i a_i x_i = k
-\\  sum_i x_i = w
-\\  (a_i>0, k>0)
-\\flag=1: returns the vector of number of solutions of weights [1..w]
-nbintlinsols2(a,k,w,flag=0) =
-{
-  my(P, S = 'S, T = varhigher("T",S),v);
-  P = prod(i=1, #a, sum(j=0,k\a[i],(S^j+O(S^(w+1)))*T^(a[i]*j)) + O(T^(k+1)) );
-  if(flag,
-    v = vecreverse(Vec(Pol(polcoeff(P,k))));
-    if(#v<w+1, v = concat(v,[0|i<-[1..w+1-#v]]));
-    sublist(v,2,w+1),
-  \\else
-    polcoeff(polcoeff(P,k),w)
-  )
+  prod(i=1,#facto[,1], nbidealsprimepowernorm(nf,facto[i,1],facto[i,2]));
 }
 
 \\auxiliary function
@@ -319,7 +335,7 @@ ppn_ideal2label(nf, x, dec) =
     k -= a[i]*expo[i];
     w -= expo[i]
   );
-  lab
+  lab;
 }
 
 \\ideal -> label
@@ -336,7 +352,7 @@ ideal2label(nf,x) =
     lab *= nbidealsprimepowernorm(nf,p,k,dec);
     lab += ppn_ideal2label(nf,x,dec)-1
   );
-  [N,lab+1]
+  [N,lab+1];
 }
 
 \\auxiliary functions
@@ -349,7 +365,7 @@ findweight(lab,sols) =
     \\else
       tot += sols[w])
   );
-  [-1,-1]\\should not be reached
+  [-1,-1];\\should not be reached
 }
 findxi(lab,tot,b,k,w,ai) =
 {
@@ -362,7 +378,7 @@ findxi(lab,tot,b,k,w,ai) =
       tot += sols
     )
   );
-  [-1,-1]\\should not be reached
+  [-1,-1];\\should not be reached
 }
 \\label -> ideal of prime power norm
 ppn_label2ideal(nf,lab,k,dec) =
@@ -379,7 +395,7 @@ ppn_label2ideal(nf,lab,k,dec) =
   );
   \\print("check: ", lab==tot+1);
   \\print("expo=", expo);
-  idealfactorback(nf,dec,expo)
+  idealfactorback(nf,dec,expo);
 }
 
 \\label -> ideal
@@ -398,7 +414,7 @@ label2ideal(nf,lab) =
     res = idealmul(nf, res, ppn_label2ideal(nf, (lab%tot)+1, e, dec));
     lab \= tot
   );
-  res
+  res;
 }
 
 \\valid label
@@ -408,14 +424,7 @@ isvalidideallabel(nf,N,lab) =
 }
 
 \\next label
-nextideallabel(nf,N,lab) =
-{
-  0
-}
+nextideallabel(nf,N,lab) = 0;
 
 \\nextideal
-nextideal(nf,a) =
-{
-  0
-}
-
+nextideal(nf,a) = 0;
