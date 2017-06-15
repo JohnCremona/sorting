@@ -427,11 +427,11 @@ $\p_c\leftrightarrow h_1$, $\p_d\leftrightarrow h_4$, $\p_e\leftrightarrow h_3$.
 Since these ideals all have norm~$9$ and ramification index~$1$, our ordering of
 the primes above~$3$ is~$\p_c < \p_e < \p_a < \p_b < \p_d$.
 
-\section{Sorting all integral ideals}
+\section{Sorting all nonzero integral ideals}
 
 Fix a number field $K=\Q(\alpha)$ with defining polynomial
 $g(X)\in\Z[X]$ and generator $\alpha$ as above. 
-We now define a total order on the set of all integral ideals of~$K$.
+We now define a total order on the set of all nonzero integral ideals of~$K$.
 We always order ideals by norm, and then define some criteria to sort ideals of
 the same norm. This defines for each ideal~$\a$ a unique label~$N.i$, where~$N$
 is the norm of~$\a$ and~$i\ge 1$ is the rank of~$\a$ in the ordered list of
@@ -441,7 +441,8 @@ The order we choose has the following properties:
   \item prime ideals are smaller than every non-prime ideal of the same norm,
     and are ordered in the same way as before;
   \item if~$\a,\b,\idc$ are integral ideals such that~$\a<\b$, then~$\a\idc<\b\idc$
-    i.e. our ordering makes the set of integral ideals a totally ordered monoid;
+    i.e. our ordering makes the set of nonzero integral ideals a totally ordered
+    monoid;
   \item if the factorisation of a positive integer~$N$ is known, then the
     bijection between ideals of norm~$N$ and their labels is computable in
     polynomial time (even though the number of such ideals might not be
@@ -479,7 +480,7 @@ ideals of norm~$p^3$ are~$\p_4\p_1 < \p_4\p_2 < \p_4\p_3 < \p_1^3 < \p_1^2\p_2 <
 
 \subsection{Arbitrary integral ideals}
 
-We finally define an order on the set of all integral ideals. We first order
+We finally define an order on the set of all nonzero integral ideals. We first order
 them by norm, so we only have to define an order on nonzero ideals of the same
 norm. Let~$\a$ be an ideal of norm~$N = p_1^{a_1}\dots p_k^{a_k}$ with~$p_1 <
 \dots < p_k$. Then~$\a$ has a unique factorization as~$\a = \a_1\dots\a_k$
