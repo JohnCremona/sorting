@@ -42,7 +42,8 @@
 \def\OO{{\mathcal O}}
 \def\ZG{{\mathcal Z}}
 \def\a{{\mathfrak a}}
-\def\b{{\mathbf b}}
+\def\b{{\mathfrak b}}
+\def\idc{{\mathfrak c}}
 
 \def\v{{\mathbf v}}
 %\def\c{{\mathfrak c}}
@@ -432,9 +433,20 @@ Fix a number field $K=\Q(\alpha)$ with defining polynomial
 $g(X)\in\Z[X]$ and generator $\alpha$ as above. 
 We now define a total order on the set of all integral ideals of~$K$.
 We always order ideals by norm, and then define some criteria to sort ideals of
-the same norm. The order we choose will have the property that prime ideals are
-smaller than every non-prime ideal of the same norm, and are ordered in the same
-way as before.
+the same norm. This defines for each ideal~$\a$ a unique label~$N.i$, where~$N$
+is the norm of~$\a$ and~$i\ge 1$ is the rank of~$\a$ in the ordered list of
+ideals of norm~$N$.
+The order we choose has the following properties:
+\begin{itemize}
+  \item prime ideals are smaller than every non-prime ideal of the same norm,
+    and are ordered in the same way as before;
+  \item if~$\a,\b,\idc$ are integral ideals such that~$\a<\b$, then~$\a\idc<\b\idc$
+    i.e. our ordering makes the set of integral ideals a totally ordered monoid;
+  \item if the factorisation of a positive integer~$N$ is known, then the
+    bijection between ideals of norm~$N$ and their labels is computable in
+    polynomial time (even though the number of such ideals might not be
+    polynomial in~$\log N$).
+\end{itemize}
 
 \subsection{Ideals of prime power norm}\label{sec:primepowernorm}
 
