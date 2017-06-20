@@ -111,7 +111,27 @@ polynomial returned by the \Pari\ function {\tt polredabs} which
 is guaranteed to always return the same polynomial, given any
 polynomial defining a number field isomorphic to $K$.  This canonical
 polynomial $g(X)$ is thus fixed one and for all; it is monic and
-integral.
+integral. The precise definition of the {\tt polredabs} polynomial is as
+follows:
+
+%TODO credit
+\begin{itemize}
+  \item Let~$L_0$ be the list of characteristic polynomials of primitive
+    elements of~$K$ that are in the ring of integers~$\OO_K$ and minimal for
+    the~$T_2$ norm.
+  \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
+    minimal absolute value.
+  \item Let~$L_2$ be the sublist of~$L_1$ defined as follows. In each
+    pair~$\{P(x), (-1)^{\deg P}P(-x)\}$ of monic polynomials, choose the unique
+    polynomial~$Q$ such that when written~$Q(x) = Q_1(x^2)+xQ_2(x^2)$, at most
+    one of~$Q_1,Q_2$ has positive leading coefficient.
+  \item Order the integers by absolute value first, breaking ties by
+    putting~$|x|$ before~$-|x|$. Order the polynomials in~$L_2$ by the
+    lexicographic order of the coefficient vectors (from the leading coefficient
+    to the constant coefficient) where integers are ordered as above. Then the
+    {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_2$ for
+    that order.
+\end{itemize}
 
 We do not assume that $\Z[\alpha]$ is the full ring of integers
 $\OO_K$.  Indeed, for most number fields $K$ this condition is
