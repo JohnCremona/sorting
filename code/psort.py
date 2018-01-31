@@ -34,7 +34,10 @@ Zp_key = lambda a: a.list(start_val=0)
 # always start with the p^0 coefficient.
 
 def padded_list(c,k):
-    a = c.list(start_val=0)
+    try: # works on Sage >=8.1, not on <=8.0
+        a = list(c.expansion(start_val=0))
+    except AttributeError:  # works on Sage <=8.0, deprecation warning on 8.1
+        a = c.list(start_val=0)
     return a[:k] + [ZZ(0)]* (k-len(a))
 
 def ZpX_key(k):
@@ -363,6 +366,3 @@ def ideals_iterator(K,minnorm=1,maxnorm=Infinity):
     for n in srange(minnorm,maxnorm+1):
         for I in ideals_of_norm(K,n):
             yield I
-
-
-
