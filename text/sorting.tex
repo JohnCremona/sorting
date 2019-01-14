@@ -3,6 +3,7 @@
 %\usepackage{sagetex}
 \usepackage{comment}
 \usepackage{hyperref}
+\usepackage{url}
 \usepackage{color}
 \definecolor{mylinkcolor}{rgb}{0.5,0.0,0.0}
 \definecolor{myurlcolor}{rgb}{0.0,0.0,0.75}
@@ -104,21 +105,22 @@ realise this scheme, in \Sage, \Magma\ and~\Pari.
 \section{Sorting number field elements}
 \subsection{Defining the number field}
 We assume that every number field $K$ is given in the form
-$K=\Q(\alpha)$ where $\alpha$ is an algebraic integer whose
-minimal polynomial $g(X)$ is canonically determined by the field $K$.
-In practice, $g(X)$ is the
-polynomial returned by the \Pari\ function {\tt polredabs} which
-is guaranteed to always return the same polynomial, given any
-polynomial defining a number field isomorphic to $K$.  This canonical
-polynomial $g(X)$ is thus fixed one and for all; it is monic and
-integral. The precise definition of the {\tt polredabs} polynomial is as
-follows:
+$K=\Q(\alpha)$ where $\alpha$ is an algebraic integer whose minimal
+polynomial $g(X)$ is canonically determined by the field $K$.  By
+default, and wherever possible in practice, $g(X)$ is the polynomial
+returned by the \Pari\ function {\tt polredabs()}, which is guaranteed
+to always return the same polynomial, given any polynomial defining a
+number field isomorphic to $K$.  This canonical polynomial $g(X)$ is
+thus fixed one and for all; it is monic and integral. The precise
+definition of the {\tt polredabs} polynomial is as follows (see
+\cite{polredabs}):
 
 %TODO credit
-\begin{itemize}
-  \item Let~$L_0$ be the list of characteristic polynomials of primitive
-    elements of~$K$ that are in the ring of integers~$\OO_K$ and minimal for
-    the~$T_2$ norm.
+\begin{enumerate}
+  \item Let~$L_0$ be the list of characteristic polynomials in $\Z[x]$
+    of integral primitive elements of~$K$, minimal with respect to
+    the~$T_2$ norm (the sum of the squares of the modulus of the
+    roots).
   \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
     minimal absolute value.
   \item Let~$L_2$ be the sublist of~$L_1$ defined as follows. In each
@@ -131,44 +133,59 @@ follows:
     to the constant coefficient) where integers are ordered as above. Then the
     {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_2$ for
     that order.
-\end{itemize}
+\end{enumerate}
+
+For example, the third condition distinguishes between $x^2-x+1$ and
+$x^2+x+1$ as defining polynomials for $\Q(\sqrt{-3})$, choosing the
+first, and hence the generator $(1+\sqrt{-3})/2$ (a 6th root of unity)
+rather than $(-1+\sqrt{-3})/2$ (a 3rd root of unity).
+
 
 We do not assume that $\Z[\alpha]$ is the full ring of integers
 $\OO_K$.  Indeed, for most number fields $K$ this condition is
 not satisfied by any choice of $\alpha$ (in general the ring $\OO_K$
 will not be monogenic over $\Z$).
 
-We emphasize that both the defining polynomial $g(X)$ and the generator
-$\alpha$ of~$K$ are fixed.  In other words we are fixing the structure
-of $K=\Q[X]/(g(X))$ not just as a field, but as a $\Q[X]$-algebra, where the
-structure map $\Q[X]\to K$ has kernel $(g(X))$ and $\alpha$ is the
-image of $X$ in $K$.
+We emphasize that both the defining polynomial $g(X)$ and the
+generator $\alpha$ of~$K$ are fixed from now on.  In other words we
+are fixing the structure of $K=\Q[X]/(g(X))$ not just as a field, but
+as a $\Q[X]$-algebra, where the structure map $\Q[X]\to K$ has kernel
+$(g(X))$ and $\alpha$ is the image of $X$ in $K$.
 
 \subsection{Ordering the elements of a fixed number field}\label{sec:ordfix}
-Given $K=\Q(\alpha)$ as above, with degree $d=[K:\Q]=\deg f$, every
-element $\beta\in K$ can be uniquely expressed as a polynomial in
-$\alpha$ of degree at most $d-1$, say
+For ordering elements of $K=\Q$, we use the standard order on $\Q$ as
+a subfield of~$\R$.
+
+In general, given $K=\Q(\alpha)\cong \Q[X]/(g(X))$ as above, with
+degree $d=[K:\Q]=\deg g$, every element $\beta\in K$ can be uniquely
+expressed as a polynomial in $\alpha$ of degree at most $d-1$, say
 $\beta=\sum_{i=0}^{d-1}b_i\alpha^i$, and we use the coefficient vector
 $(b_0,b_1,\dots,b_{d-1})\in\Q^d$ as a sorting key, where $\Q^d$ is
-sorted lexicographically.  To remove any ambiguity, if
-$\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$ then $\beta<\gamma$ if and only
-if we have $b_i<c_i$ for the \textit{least} index~$i$ such that $b_i\not=c_i$.
+sorted lexicographically.  To remove any ambiguity, this means that if
+also $\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$, then $\beta<\gamma$ if and
+only if we have $b_i<c_i$ for the \textit{least} index~$i$ such that
+$b_i\not=c_i$.
 
-The induced ordering on $\Q$ viewed as a subset of $K$
-is the same as the standard ordering of $\Q$
+In particular, $\alpha^{d-1}<\dots<\alpha^2<\alpha<1$, and the induced
+ordering on $\Q$ viewed as a subset of $K$ is the same as the standard
+ordering of $\Q$.  However in general if $K$ and $L$ are number fields
+with $K\subset L$ (more precisely, with an embedding $K\hookrightarrow
+L$), then the embedding is not necessarily order-preserving, as we now
+illustrate.
 
 \subsection{An incomplete alternative sorting method}
 
 If $\beta$ and $\gamma$ are algebraic numbers contained in a number
-field $K$ then we may order them as above, but we should note that
-this ordering depend on $K$ (and our fixed representation $K=\Q(\alpha)$).
-The order may change if we enlarge $K$; for example, in the field
-$K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 < \alpha$
-(because $(0,1,-1) < (0,1,0)$), but if we
-embed $K$ in its Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 - 3X + 1)$$
-via the map $\pi:K\to L$ defined by  $\pi(\alpha) = \beta^5 - 2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$,
-in the field $L$ we have $\pi(\alpha-\alpha^2) > \pi(\alpha)$
-(because $(2,-4,5,-5,3,-1)>(0,2,-1,2,-2,1)$).
+field $K$ then we may order them as above, but this ordering depends
+both on $K$ and on our fixed representation $K=\Q(\alpha)$.  In
+particular, the order may change if we enlarge $K$; for example, in
+the field $K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 <
+\alpha$ (because $(0,1,-1) < (0,1,0)$), but if we embed $K$ in its
+Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 -
+3X + 1)$$ via the map $\pi:K\to L$ defined by $\pi(\alpha) = \beta^5 -
+2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$, in the field $L$ we have
+$\pi(\alpha-\alpha^2) > \pi(\alpha)$ (because
+$(2,-4,5,-5,3,-1)>(0,2,-1,2,-2,1)$).
 
 It is tempting to try to define an ordering on $\Qbar$ that would
 allow us to consistently order all algebraic numbers, independent
@@ -192,10 +209,12 @@ is certainly not easy to define and implement.
 On balance we decided to use the ordering defined in \S\ref{sec:ordfix}, which allows us to compare algebraic numbers only as elements of a chosen ambient field with a fixed defining polynomial and generator.
 
 \section{Sorting prime ideals}\label{sec:primes}
-Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with defining polynomial
-$g\in\Z[X]$ and generator $\alpha$ as above, and let $\OO_K$ denote its ring of integers.
-We do not assume that $K/\Q$ is Galois or that $\OO_K=\Z[\alpha]$.
-By a \emph{prime} of $K$ (or of $\OO_K$) we mean a prime ideal in the ring $\OO_K$; for primes of $\Q$ we may also use $p$ to denote the prime ideal $(p)$.
+Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with monic defining
+polynomial $g\in\Z[X]$ and generator $\alpha$ as above, and let
+$\OO_K$ denote its ring of integers.  We do not assume that $K/\Q$ is
+Galois or that $\OO_K=\Z[\alpha]$.  By a \emph{prime} of $K$ (or of
+$\OO_K$) we mean a nonzero prime ideal in the ring $\OO_K$; for primes
+of $\Q$ we may also use $p$ to denote the prime ideal $(p)$.
 
 We wish to define a total order on the set of prime ideals~$\p$
 of $\OO_K$.  Let $(p)=\p\cap \Z$ be the prime of $\Z$ lying below $\p$,
@@ -208,8 +227,13 @@ The (absolute) norm of $\p$ is then $N(\p)=p^f$.
 %% ramification index is $e=${\tt P.ramification\_index()}, and the residue degree is $f=${\tt
 %%   P.residue\_class\_degree()}.
 
-We order the primes $\p$ first by norm and then by the ramification index.
-It remains only to order the primes~$\p$ of $K$ that lie above the same rational prime $p$ and have the same norm (hence the same residue degree) and ramification index.  Such primes will necessarily have the same value of $p^{ef}$; the converse need not hold (primes with the same value of $p^{ef}$ need not have the same norm), but this will not concern us since we order by norm first.
+We order the primes $\p$ first by norm and then by the ramification
+index.  It remains only to order the primes~$\p$ of $K$ that lie above
+the same rational prime $p$ and have the same norm (hence the same
+residue degree) and ramification index.  Such primes will necessarily
+have the same value of $p^{ef}$; the converse need not hold (primes
+with the same value of $p^{ef}$ need not have the same norm $p^{f}$),
+but this will not concern us since we order by norm first.
 
 \subsection{The case of unramified primes}
 
@@ -240,23 +264,25 @@ sorting function on the primes above~$p$ very simple in this case.
 
 There is a bijection between the distinct primes $\p$ above $p$ and
 the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$ in which $\deg h
-= e(\p/p)f(\p/p)$ \cite[Theorem 3.8 (d)]{Janusz}.  Write
+= e(\p/p)f(\p/p)$ (see \cite[Theorem 3.8 (d)]{Janusz}).  Write
 \[
   g(X) = h_1(X)h_2(X)\dots h_r(X)
 \]
-with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort prime ideals
-by norm and ramification index, it is enough to describe an order on polynomials
-of the same degree (in fact we are interested only in those polynomials $h_i(X)$
-that not only have the same degree, but correspond to primes $\p_i$ with the same
-ramification index and residue degree, which may be a proper subset).
+with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort
+prime ideals by norm and ramification index, it is enough to describe
+an order on polynomials of the same degree (in fact we are interested
+only in those polynomials $h_i(X)$ that not only have the same
+degree~$ef$, but correspond to primes $\p_i$ with both the same
+ramification index~$e$ and the same residue degree~$f$, which may be a
+proper subset).
 
 We sort polynomials in~$\Z_p[X]$ of degree~$d$ as follows. Such a polynomial~$P$
-can be written in the form
+can be written uniquely in the form
 \[
   (a_{0,0}+a_{0,1}p+a_{0,2}p^2+\dots) + (a_{1,0}+a_{1,1}p+\dots)X
   + \dots + (a_{d,0}+a_{d,1}p+\dots)X^d,
 \]
-with and~$a_{i,j}\in\Z\cap[0,p-1]$. We can then attach to~$P$ the infinite
+with all~$a_{i,j}\in\Z\cap[0,p-1]$. We can then attach to~$P$ the infinite
 vector
 \[
 (a_{0,0},a_{1,0},\dots,a_{d,0},a_{0,1},a_{1,1},\dots,a_{d,1},a_{0,2},\dots)\in [0,p-1]^\infty,
@@ -290,9 +316,9 @@ Define the extension of~$v_\p$ to $K\otimes_\Q\Q_p$ to be the composition of the
 %which is a $p$-adic field.
 We then have~$v_{\p}(h(\alpha)) = \infty$ if and only
 if~$\p$ corresponds to~$h$.
-This valuation cannot be computed using finite
-approximations to~$h$, however, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
-= \min(e(\p/p)k, v_\p(h(\alpha)))$ equal to~$e(\p/p)k$
+While this valuation cannot be computed using finite
+approximations to~$h$, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
+= \min(e(\p/p)k, v_\p(h(\alpha)))$, and this value equals~$e(\p/p)k$
 if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and if $k$ is such that the set $\{v_\p((p^k,h_i(\alpha)))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
@@ -345,8 +371,14 @@ systems in any case.
 %of $\disc f$ perhaps.
 
 \subsection{Examples}
-Let $K=\Q(\alpha)$ be non-Galois cubic field \href{www.lmfdb.org/NumberField/3.1.503.1}{\texttt{3.1.503.1}} of discriminant $-503$ with canonical defining polynomial $g(x)=X^3-X^2+2X+8$.
-The prime $2$ is unramified, but it divides $\disc(g(X))=-2^2\cdot 503$ and is an essential divisor of $[\OO_K:\Z[\alpha]]$ in the sense that this is true for every algebraic integer $\alpha$ in $K$ (this example, due to Dedekind, is the standard example of a non-monogenic field).
+Let $K=\Q(\alpha)$ be the non-Galois cubic field
+\href{www.lmfdb.org/NumberField/3.1.503.1}{\texttt{3.1.503.1}} of
+discriminant $-503$ with canonical defining polynomial
+$g(x)=X^3-X^2+2X+8$.  The prime $2$ is unramified, but it divides
+$\disc(g(X))=-2^2\cdot 503$ and is an essential divisor of
+$[\OO_K:\Z[\alpha]]$ in the sense that $2\mid[\OO_K:\Z[\alpha']]$ for
+every algebraic integer $\alpha'$ in $K$ (this example, due to
+Dedekind, is the standard example of a non-monogenic field).
 
 Let $p=2$ and $k=2$; the $2$-adic factors of $g(X)$ are: $h_1=X+O(2^2)$,
 $h_2=X+2+O(2^2)$, $h_3=X+1+O(2^2)$.  So there are $3$
@@ -360,7 +392,7 @@ Calling these $\p_a = (2,\frac 12\alpha^2+\frac 12\alpha+3)$, $\p_b =
 \end{itemize}
 thus $\p_1=\p_c$, $\p_2=\p_a$ and $\p_3=\p_b$.
 
-Let $p=503$.  There are two primes above~$p$ both of norm~$p$, only
+Let $p=503$.  There are two primes above~$p$, both of norm~$p$, only
 one of which is ramified (with $e=2$). Our ordering puts the
 unramified prime first and the ramified prime second, so we do not even need to
 look at the $p$-adic factorization of $g(X)$ in this case.  In fact,
@@ -397,7 +429,7 @@ the maximal degree term since they are all monic):
   \item $(2,2,\dots)$,
   \item $(2,1,\dots)$,
 \end{itemize}
-so we have~$h_1 < h_3,h_5 < h_2,h_4$. Modulo~$9$, we get
+so we have~$h_1 < \{h_3,h_5\} < \{h_2,h_4\}$. Modulo~$9$, we get
 \begin{itemize}
   \item $h_1 = X^2 + 3X + 1 + O(3^2)$,
   \item $h_2 = X^2 + 5X + 5 + O(3^2)$,
@@ -414,7 +446,7 @@ we get the refined initial segments
   \item $(2,2,1,1,\dots)$,
   \item $(2,1,1,1,\dots)$,
 \end{itemize}
-so we have~$h_1<h_3<h_5<h_2,h_4$. Finally, modulo~$27$ we have
+so we have~$h_1<h_3<h_5<\{h_2,h_4\}$. Finally, modulo~$27$ we have
 \begin{itemize}
   \item $h_1 = X^2 + 3X + 1 + O(3^3)$,
   \item $h_2 = X^2 + 5X + 5 + O(3^3)$,
@@ -454,7 +486,7 @@ $g(X)\in\Z[X]$ and generator $\alpha$ as above.
 We now define a total order on the set of all nonzero integral ideals of~$K$.
 We always order ideals by norm, and then define some criteria to sort ideals of
 the same norm. This defines for each ideal~$\a$ a unique label~$N.i$, where~$N$
-is the norm of~$\a$ and~$i\ge 1$ is the rank of~$\a$ in the ordered list of
+is the norm of~$\a$ and~$i\ge 1$ is the index of~$\a$ in the ordered list of
 ideals of norm~$N$.
 The order we choose has the following properties:
 \begin{itemize}
@@ -471,47 +503,54 @@ The order we choose has the following properties:
 
 \subsection{Ideals of prime power norm}\label{sec:primepowernorm}
 
-We first define an order on the set of ideals of prime power norm. Let~$\a$ be
-an ideal of norm~$p^n$, and let~$\p_1,\dots,\p_r$ be the prime ideals of~$K$
-above~$p$, ordered as in Section~\ref{sec:primes}. We have~$\a = \p_1^{v_1}\dots
-\p_r^{v_r}$ for some integers~$v_i\ge 0$. We define the weight of this
-factorization to be~$v_1+\dots+v_r$. We order ideals of norm a power of $p$ by
-increasing norm first, then increasing weight, and finally by reverse
-lexicographic order of the vector of exponents~$(v_1,\dots,v_r)$. For this
-order, the prime ideals come first, and are ordered in the same way as
+We first define an order on the set of ideals of prime power
+norm. Let~$\a$ be an ideal of norm~$p^n$, and let~$\p_1,\dots,\p_r$ be
+the prime ideals of~$K$ above~$p$, ordered as in
+Section~\ref{sec:primes}. We have~$\a = \p_1^{v_1}\dots \p_r^{v_r}$
+for some integers~$v_i\ge 0$. We define the weight of this
+factorization to be~$v_1+\dots+v_r$. We order ideals of norm a power
+of $p$ by increasing norm first, then increasing weight, and finally
+by reverse lexicographic order of the vector of
+exponents~$(v_1,\dots,v_r)$. For this order, the prime ideals come
+first (having weight~$1$), and are ordered in the same way as
 previously.
 
-Example: let~$K$ be a number field and~$p$ a prime number that decomposes in~$K$
-as the product~$\p_1\p_2\p_3\p_4$ where~$\p_1$, $\p_2$ and~$\p_3$ have residue
-degree~$1$ and~$\p_4$ has residue degree~$2$. We assume that the order defined
-in Section~\ref{sec:primes} gives~$\p_1 < \p_2 < \p_3$. We first consider ideals
-of norm~$p$. The only such ideals are~$\p_1$, $\p_2$ and~$\p_3$, and they have weight~$1$
-and exponent vectors~$(1,0,0,0)$, $(0,1,0,0)$ and~$(0,0,1,0)$. Since
-lexicographically we have~$(0,0,1,0)<(0,1,0,0)<(1,0,0,0)$, the reverse
-lexicographic order gives~$\p_1<\p_2<\p_3$. Now
-consider ideals of norm~$p^2$: $\p_4$, $\p_1^2$, $\p_2^2$, $\p_3^2$, $\p_1\p_2$,
-$\p_1\p_3$ and~$\p_2\p_3$. The corresponding exponent vectors are~$(0,0,0,1)$,
-$(2,0,0,0)$, $(0,2,0,0)$, $(0,0,2,0)$, $(1,1,0,0)$, $(1,0,1,0)$ and~$(0,1,1,0)$,
-with weights~$1,2,2,2,2,2,2$. The order we defined is therefore~$\p_4 < \p_1^2 <
-\p_1\p_2 < \p_1\p_3 < \p_2^2 < \p_2\p_3 < \p_3^2$. The reader can check that the
-ideals of norm~$p^3$ are~$\p_4\p_1 < \p_4\p_2 < \p_4\p_3 < \p_1^3 < \p_1^2\p_2 <
-\p_1^2\p_3 < \p_1\p_2^2 < \p_1\p_2\p_3 < \p_1\p_3^2 < \p_2^3 < \p_2^2\p_3 <
+Example: let~$K$ be a number field and~$p$ a prime number that
+decomposes in~$K$ as the product~$\p_1\p_2\p_3\p_4$ where~$\p_1$,
+$\p_2$ and~$\p_3$ have residue degree~$1$ and~$\p_4$ has residue
+degree~$2$. We assume that the order defined in
+Section~\ref{sec:primes} gives~$\p_1 < \p_2 < \p_3$. We first consider
+ideals of norm~$p$. The only such ideals are~$\p_1$, $\p_2$
+and~$\p_3$, and they have weight~$1$ and exponent vectors~$(1,0,0,0)$,
+$(0,1,0,0)$ and~$(0,0,1,0)$. Since lexicographically we
+have~$(0,0,1,0)<(0,1,0,0)<(1,0,0,0)$, the reverse lexicographic order
+gives~$\p_1<\p_2<\p_3$. Now consider the ideals of norm~$p^2$, which
+are $\p_4$, $\p_1^2$, $\p_2^2$, $\p_3^2$, $\p_1\p_2$, $\p_1\p_3$
+and~$\p_2\p_3$. The corresponding exponent vectors are~$(0,0,0,1)$,
+$(2,0,0,0)$, $(0,2,0,0)$, $(0,0,2,0)$, $(1,1,0,0)$, $(1,0,1,0)$
+and~$(0,1,1,0)$, with weights~$1,2,2,2,2,2,2$. The order we defined is
+therefore~$\p_4 < \p_1^2 < \p_1\p_2 < \p_1\p_3 < \p_2^2 < \p_2\p_3 <
+\p_3^2$. The reader can check that the ideals of norm~$p^3$
+are~$\p_4\p_1 < \p_4\p_2 < \p_4\p_3 < \p_1^3 < \p_1^2\p_2 < \p_1^2\p_3
+< \p_1\p_2^2 < \p_1\p_2\p_3 < \p_1\p_3^2 < \p_2^3 < \p_2^2\p_3 <
 \p_2\p_3^2 < \p_3^3$.
 
 \subsection{Arbitrary integral ideals}
 
-We finally define an order on the set of all nonzero integral ideals. We first order
-them by norm, so we only have to define an order on nonzero ideals of the same
-norm. Let~$\a$ be an ideal of norm~$N = p_1^{a_1}\dots p_k^{a_k}$ with~$p_1 <
-\dots < p_k$. Then~$\a$ has a unique factorization as~$\a = \a_1\dots\a_k$
-where~$\a_i$ has norm~$p_i^{a_i}$. We order ideals of norm~$N$ according to the
-lexicographic order of the $k$-uple~$(\a_1,\dots,\a_k)$.
+We finally define an order on the set of all nonzero integral
+ideals. Again, we first order them by norm, so we only have to define
+an order on nonzero ideals of the same norm. Let~$\a$ be an ideal of
+norm~$N = p_1^{a_1}\dots p_k^{a_k}$ with~$p_1 < \dots <
+p_k$. Then~$\a$ has a unique factorization as~$\a = \a_1\dots\a_k$
+where~$\a_i$ has norm~$p_i^{a_i}$. We order ideals of norm~$N$
+according to the lexicographic order of the
+$k$-uple~$(\a_1,\dots,\a_k)$.
 
 Example: let~$K$ be a number field, and assume that~$2$ decomposes
 as~$\p_1\p_2\p_3$ where~$\p_1<\p_2$ have residue degree~$1$ and~$\p_3$ has
 residue degree~$2$, and that~$3$ decomposes as~$\q_1\q_2$ where~$\q_1$ has
 degree~$1$ and~$\q_2$ has degree~$3$. Let us order ideals of norm~$18$. Such an
-ideal is a product of an ideal of norm~$2$ and an ideal of norm~$9$. The ideals
+ideal is uniquely a product of an ideal of norm~$2$ and an ideal of norm~$9$. The ideals
 of norm~$2$ are~$\p_1 < \p_2$, and the only ideal of norm~$9$ is~$\q_1^2$. The
 ideals of norm~$18$ are therefore~$\p_1\q_1^2 < \p_2\q_1^2$. Let us now order ideals
 of norm~$108 = 2^2\cdot 3^3$. The ideals of norm~$4$ are~$\p_3 < \p_1^2 < \p_1\p_2 <
@@ -527,5 +566,8 @@ norm~$108$ are therefore~$\p_3\q_2 < \p_3\q_1^3 < \p_1^2\q_2 < \p_1^2\q_1^3 <
 \bibitem{Janusz} Gerald J. Janusz, {\em Algebraic Number Fields} (2nd
   edition, 1996).  Graduate Studies in Mathematics Volume 7, American
   Mathematical Society, Providence, RI.
+\bibitem{polredabs} Online catalogue of all \Pari\ functions, section
+  on general number fields.  See
+  \href{https://pari.math.u-bordeaux.fr/dochtml/html-stable/General_number_fields.html\#polredabs}{\url{https://pari.math.u-bordeaux.fr/dochtml/html-stable/General_number_fields.html\#polredabs}}.
 \end{thebibliography}
 \end{document}
