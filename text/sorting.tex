@@ -558,6 +558,69 @@ of norm~$108 = 2^2\cdot 3^3$. The ideals of norm~$4$ are~$\p_3 < \p_1^2 < \p_1\p
 norm~$108$ are therefore~$\p_3\q_2 < \p_3\q_1^3 < \p_1^2\q_2 < \p_1^2\q_1^3 <
 \p_1\p_2\q_2 < \p_1\p_2\q_1^3 < \p_2^2\q_2 < \p_2^2\q_1^3$.
 
+\section{Standard generators for nonzero integral ideals}
+
+The goal of this section is to define, for every nonzero integral ideal~$\a$ of
+a number field~$K$ with fixed primitive element~$\alpha$ as above, a pair of
+standard generators~$\a = (N,g)$ with~$N\in\Z$ and~$g\in\OO_K$.
+
+\subsection{Standard basis of a lattice in~$K$}
+Let~$L\subset K$ be a finitely generated subgroup. Let~$f$ be the minimal
+positive integer such that~$f L \subset \Z[\alpha]$. This can be computed as
+follows: let~$a_1,\dots,a_k$ be an arbitrary~$\Z$-basis of~$L$; then~$f$ is the
+LCM of the coefficients of the~$a_i$ when written as~$\Q$-linear combinations of
+the power basis~$1,\alpha,\dots,\alpha^{d-1}$.
+
+We define the \emph{standard basis} of~$L$ to be the
+basis~$\frac{1}{f}b_1,\dots,\frac{1}{f}b_k$, where~$b_1,\dots,b_k$ is
+the~$\Z$-basis of~$fL$ whose column-vector matrix with respect to the power
+basis~$1,\alpha,\dots,\alpha^{d-1}$ of~$\Z[\alpha]$ is in upper triangular,
+right multiplication Hermite Normal Form.
+
+\textbf{Note for us:} it would be nice if we could do without this notion of standard
+basis. It is mostly used in the notion of standard lift below. It is also used in the
+definition of standard uniformisers of ramified primes (but this second use
+could be replaced by another definition).
+
+\subsection{Standard lifts modulo integers}
+Let~$N>0$ be an integer and let~$\bar{g}\in\OO_K/N\OO_K$. We define the \emph{standard
+lift} of~$\bar{g}$ to be the element~$g = \sum_{i=1}^d \lambda_i b_i$ that is
+congruent to~$\bar{g}$ modulo~$N$, where~$\lambda_i\in \Z\cap [0,N-1]$
+and~$b_1,\dots,b_n$ is the standard basis of~$\OO_K$.
+
+\subsection{Standard uniformisers}
+Let~$\p$ be a prime of~$K$. We define the \emph{standard uniformiser} of~$\p$,
+i.e. a standard element~$\pi$ of~$\OO_K$ such that~$v_\p(\pi)=1$, as follows:
+\begin{itemize}
+  \item if~$\p$ is unramified, $\pi=p$;
+  \item if~$\p$ is ramified, then~$\pi$ is, among the vectors~$b_1,\dots,b_d$ of
+    the standard basis of~$\p$, the first one such that~$b_i\notin\p^2$.
+\end{itemize}
+In the unramified case, it is clear that~$v_\p(\pi)=1$. In the ramified case, we
+know that not all~$b_i$ are contained in~$\p^2$ since~$\p\neq\p^2$, so the
+definition makes sense; moreover~$\pi \in\p\setminus\p^2$ and
+therefore~$v_\p(\pi)=1$.
+
+\subsection{Standard generators}
+Let~$\a\subset\OO_K$ be a nonzero integral ideal. Let~$N$ be the positive
+integer such that~$\a\cap\Z = N\Z$. Let~$\p_1,\dots,\p_k$ be the primes
+dividing~$N\OO_K$ (note that these may be more than the primes dividing~$\a$),
+and let~$\pi_1,\dots,\pi_k$ be the corresponding standard uniformisers.
+Write~$N\OO_K = \prod_{i=1}^k\p_i^{n_i}$ and~$\a = \prod_{i=1}^k\p_i^{a_i}$
+with~$n_i,a_i\in\Z_{\ge 0}$ (some~$a_i$ can be~$0$). Let~$\bar{g}$ be the unique
+element of~$\OO_K/N\OO_K$ that is congruent to~$\pi_i^{a_i} \bmod{\p_i^{n_i}}$,
+and let~$g\in\OO_K$ be the standard lift of~$\bar{g}$.
+
+We claim that~$\a = (N,g)$. Indeed, the only primes that divide either~$\a$
+or~$(N,g)$ are the~$\p_i$; moreover for every~$\p_i$ by construction we have~$v_{\p_i}(g)=
+a_i$ if~$a_i<n_i$ and~$v_{\p_i}(g)\ge n_i$ if~$a_i=n_i$, and
+therefore~$v_{\p_i}((N,g)) = \min(n_i,v_{\p_i}(g)) = a_i = v_{\p_i}(\a)$. This proves the
+claim.
+
+We define the \emph{standard generators} of~$\a$ to be~$(N,g)$.
+
+
+
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
 \bibitem{Roblot} David Ford, Sebastian Pauli and Xavier-Fran\c cois Roblot, {\em
