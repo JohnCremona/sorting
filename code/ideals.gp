@@ -475,17 +475,20 @@ coprimepart(a,N) =
 
 stdgenprettier(nf,N,g,stdB=stdbasis(nf)) =
 {
-  my(v,c,c2,den);
+  my(v,c,c2,den,a);
   if(!g, return([N,g]));
+  a = idealadd(nf,N,g);
   v = Vec(g);
-  den = coprimepart(denominator(v),N);
+
+  den = denominator(v);
   v *= den;
-  c = v[1];
-  c2 = coprimepart(numerator(c),N);
-  v *= lift(Mod(c2,N)^-1);
-  g = Pol(v);
-  g = nfstdlift(nf,g,N,stdB);
-  g = liftall(nfbasistoalg(nf,g));
+  c = coprimepart(v[1],N*den);
+  v *= Mod(c,den*N)^-1;
+  v = liftall(v);
+  den /= coprimepart(den,N);
+  v /= den;
+  g = Pol(v); 
+  if(idealadd(nf,N,g)!=a, error("you changed the ideal!"));
   [N,g]
 };
 
