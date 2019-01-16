@@ -16,7 +16,7 @@ idealsupto(nf,x)
 
 /** list and sorting utilities **/
 
-\\for compatibility for older versions of gp
+\\for compatibility with older versions of gp
 sublist(v,a,b) =
 {
   a = max(a,1);
@@ -296,7 +296,7 @@ idealsofnorm(nf,N,Lp=[],Ldec=[]) =
 }
 
 \\sorted ideals up to norm X
-\\TODO optimise
+\\TODO optimise (forfactored, etc.)
 \\ FIXME: === concat(ideallist(nf,x)) up to ordering...
 idealsupto(nf,x) =
 {
@@ -428,3 +428,82 @@ nextideallabel(nf,N,lab) = 0;
 
 \\nextideal
 nextideal(nf,a) = 0;
+
+\\given a ideal of nf
+\\return matrix of the standard basis of a
+\\and its inverse
+\\note Col(sum_{i=1}^n a_i*x^i) = [a_n,...,a_1,a_0]~
+colrev(v) = vector(#v,i,v[#v-i+1])~;
+stdbasis(nf,a=matid(poldegree(nf.pol))) =
+{
+  my(f=1,n=#a,x,B);
+  B = matconcat(vector(n,i,colrev(Col(nfbasistoalg(nf,a[,i]).pol))));
+  f = denominator(B);
+  B *= f;
+  B = mathnf(B);
+  B = matconcat(vector(n,i,Col(nfalgtobasis(nf,Pol(colrev(B[,i]))))));
+  B /= f;
+  [B,B^-1]
+};
+
+nfstdlift(nf,x,N,stdB=stdbasis(nf)) =
+{
+  my([B,Bi]=stdB);
+  x = nfalgtobasis(nf,x);
+  B*((Bi*x)%N)
+};
+
+nfstdunif(nf,pr) =
+{
+  my(B);
+  if(pr.e==1, return(pr.p));
+  B = Vec(stdbasis(nf,idealhnf(nf,pr))[1]);
+  for(i=1,#B,
+    if(nfeltval(nf,B[i],pr)==1, return(B[i]))
+  )
+};
+
+coprimepart(a,N) =
+{
+  my(c = gcd(a,N));
+  while(c!=1,
+    a /= c;
+    c = gcd(a,N);
+  );
+  a
+};
+
+stdgenprettier(nf,N,g,stdB=stdbasis(nf)) =
+{
+  my(v,c,c2,den);
+  if(!g, return([N,g]));
+  v = Vec(g);
+  den = coprimepart(denominator(v),N);
+  v *= den;
+  c = v[1];
+  c2 = coprimepart(numerator(c),N);
+  v *= lift(Mod(c2,N)^-1);
+  g = Pol(v);
+  g = nfstdlift(nf,g,N,stdB);
+  g = liftall(nfbasistoalg(nf,g));
+  [N,g]
+};
+
+idealstdgen(nf,a,stdB=stdbasis(nf),pretty=1) =
+{
+  my(N,faN,y);
+  a = idealhnf(nf,a);
+  N = a[1,1];
+  faN = idealfactor(nf,N);
+  y = vector(#faN[,1],i,
+    pr = faN[i,1];
+    nfeltpow(nf,nfstdunif(nf,pr),idealval(nf,a,pr))
+  );
+  g = idealchinese(nf,faN,y);
+  g = nfstdlift(nf,g,N,stdB);
+  g = liftall(nfbasistoalg(nf,g));
+  if(!pretty, return([N,g]));
+  stdgenprettier(nf,N,g,stdB)   \\extra code to make the generator look better
+                                \\not in the current definition
+};
+
