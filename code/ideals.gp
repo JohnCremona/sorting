@@ -415,19 +415,31 @@ label2ideal(nf,lab) =
     lab \= tot
   );
   res;
-}
+};
 
 \\valid label
 isvalidideallabel(nf,N,lab) =
 {
   lab>0 && lab <= nbidealsofnorm(nf,N);
-}
+};
 
 \\next label
-nextideallabel(nf,N,lab) = 0;
+nextideallabel(nf,N,lab) =
+{
+  if(isvalidideallabel(nf,N,lab+1),return([N,lab+1]));
+  N++;
+  while(!isvalidideallabel(nf,N,1),N++);
+  [N,1]
+};
 
 \\nextideal
-nextideal(nf,a) = 0;
+nextideal(nf,a) =
+{
+  my(N,lab);
+  [N,lab] = ideal2label(nf,a);
+  [N,lab] = nextideallabel(nf,N,lab);
+  label2ideal(nf,[N,lab])
+};
 
 \\given a ideal of nf
 \\return matrix of the standard basis of a
