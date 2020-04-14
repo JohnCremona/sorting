@@ -41,7 +41,7 @@ def padded_list(c,k):
     return a[:k] + [ZZ(0)]* (k-len(a))
 
 def ZpX_key(k):
-    return lambda f: [f.degree()] + flatten(zip(*[padded_list(c,k) for c in f.list()]))
+    return lambda f: [f.degree()] + flatten(list(zip(*[padded_list(c,k) for c in f.list()])))
 
 ###################################################
 #
@@ -253,7 +253,7 @@ def exp_vec_wt_iter(w, wts):
     if w==0:
         yield [0 for _ in wts]
     elif len(wts):
-        for v0 in range(1+w/wts[-1]):
+        for v0 in range(1+w//wts[-1]):
             w1 = w-wts[-1]*v0
             if w1==0:
                 yield [0]* (len(wts)-1) + [v0]

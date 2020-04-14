@@ -18,6 +18,8 @@
        CompareIdeals(I,J)                   returns -1,0,1 as I<J,I=J,I>J in our ordering
 */
 
+ZZ := Integers();
+
 function UniqueMax(V)
     m,i:=Max(V);
     return m gt Max([V[j]:j in [1..#V]|j ne i]) select i else 0;
