@@ -1,3 +1,9 @@
+#
+# See https://github.com/JohnCremona/sorting
+#
+# This file is code/psort.py from there.  It implements the sorting
+# and labelling of ideals (including prime ideals).
+#
 from sage.all import ZZ, GF, Set, prod, srange, flatten, cartesian_product_iterator
 
 # sort key for number field elements.  the list() method returns a
@@ -34,14 +40,16 @@ Zp_key = lambda a: a.list(start_val=0)
 # always start with the p^0 coefficient.
 
 def padded_list(c,k):
-    try: # works on Sage >=8.1, not on <=8.0
+    try:
         a = list(c.expansion(start_val=0))
-    except AttributeError:  # works on Sage <=8.0, deprecation warning on 8.1
+    except AttributeError:
         a = c.list(start_val=0)
     return a[:k] + [ZZ(0)]* (k-len(a))
 
+
 def ZpX_key(k):
-    return lambda f: [f.degree()] + flatten(list(zip(*[padded_list(c,k) for c in f.list()])))
+    return lambda f: [f.degree()] + flatten(list(zip(*[padded_list(c, k)
+                                                       for c in f.list()])))
 
 ###################################################
 #
@@ -124,7 +132,7 @@ def make_keys(K,p):
         # which is its index in the sublist withe same n-value.  This
         # will not affect sorting but is used in the label n.j.
 
-        vals = key_dict.values()
+        vals = list(key_dict.values())
         new_key_dict = {}
         for P in key_dict:
             k = key_dict[P]
@@ -181,12 +189,13 @@ def primes_of_degree_iter(K, deg, condition=None, sort_key=prime_label, maxnorm=
     condition(p) holds will be returned.  For example,
     condition=lambda:not p.divides(6).
     """
-    for p in primes(2,stop=maxnorm):
-        if condition==None or condition(p):
-            make_keys(K,p)
+    for p in primes(2, stop=maxnorm):
+        if condition is None or condition(p):
+            make_keys(K, p)
             for P in K.primes_dict[p]:
                 if P.residue_class_degree()==deg and P.norm()<=maxnorm:
                     yield P
+
 
 def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     """Iterator through primes of K, sorted using the provided sort key,
@@ -206,9 +215,9 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
 
     # pop the first prime off each iterator (allowing for the
     # possibility that there may be none):
-    Ps = [0 for d in dlist]
-    ns = [Infinity for d in dlist]
-    for i,PP in enumerate(PPs):
+    Ps = [0 for _ in dlist]
+    ns = [Infinity for _ in dlist]
+    for i, PP in enumerate(PPs):
         try:
             P = next(PP)
             Ps[i] = P
@@ -221,7 +230,7 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
         # all) has norm > maxnorm:
         nmin = min(ns)
         if nmin > maxnorm:
-            raise StopIteration
+            return
 
         # extract smallest prime and its index:
         i = ns.index(nmin)
