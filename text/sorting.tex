@@ -128,10 +128,25 @@ definition of the {\tt polredabs} polynomial is as follows (see
     polynomial~$Q$ such that when written~$Q(x) = Q_1(x^2)+xQ_2(x^2)$, at most
     one of~$Q_1,Q_2$ has positive leading coefficient.
   \item Order the integers by absolute value first, breaking ties by
-    putting~$|x|$ before~$-|x|$. Order the polynomials in~$L_2$ by the
+    putting~$-|x|$ before~$|x|$. Order the polynomials in~$L_2$ by the
     lexicographic order of the coefficient vectors (from the leading coefficient
     to the constant coefficient) where integers are ordered as above. Then the
     {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_2$ for
+    that order.
+\end{enumerate}
+
+Alternative, equivalent definition.
+\begin{enumerate}
+  \item Let~$L_0$ be the list of characteristic polynomials in $\Z[x]$
+    of integral primitive elements of~$K$, minimal with respect to
+    the~$T_2$ norm (the sum of the squares of the modulus of the
+    roots).
+  \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
+    minimal absolute value.
+  \item For a polynomial~$P = x^n + a_1x + \dots + a_n$, let~$S(P) =
+    (|a_1|,a_1,\dots,|a_n|,a_n)$; order the polynomials in~$L_2$ by
+    lexicographic order of the vectors~$S(P)$.
+    Then the {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_1$ for
     that order.
 \end{enumerate}
 
