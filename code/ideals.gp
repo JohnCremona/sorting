@@ -506,7 +506,7 @@ stdgenprettier(nf,N,g,stdB=stdbasis(nf)) =
 
 idealstdgen(nf,a,stdB=stdbasis(nf),pretty=1) =
 {
-  my(N,faN,y);
+  my(N,faN,y,pr,g);
   a = idealhnf(nf,a);
   N = a[1,1];
   faN = idealfactor(nf,N);
