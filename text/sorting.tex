@@ -9,12 +9,12 @@
 \definecolor{myurlcolor}{rgb}{0.0,0.0,0.75}
 \hypersetup{colorlinks=true,urlcolor=myurlcolor,citecolor=myurlcolor,linkcolor=mylinkcolor,linktoc=page,breaklinks=true}
 
-\newtheorem{thm}{Theorem}[section]
-\newtheorem{cor}[thm]{Corollary}
-\newtheorem{lem}[thm]{Lemma}
-\newtheorem{prop}[thm]{Proposition}
-\newtheorem{defn}{Definition}%[section]
-\newtheorem{rem}[thm]{Remark}
+%% \newtheorem{thm}{Theorem}[section]
+%% \newtheorem{cor}[thm]{Corollary}
+%% \newtheorem{lem}[thm]{Lemma}
+%% \newtheorem{prop}[thm]{Proposition}
+%% \newtheorem{defn}{Definition}%[section]
+%% \newtheorem{rem}[thm]{Remark}
 
 \def\Sage{{\tt Sage}}
 \def\Magma{{\tt Magma}}
@@ -23,72 +23,23 @@
 \def\Q{{\mathbb Q}}
 \def\R{{\mathbb R}}
 \def\C{{\mathbb C}}
-\def\T{{\mathbb T}}
-\def\H{{\mathbb H}}
-%\def\RC{{K_\infty}}
-\def\RC{{\tilde{K}}}
-\def\P{{\mathbb P}}
+%% \def\T{{\mathbb T}}
+%% \def\H{{\mathbb H}}
+%% %\def\RC{{K_\infty}}
+%% \def\RC{{\tilde{K}}}
+%% \def\P{{\mathbb P}}
 \def\F{{\mathbb F}}
 \def\Fp{{\mathbb F}_p}
-\def\Fq{{\mathbb F}_q}
-\def\M{{\mathcal M}}
-\def\CC{{\mathcal C}}
-\def\HH{{\mathcal H}}
-\def\SS{{\mathcal S}}
-\def\G{{\mathcal G}}
-\def\K{{\mathcal K}}
-\def\I{{\mathcal I}}
-\def\J{{\mathcal J}}
-\def\PP{{\mathcal P}}
 \def\OO{{\mathcal O}}
-\def\ZG{{\mathcal Z}}
 \def\a{{\mathfrak a}}
 \def\b{{\mathfrak b}}
 \def\idc{{\mathfrak c}}
-
-\def\v{{\mathbf v}}
-%\def\c{{\mathfrak c}}
-\def\d{{\mathfrak d}}
-\def\D{{\mathfrak D}}
-\def\m{{\mathfrak m}}
-\def\n{{\mathfrak n}}
-\def\N{{\mathfrak N}}
 \def\p{{\mathfrak p}}
 \def\q{{\mathfrak q}}
-\def\r{{\mathfrak r}}
-\def\u{{\mathfrak u}}
-\def\DF{{\nabla\underline{F}}}
+\def\n{{\mathfrak n}}
 \def\Qbar{\overline{\Q}}
-\def\Qpbar{\overline{\Q_p}}
-\def\Abar{\overline{A}}
-\def\RR{{R\oplus R}}
-\def\KK{{K\oplus K}}
-\def\uF{{\underline{F}}}
-\def\oC{\overline{\mathcal C}}
-\def\oP{\overline{P}}
-\def\oM{\overline{M}}
-\DeclareMathOperator{\lcm}{lcm}
 \DeclareMathOperator{\disc}{disc}
-\DeclareMathOperator{\rk}{rank}
 \DeclareMathOperator{\ord}{ord}
-\DeclareMathOperator{\diag}{diag}
-\DeclareMathOperator{\adj}{adj}
-\DeclareMathOperator{\Mat}{Mat}
-\DeclareMathOperator{\Hom}{Hom}
-\DeclareMathOperator{\Res}{Res}
-\DeclareMathOperator{\Gal}{Gal}
-\DeclareMathOperator{\End}{End}
-\DeclareMathOperator{\Aut}{Aut}
-\DeclareMathOperator{\Cl}{Cl}
-\def\<#1>{\left<#1\right>}
-\newcommand{\mat}[4]{\left(\begin{matrix} %
-                   #1 & #2 \\ #3 & #4 %
-                  \end{matrix}\right)}
-\newcommand{\smat}[4]{\left(\begin{smallmatrix} %
-                   #1 & #2 \\ #3 & #4 %
-                  \end{smallmatrix}\right)}
-\DeclareMathOperator{\im}{im}
-
 
 \title{Notes on labelling and sorting number fields, number field
   elements and ideals}
@@ -97,25 +48,62 @@
 \begin{document}
 \maketitle
 
-These notes set out a scheme for labelling and sorting number fields,
-elements of number fields, and ideals of number fields (including
-prime ideals as a special case).  We have implemented algorithms which
-realise this scheme, in \Sage, \Magma\ and~\Pari.
+We define a scheme for labelling and ordering elements of number
+fields and ideals of number fields, including prime ideals as a
+special case.  The order we define depends only on the choice of a
+monic irreducible integral defining polynomial for each field, and we
+start by defining for each field its unique \emph{reduced} defining
+polynomial in Section~1.  In Section~2 we define the ordering on
+number field elements (in a fixed number field~$K$), and in Sections~2
+and~3 we define the order on the set of prime ideals of~$K$ and then
+the set of all nonzero integral ideals of~$K$.  For all integral
+ideals~$\a$, including prime ideals, this order allows us to give a
+unique label of the form $N.i$, where~$N=N(\a)$ and $i\ge1$ is the
+index of~$\a$ in the ordered list of all ideals of norm~$N$.
 
-\section{Sorting number field elements}
-\subsection{Defining the number field}
-We assume that every number field $K$ is given in the form
-$K=\Q(\alpha)$ where $\alpha$ is an algebraic integer whose minimal
-polynomial $g(X)$ is canonically determined by the field $K$.  By
-default, and wherever possible in practice, $g(X)$ is the polynomial
-returned by the \Pari\ function {\tt polredabs()}, which is guaranteed
-to always return the same polynomial, given any polynomial defining a
-number field isomorphic to $K$.  This canonical polynomial $g(X)$ is
-thus fixed one and for all; it is monic and integral. The precise
-definition of the {\tt polredabs} polynomial is as follows (see
-\cite{polredabs}):
+Our motivation for this is to have a well-defined and concise way to
+sort and label ideals for use in databases such as the
+LMFDB~\cite{lmfdb}.  For example, consider the finite set of Bianchi
+modular neworms defined over the imaginary quadratic field~$K$ having
+fixed level~$\n$, weight~$2$ and trivial character.  In order to label
+these, we sort them according to the vector of their Fourier
+coefficients~$a_{\p}$ (indexed by prime ideals~$\p$ of~$K$), and for
+this to be well-defined we need a well-defined way to order the primes
+themselves.
 
-%TODO credit
+We have implemented algorithms which realise this scheme, in \Sage,
+\Magma\ and~\Pari.  The code is available at
+\url{https://github.com/JohnCremona/Sorting/tree/master/code}.
+
+\section{Defining the number field}
+Every number field has the form $K=\Q(\alpha)$ where $\alpha$ is an
+algebraic integer.  The minimal polynomial of~$\alpha$ is an
+irreducible monic polynomial in~$\Z[X]$, called the \emph{defining
+  polynomial} of~$K$.  While every field has infinitely many such
+defining polynomials, for our purposes, we need to make a choice once
+and for all of one defining polynomial for each field, since the way
+in which we order field elements and ideals will depend on this
+choice.
+
+The \emph{reduced defining polynomial} of the number field~$K$ is
+defined to be the unique monic integral polynomial determined by the
+following process. Recall that the $T_2$-norm of a polynomial is the
+sum of the squares of the modulus of the roots, and for a
+polynomial~$P = x^n + a_1x + \dots + a_n$, let~$S(P) =
+(|a_1|,a_1,\dots,|a_n|,a_n)$.
+\begin{enumerate}
+  \item Let~$L_0$ be the list of (monic integral) defining polynomials
+    of~$K$ which are minimal with respect to the~$T_2$ norm.
+  \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose
+    discriminant has minimal absolute value.
+  \item Order the polynomials in~$L_1$ by lexicographic order of the
+    vectors~$S(P)$.
+
+    Then the reduced defining polynomial of~$K$ is the first
+    polynomial in~$L_1$ with respect to this order.
+\end{enumerate}
+
+\begin{comment} % older (but equivalent) version:
 \begin{enumerate}
   \item Let~$L_0$ be the list of characteristic polynomials in $\Z[x]$
     of integral primitive elements of~$K$, minimal with respect to
@@ -134,27 +122,25 @@ definition of the {\tt polredabs} polynomial is as follows (see
     {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_2$ for
     that order.
 \end{enumerate}
+\end{comment}
 
-Alternative, equivalent definition.
-\begin{enumerate}
-  \item Let~$L_0$ be the list of characteristic polynomials in $\Z[x]$
-    of integral primitive elements of~$K$, minimal with respect to
-    the~$T_2$ norm (the sum of the squares of the modulus of the
-    roots).
-  \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
-    minimal absolute value.
-  \item For a polynomial~$P = x^n + a_1x + \dots + a_n$, let~$S(P) =
-    (|a_1|,a_1,\dots,|a_n|,a_n)$; order the polynomials in~$L_2$ by
-    lexicographic order of the vectors~$S(P)$.
-    Then the {\tt polredabs} polynomial of~$K$ is the smallest polynomial in~$L_1$ for
-    that order.
-\end{enumerate}
+Note that in the second step, we restrict to the list~$L_0$ of
+polynomials defined in the first step; hence the defining polynomial
+for the field with smallest discriminant may not belong to the list.
 
-For example, the third condition distinguishes between $x^2-x+1$ and
+The third step distinguishes, for example, between $x^2-x+1$ and
 $x^2+x+1$ as defining polynomials for $\Q(\sqrt{-3})$, choosing the
 first, and hence the generator $(1+\sqrt{-3})/2$ (a 6th root of unity)
 rather than $(-1+\sqrt{-3})/2$ (a 3rd root of unity).
 
+This definition is due to Karim Belabas, and is implemented in the
+\Pari\ function {\tt polredabs()}, which is guaranteed to always
+return the same polynomial, given any defining polynomial for a number
+field: see \cite{polredabs}.  Note that computing this polynomial can
+be very time-consuming when the degree or discriminant of the field is
+large: in particular it requires computation of the ring of integers
+of~$K$, and hence the factorization of the discriminant of an initial
+(monic integral irreducible) defining polynomial for~$K$.
 
 We do not assume that $\Z[\alpha]$ is the full ring of integers
 $\OO_K$.  Indeed, for most number fields $K$ this condition is
@@ -165,8 +151,12 @@ We emphasize that both the defining polynomial $g(X)$ and the
 generator $\alpha$ of~$K$ are fixed from now on.  In other words we
 are fixing the structure of $K=\Q[X]/(g(X))$ not just as a field, but
 as a $\Q[X]$-algebra, where the structure map $\Q[X]\to K$ has kernel
-$(g(X))$ and $\alpha$ is the image of $X$ in $K$.
+$(g(X))$ and $\alpha$ is the image of $X$ in $K$.  In what follows,
+the order we define on field elements and ideals depends on the choice
+of defining polynomial, so is canonical when the reduced defining
+polynomial is used.
 
+\section{Sorting number field elements}
 \subsection{Ordering the elements of a fixed number field}\label{sec:ordfix}
 For ordering elements of $K=\Q$, we use the standard order on $\Q$ as
 a subfield of~$\R$.
@@ -211,20 +201,21 @@ of $g$ as a key, we can unambiguously  compare any two non-conjugate algebraic
 numbers. By first sorting on $\deg(g)$ we can ensure that algebraic numbers of
 lower degree come before those of higher degree.
 
-However, to obtain a total order on $\Qbar$ we must also specify
-an ordering of each set of Galois conjugates, algebraic numbers
-that are roots of the same polynomial $g(X)$.  This could be done, for example, by fixing an
-embedding of $\Qbar$ into $\C$ and representing elements of $\C$ as
-vectors in $\R^2$ ordered lexicographically. But to apply this ordering to
-elements of a number field $K=\Q(\alpha)$ would require fixing an
-embedding of every such $K$ into $\Qbar$ in a way that is compatible
-with respect to inclusion.  This may be possible but it
-is certainly not easy to define and implement.
+However, to obtain a total order on $\Qbar$ we must also specify an
+ordering of each set of Galois conjugates, algebraic numbers that are
+roots of the same irreducible polynomial $g(X)$.  This could be done,
+for example, by fixing an embedding of $\Qbar$ into $\C$ and
+representing elements of $\C$ as vectors in $\R^2$ ordered
+lexicographically. But to apply this ordering to elements of a number
+field $K=\Q(\alpha)$ would require fixing an embedding of every such
+$K$ into $\Qbar$ in a way that is compatible with respect to
+inclusion.  This may be possible but it is certainly not easy to
+define and implement.
 
 On balance we decided to use the ordering defined in \S\ref{sec:ordfix}, which allows us to compare algebraic numbers only as elements of a chosen ambient field with a fixed defining polynomial and generator.
 
 \section{Sorting prime ideals}\label{sec:primes}
-Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with monic defining
+Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with defining
 polynomial $g\in\Z[X]$ and generator $\alpha$ as above, and let
 $\OO_K$ denote its ring of integers.  We do not assume that $K/\Q$ is
 Galois or that $\OO_K=\Z[\alpha]$.  By a \emph{prime} of $K$ (or of
@@ -253,7 +244,10 @@ but this will not concern us since we order by norm first.
 \subsection{The case of unramified primes}
 
 Our general method is simplest when $p$ is unramified, not just in $K$
-but in the order $\Z[\alpha]$; this holds precisely when $p\nmid [\OO_K:\Z[\alpha]]\disc(K)$, equivalently, $p\nmid\disc(g)$, which applies to all but finitely many $p$.  In this case $g(X)$ factors modulo~$p$ into distinct irreducible elements of $\Fp[X]$, and we may
+but in the order $\Z[\alpha]$; this holds precisely when $p\nmid
+[\OO_K:\Z[\alpha]]\disc(K)$, or equivalently, $p\nmid\disc(g)$, which
+applies to all but finitely many $p$.  In this case $g(X)$ factors
+modulo~$p$ into distinct irreducible elements of $\Fp[X]$, and we may
 write
 \[
     g(X) \equiv \prod_i h_i(X) \pmod{p},
@@ -275,7 +269,7 @@ $\ord_{\p_i}(\beta)>0$ while $\ord_{\p_j}(\beta)=0$ for all primes
 $\p_j$ above~$p$ other than~$\p_i$.  This makes implementation of the
 sorting function on the primes above~$p$ very simple in this case.
 
-\subsection{The general case, including ramified and unramified primes}
+\subsection{The general case, including ramified primes}
 
 There is a bijection between the distinct primes $\p$ above $p$ and
 the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$ in which $\deg h
@@ -285,11 +279,10 @@ the irreducible factors $h(X)$ of $g(X)$ in $\Q_p[X]$ in which $\deg h
 \]
 with the $h_i(X)$ monic and irreducible in $\Z_p[X]$. Since we sort
 prime ideals by norm and ramification index, it is enough to describe
-an order on polynomials of the same degree (in fact we are interested
-only in those polynomials $h_i(X)$ that not only have the same
-degree~$ef$, but correspond to primes $\p_i$ with both the same
-ramification index~$e$ and the same residue degree~$f$, which may be a
-proper subset).
+an order on polynomials of the same degree; in fact, we only need to
+order the set of polynomials $h_i(X)$ that have the same degree~$ef$,
+and also correspond to primes $\p_i$ with both the same ramification
+index~$e$ and the same residue degree~$f$, which may be a smaller set.
 
 We sort polynomials in~$\Z_p[X]$ of degree~$d$ as follows. Such a polynomial~$P$
 can be written uniquely in the form
@@ -334,7 +327,7 @@ if~$\p$ corresponds to~$h$.
 While this valuation cannot be computed using finite
 approximations to~$h$, for all integers~$k\ge 1$ we have~$v_\p((p^k,h(\alpha)))
 = \min(e(\p/p)k, v_\p(h(\alpha)))$, and this value equals~$e(\p/p)k$
-if~$h$ corresponds to~$\p$ and bounded above otherwise (independent of~$k$). The
+if~$h$ corresponds to~$\p$ and is bounded above otherwise (independently of~$k$). The
 valuation~$v_\p((p^k,h(\alpha)))$ can be computed using finite approximations
 to~$h$, and if $k$ is such that the set $\{v_\p((p^k,h_i(\alpha)))\}$ has a unique maximum, this maximum occurs for the polynomial $h_i(X)$ corresponding to $\p$.
 Thus we can compute the bijection by making $k$ sufficiently large (and any $k$ that yields a unique maximum works).
@@ -386,9 +379,12 @@ systems in any case.
 %of $\disc f$ perhaps.
 
 \subsection{Examples}
-Let $K=\Q(\alpha)$ be the non-Galois cubic field
-\href{www.lmfdb.org/NumberField/3.1.503.1}{\texttt{3.1.503.1}} of
-discriminant $-503$ with canonical defining polynomial
+We use number fields in the LMFDB database (see~\cite{lmfdb}) to
+illustrate the sorting of prime ideals.
+
+Let $K=\Q(\alpha)$ be the non-Galois cubic field with LMFDB
+label~\href{www.lmfdb.org/NumberField/3.1.503.1}{\texttt{3.1.503.1}}
+of discriminant $-503$ with canonical defining polynomial
 $g(x)=X^3-X^2+2X+8$.  The prime $2$ is unramified, but it divides
 $\disc(g(X))=-2^2\cdot 503$ and is an essential divisor of
 $[\OO_K:\Z[\alpha]]$ in the sense that $2\mid[\OO_K:\Z[\alpha']]$ for
@@ -497,19 +493,19 @@ the primes above~$3$ is~$\p_c < \p_e < \p_a < \p_b < \p_d$.
 \section{Sorting all nonzero integral ideals}
 
 Fix a number field $K=\Q(\alpha)$ with defining polynomial
-$g(X)\in\Z[X]$ and generator $\alpha$ as above. 
-We now define a total order on the set of all nonzero integral ideals of~$K$.
-We always order ideals by norm, and then define some criteria to sort ideals of
-the same norm. This defines for each ideal~$\a$ a unique label~$N.i$, where~$N$
-is the norm of~$\a$ and~$i\ge 1$ is the index of~$\a$ in the ordered list of
-ideals of norm~$N$.
-The order we choose has the following properties:
+$g(X)\in\Z[X]$ and generator $\alpha$ as above.  We now define a total
+order on the set of all nonzero integral ideals of~$K$.  We first
+order ideals by norm, and then sort ideals of the same norm according
+to the criterion which we specify in this section. This defines for
+each ideal~$\a$ a unique label~$N.i$, where~$N$ is the norm of~$\a$
+and~$i\ge 1$ is the index of~$\a$ in the ordered list of ideals of
+norm~$N$.  This order has the following properties:
 \begin{itemize}
   \item prime ideals are smaller than every non-prime ideal of the same norm,
     and are ordered in the same way as before;
-  \item if~$\a,\b,\idc$ are integral ideals such that~$\a<\b$, then~$\a\idc<\b\idc$
-    i.e. our ordering makes the set of nonzero integral ideals a totally ordered
-    monoid;
+  \item if~$\a,\b,\idc$ are integral ideals such that~$\a<\b$,
+    then~$\a\idc<\b\idc$; so our ordering makes the set of nonzero
+    integral ideals into a totally ordered monoid;
   \item if the factorisation of a positive integer~$N$ is known, then the
     bijection between ideals of norm~$N$ and their labels is computable in
     polynomial time (even though the number of such ideals might not be
@@ -573,6 +569,7 @@ of norm~$108 = 2^2\cdot 3^3$. The ideals of norm~$4$ are~$\p_3 < \p_1^2 < \p_1\p
 norm~$108$ are therefore~$\p_3\q_2 < \p_3\q_1^3 < \p_1^2\q_2 < \p_1^2\q_1^3 <
 \p_1\p_2\q_2 < \p_1\p_2\q_1^3 < \p_2^2\q_2 < \p_2^2\q_1^3$.
 
+\begin{comment}
 \section{Standard generators for nonzero integral ideals}
 
 The goal of this section is to define, for every nonzero integral ideal~$\a$ of
@@ -638,7 +635,7 @@ claim.
 
 We define the \emph{standard generators} of~$\a$ to be~$(N,g)$.
 
-
+\end{comment}
 
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
@@ -648,6 +645,9 @@ We define the \emph{standard generators} of~$\a$ to be~$(N,g)$.
 \bibitem{Janusz} Gerald J. Janusz, {\em Algebraic Number Fields} (2nd
   edition, 1996).  Graduate Studies in Mathematics Volume 7, American
   Mathematical Society, Providence, RI.
+\bibitem{lmfdb} The {LMFDB Collaboration},
+{\em The L-functions and Modular Forms Database},
+\url{http://www.lmfdb.org}, 2020.
 \bibitem{polredabs} Online catalogue of all \Pari\ functions, section
   on general number fields.  See
   \href{https://pari.math.u-bordeaux.fr/dochtml/html-stable/General_number_fields.html\#polredabs}{\url{https://pari.math.u-bordeaux.fr/dochtml/html-stable/General_number_fields.html\#polredabs}}.
