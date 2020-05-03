@@ -64,7 +64,7 @@ index of~$\a$ in the ordered list of all ideals of norm~$N$.
 Our motivation for this is to have a well-defined and concise way to
 sort and label ideals for use in databases such as the
 LMFDB~\cite{lmfdb}.  For example, consider the finite set of Bianchi
-modular neworms defined over the imaginary quadratic field~$K$ having
+modular newforms defined over the imaginary quadratic field~$K$ having
 fixed level~$\n$, weight~$2$ and trivial character.  In order to label
 these, we sort them according to the vector of their Fourier
 coefficients~$a_{\p}$ (indexed by prime ideals~$\p$ of~$K$), and for
@@ -99,7 +99,7 @@ polynomial~$P = x^n + a_1x + \dots + a_n$, let~$S(P) =
   \item Order the polynomials in~$L_1$ by lexicographic order of the
     vectors~$S(P)$.
 
-    Then the reduced defining polynomial of~$K$ is the first
+    Then the reduced defining polynomial of~$K$ is the smallest
     polynomial in~$L_1$ with respect to this order.
 \end{enumerate}
 
@@ -140,7 +140,9 @@ field: see \cite{polredabs}.  Note that computing this polynomial can
 be very time-consuming when the degree or discriminant of the field is
 large: in particular it requires computation of the ring of integers
 of~$K$, and hence the factorization of the discriminant of an initial
-(monic integral irreducible) defining polynomial for~$K$.
+(monic integral irreducible) defining polynomial for~$K$; in addition the number
+of potential defining polynomials to consider could be exponential in the
+degree.
 
 We do not assume that $\Z[\alpha]$ is the full ring of integers
 $\OO_K$.  Indeed, for most number fields $K$ this condition is
