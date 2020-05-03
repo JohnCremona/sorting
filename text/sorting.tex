@@ -53,13 +53,16 @@ fields and ideals of number fields, including prime ideals as a
 special case.  The order we define depends only on the choice of a
 monic irreducible integral defining polynomial for each field, and we
 start by defining for each field its unique \emph{reduced} defining
-polynomial in Section~1.  In Section~2 we define the ordering on
+polynomial in Section~1, after Belabas.  In Section~2 we define the ordering on
 number field elements (in a fixed number field~$K$), and in Sections~2
 and~3 we define the order on the set of prime ideals of~$K$ and then
 the set of all nonzero integral ideals of~$K$.  For all integral
 ideals~$\a$, including prime ideals, this order allows us to give a
 unique label of the form $N.i$, where~$N=N(\a)$ and $i\ge1$ is the
 index of~$\a$ in the ordered list of all ideals of norm~$N$.
+Our ideal labelling scheme has several nice properties: for a given norm, prime
+ideals always appear first, and given the factorisation of~$N$, the bijection
+between ideals of norm~$N$ and labels is computable in polynomial time.
 
 Our motivation for this is to have a well-defined and concise way to
 sort and label ideals for use in databases such as the
@@ -72,8 +75,10 @@ this to be well-defined we need a well-defined way to order the primes
 themselves.
 
 We have implemented algorithms which realise this scheme, in \Sage,
-\Magma\ and~\Pari.  The code is available at
-\url{https://github.com/JohnCremona/Sorting/tree/master/code}.
+\Magma\ and~\Pari. Each of the three authors wrote one version of the code
+independently of the others, and we checked on a series of examples that the
+outputs agree. The code is available
+at~\url{https://github.com/JohnCremona/Sorting/tree/master/code}.
 
 \section{Defining the number field}
 Every number field has the form $K=\Q(\alpha)$ where $\alpha$ is an
@@ -90,9 +95,10 @@ defined to be the unique monic integral polynomial determined by the
 following process. Recall that the $T_2$-norm of a polynomial is the
 sum of the squares of the modulus of the roots, and for a
 polynomial~$P = x^n + a_1x + \dots + a_n$, let~$S(P) =
-(|a_1|,a_1,\dots,|a_n|,a_n)$.
+(|a_1|,a_1,\dots,|a_n|,a_n)$; there are only finitely many monic integral
+polynomials of a given degree and bounded~$T_2$ norm.
 \begin{enumerate}
-  \item Let~$L_0$ be the list of (monic integral) defining polynomials
+  \item Let~$L_0$ be the finite list of monic integral defining polynomials
     of~$K$ which are minimal with respect to the~$T_2$ norm.
   \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose
     discriminant has minimal absolute value.
@@ -177,8 +183,8 @@ In particular, $\alpha^{d-1}<\dots<\alpha^2<\alpha<1$, and the induced
 ordering on $\Q$ viewed as a subset of $K$ is the same as the standard
 ordering of $\Q$.  However in general if $K$ and $L$ are number fields
 with $K\subset L$ (more precisely, with an embedding $K\hookrightarrow
-L$), then the embedding is not necessarily order-preserving, as we now
-illustrate.
+L$), then the embedding is not necessarily order-preserving, as we
+illustrate in the next section.
 
 \subsection{An incomplete alternative sorting method}
 
@@ -386,7 +392,7 @@ illustrate the sorting of prime ideals.
 
 Let $K=\Q(\alpha)$ be the non-Galois cubic field with LMFDB
 label~\href{www.lmfdb.org/NumberField/3.1.503.1}{\texttt{3.1.503.1}}
-of discriminant $-503$ with canonical defining polynomial
+of discriminant $-503$ with reduced defining polynomial
 $g(x)=X^3-X^2+2X+8$.  The prime $2$ is unramified, but it divides
 $\disc(g(X))=-2^2\cdot 503$ and is an essential divisor of
 $[\OO_K:\Z[\alpha]]$ in the sense that $2\mid[\OO_K:\Z[\alpha']]$ for
