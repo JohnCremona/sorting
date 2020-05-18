@@ -41,8 +41,7 @@
 \DeclareMathOperator{\disc}{disc}
 \DeclareMathOperator{\ord}{ord}
 
-\title{Notes on labelling and sorting number fields, number field
-  elements and ideals}
+\title{Sorting and labelling integral ideals in a number field}
 \author{John Cremona, Aurel Page, and Andrew V. Sutherland}
 
 \begin{document}
@@ -53,16 +52,17 @@ fields and ideals of number fields, including prime ideals as a
 special case.  The order we define depends only on the choice of a
 monic irreducible integral defining polynomial for each field, and we
 start by defining for each field its unique \emph{reduced} defining
-polynomial in Section~1, after Belabas.  In Section~2 we define the ordering on
-number field elements (in a fixed number field~$K$), and in Sections~2
-and~3 we define the order on the set of prime ideals of~$K$ and then
-the set of all nonzero integral ideals of~$K$.  For all integral
-ideals~$\a$, including prime ideals, this order allows us to give a
-unique label of the form $N.i$, where~$N=N(\a)$ and $i\ge1$ is the
-index of~$\a$ in the ordered list of all ideals of norm~$N$.
-Our ideal labelling scheme has several nice properties: for a given norm, prime
-ideals always appear first, and given the factorisation of~$N$, the bijection
-between ideals of norm~$N$ and labels is computable in polynomial time.
+polynomial in Section~\ref{sec:polredabs}, after Belabas.  In
+Section~\ref{sec:primes} we define a total order on the set of prime
+ideals of~$K$ and then extend this in Section~ref{sec:ideals} to a
+total order on the set of all nonzero integral ideals of~$K$.  For all
+integral ideals~$\a$, including prime ideals, this order allows us to
+give a unique label of the form $N.i$, where~$N=N(\a)$ and $i\ge1$ is
+the index of~$\a$ in the ordered list of all ideals of norm~$N$.  Our
+ideal labelling scheme has several nice properties: for a given norm,
+prime ideals always appear first, and given the factorisation of~$N$,
+the bijection between ideals of norm~$N$ and labels is computable in
+polynomial time.
 
 Our motivation for this is to have a well-defined and concise way to
 sort and label ideals for use in databases such as the
@@ -70,8 +70,8 @@ LMFDB~\cite{lmfdb}.  For example, consider the finite set of Bianchi
 modular newforms defined over the imaginary quadratic field~$K$ having
 fixed level~$\n$, weight~$2$ and trivial character.  In order to label
 these, we sort them according to the vector of their Fourier
-coefficients~$a_{\p}$ (indexed by prime ideals~$\p$ of~$K$), and for
-this to be well-defined we need a well-defined way to order the primes
+coefficients~$a_{\p}$, indexed by prime ideals~$\p$ of~$K$, and for
+this to be well-defined we need to specify an order on the primes
 themselves.
 
 We have implemented algorithms which realise this scheme, in \Sage,
@@ -81,6 +81,7 @@ outputs agree. The code is available
 at~\url{https://github.com/JohnCremona/Sorting/tree/master/code}.
 
 \section{Defining the number field}
+\label{sec:polredabs}
 Every number field has the form $K=\Q(\alpha)$ where $\alpha$ is an
 algebraic integer.  The minimal polynomial of~$\alpha$ is an
 irreducible monic polynomial in~$\Z[X]$, called the \emph{defining
@@ -164,63 +165,6 @@ the order we define on field elements and ideals depends on the choice
 of defining polynomial, so is canonical when the reduced defining
 polynomial is used.
 
-\section{Sorting number field elements}
-\subsection{Ordering the elements of a fixed number field}\label{sec:ordfix}
-For ordering elements of $K=\Q$, we use the standard order on $\Q$ as
-a subfield of~$\R$.
-
-In general, given $K=\Q(\alpha)\cong \Q[X]/(g(X))$ as above, with
-degree $d=[K:\Q]=\deg g$, every element $\beta\in K$ can be uniquely
-expressed as a polynomial in $\alpha$ of degree at most $d-1$, say
-$\beta=\sum_{i=0}^{d-1}b_i\alpha^i$, and we use the coefficient vector
-$(b_0,b_1,\dots,b_{d-1})\in\Q^d$ as a sorting key, where $\Q^d$ is
-sorted lexicographically.  To remove any ambiguity, this means that if
-also $\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$, then $\beta<\gamma$ if and
-only if we have $b_i<c_i$ for the \textit{least} index~$i$ such that
-$b_i\not=c_i$.
-
-In particular, $\alpha^{d-1}<\dots<\alpha^2<\alpha<1$, and the induced
-ordering on $\Q$ viewed as a subset of $K$ is the same as the standard
-ordering of $\Q$.  However in general if $K$ and $L$ are number fields
-with $K\subset L$ (more precisely, with an embedding $K\hookrightarrow
-L$), then the embedding is not necessarily order-preserving, as we
-illustrate in the next section.
-
-\subsection{An incomplete alternative sorting method}
-
-If $\beta$ and $\gamma$ are algebraic numbers contained in a number
-field $K$ then we may order them as above, but this ordering depends
-both on $K$ and on our fixed representation $K=\Q(\alpha)$.  In
-particular, the order may change if we enlarge $K$; for example, in
-the field $K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 <
-\alpha$ (because $(0,1,-1) < (0,1,0)$), but if we embed $K$ in its
-Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 -
-3X + 1)$$ via the map $\pi:K\to L$ defined by $\pi(\alpha) = \beta^5 -
-2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$, in the field $L$ we have
-$\pi(\alpha-\alpha^2) > \pi(\alpha)$ (because
-$(2,-4,5,-5,3,-1)>(0,2,-1,2,-2,1)$).
-
-It is tempting to try to define an ordering on $\Qbar$ that would
-allow us to consistently order all algebraic numbers, independent
-of a choice an ambient number field.  Every $\beta\in\Qbar$ is a root of a
-unique irreducible primitive polynomial $g(X)\in\Z[X]$  with positive
-leading coefficient.  Using the coefficient sequence
-of $g$ as a key, we can unambiguously  compare any two non-conjugate algebraic
-numbers. By first sorting on $\deg(g)$ we can ensure that algebraic numbers of
-lower degree come before those of higher degree.
-
-However, to obtain a total order on $\Qbar$ we must also specify an
-ordering of each set of Galois conjugates, algebraic numbers that are
-roots of the same irreducible polynomial $g(X)$.  This could be done,
-for example, by fixing an embedding of $\Qbar$ into $\C$ and
-representing elements of $\C$ as vectors in $\R^2$ ordered
-lexicographically. But to apply this ordering to elements of a number
-field $K=\Q(\alpha)$ would require fixing an embedding of every such
-$K$ into $\Qbar$ in a way that is compatible with respect to
-inclusion.  This may be possible but it is certainly not easy to
-define and implement.
-
-On balance we decided to use the ordering defined in \S\ref{sec:ordfix}, which allows us to compare algebraic numbers only as elements of a chosen ambient field with a fixed defining polynomial and generator.
 
 \section{Sorting prime ideals}\label{sec:primes}
 Fix a number field $K=\Q(\alpha)=\Q[X]/(g(X))$ with defining
@@ -499,7 +443,7 @@ Since these ideals all have norm~$9$ and ramification index~$1$, our ordering of
 the primes above~$3$ is~$\p_c < \p_e < \p_a < \p_b < \p_d$.
 
 \section{Sorting all nonzero integral ideals}
-
+\label{sec:ideals}
 Fix a number field $K=\Q(\alpha)$ with defining polynomial
 $g(X)\in\Z[X]$ and generator $\alpha$ as above.  We now define a total
 order on the set of all nonzero integral ideals of~$K$.  We first
