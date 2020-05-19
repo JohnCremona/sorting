@@ -13,7 +13,9 @@
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{prop}[thm]{Proposition}
 \newtheorem{defn}{Definition}%[section]
-\newtheorem{rem}[thm]{Remark}
+\theoremstyle{remark}
+\newtheorem{rem}{Remark}
+\newtheorem*{example}{Example}
 
 \def\Sage{{\tt Sage}}
 \def\Pari{{\tt Pari}}
@@ -86,67 +88,197 @@
                   \end{smallmatrix}\right)}
 \DeclareMathOperator{\im}{im}
 
+% label and link to an elliptic curve /Q (LMFDB label):
+\newcommand{\lmfdbecLMFDB}[3]{\href{http://www.lmfdb.org/EllipticCurve/Q/#1.#2#3}{{\text{\rm#1.#2#3}}}}
+% label and link to an elliptic curve /Q (Cremona label):
+\newcommand{\lmfdbecCremona}[3]{\href{http://www.lmfdb.org/EllipticCurve/Q/#1#2#3}{{\text{\rm#1#2#3}}}}
+% label and link to an elliptic curve isogeny class /Q (LMFDB label):
+\newcommand{\lmfdbecisoLMFDB}[2]{\href{http://www.lmfdb.org/EllipticCurve/Q/#1.#2}{\text{\rm#1.#2}}}
+% label and link to an elliptic curve isogeny class /Q (Cremona label):
+\newcommand{\lmfdbecisoCremona}[2]{\href{http://www.lmfdb.org/EllipticCurve/Q/#1#2}{\text{\rm#1#2}}}
 
 \title{Notes on sorting and labelling elliptic curves over number fields}
-\author{John Cremona, Aurel Page, and Andrew V. Sutherland}
+\author{John Cremona and Andrew V. Sutherland}
 
 \begin{document}
 \maketitle
 
 These notes concern algorithms for sorting and labelling elliptic
 curves defined over an arbitrary number field, including sorting and
-labelling isogeny classes, and curve in each isogeny class.
+labelling isogeny classes, and curves in each isogeny class.
+
+In Section~\ref{sec:nfsort} we discuss an ordering of the elements in
+a fixed number field, depending only on the polynomial used to define
+the field.  In Section
+
+\section{Sorting number field elements}
+\label{sec:nfsort}
+\subsection{Ordering the elements of a fixed number field}\label{sec:ordfix}
+For ordering elements of $K=\Q$, we use the standard order on $\Q$ as
+a subfield of~$\R$.
+
+In general, let $K$ be a number field of degree~$d$ given in the form
+$K=\Q(\alpha)\cong \Q[X]/(g(X))$, with $g(X)\in\Z[X]$ a monic
+irreducible polynomial of degree~$d$.  Out of all such {defining
+  polynomials} $g(X)$ we always use the \emph{reduced defining polynomial},
+as defined in~\cite{CremonaPageSutherland}.
+
+Every element $\beta\in K$ can be uniquely expressed as a polynomial
+in $\alpha$ of degree at most $d-1$, say
+$\beta=\sum_{i=0}^{d-1}b_i\alpha^i$, and we use the coefficient vector
+$(b_0,b_1,\dots,b_{d-1})\in\Q^d$ as a sorting key, where $\Q^d$ is
+sorted lexicographically.  To remove any ambiguity, this means that if
+also $\gamma=\sum_{i=0}^{d-1}c_i\alpha^i$, then $\beta<\gamma$ if and
+only if we have $b_i<c_i$ for the \textit{least} index~$i$ such that
+$b_i\not=c_i$.
+
+In particular, $\alpha^{d-1}<\dots<\alpha^2<\alpha<1$, and the induced
+ordering on $\Q$ viewed as a subset of $K$ is the same as the standard
+ordering of $\Q$.  However in general if $K$ and $L$ are number fields
+with $K\subset L$ (more precisely, with an embedding $K\hookrightarrow
+L$), then the embedding is not necessarily order-preserving, as we
+illustrate in the next section.
+
+\subsection{An incomplete alternative sorting method}
+
+If $\beta$ and $\gamma$ are algebraic numbers contained in a number
+field $K$ then we may order them as above, but this ordering depends
+both on $K$ and on our fixed representation $K=\Q(\alpha)$.  In
+particular, the order may change if we enlarge $K$; for example, in
+the field $K=\Q(\alpha):=\Q[X]/(X^3-X^2+1)$ we have $\alpha-\alpha^2 <
+\alpha$ (because $(0,1,-1) < (0,1,0)$), but if we embed $K$ in its
+Galois closure $$L=\Q(\beta):=\Q[X]/(X^6 - 3X^5 + 5X^4 - 5X^3 + 5X^2 -
+3X + 1)$$ via the map $\pi:K\to L$ defined by $\pi(\alpha) = \beta^5 -
+2\beta^4 + 2\beta^3 - \beta^2 + 2\beta$, in the field $L$ we have
+$\pi(\alpha-\alpha^2) > \pi(\alpha)$ (because
+$(2,-4,5,-5,3,-1)>(0,2,-1,2,-2,1)$).
+
+It would be convenient to define an ordering on $\Qbar$ that would
+allow us to consistently order all algebraic numbers, independent of a
+choice an ambient number field.  Every $\beta\in\Qbar$ is a root of a
+unique irreducible primitive polynomial $g(X)\in\Z[X]$ with positive
+leading coefficient.  Using the coefficient sequence of $g$ as a key,
+we can unambiguously compare any two non-conjugate algebraic
+numbers. By first sorting on $\deg(g)$ we can ensure that algebraic
+numbers of lower degree come before those of higher degree.
+
+However, to obtain a total order on $\Qbar$ we must also specify an
+ordering of each set of Galois conjugates, algebraic numbers that are
+roots of the same irreducible polynomial $g(X)$.  This could be done,
+for example, by fixing an embedding of $\Qbar$ into $\C$ and
+representing elements of $\C$ as vectors in $\R^2$ ordered
+lexicographically. But to apply this ordering to elements of a number
+field $K=\Q(\alpha)$ would require fixing an embedding of every such
+$K$ into $\Qbar$ in a way that is compatible with respect to
+inclusion.  This may be possible but it is certainly not easy to
+define and implement.
+
+On balance we decided to use the ordering defined in
+\S\ref{sec:ordfix}, which allows us to compare algebraic numbers only
+as elements of a chosen ambient field with a fixed defining polynomial
+and generator.
 
 
-\section{Sorting isogenous elliptic curves}
-
+\section{Sorting elliptic curves}
+\label{sec:isog-curves}
 \subsection{Elliptic curve labels}
 
-Labels for elliptic curves over number fields (including $\Q$ have
-three components: a label for the conductor, a label for each isogeny
-class with that conductor, and a label for each curve in its isogeny
-class.
+Labels for elliptic curves over a fixed number field have three
+components: a label for the conductor, a class label for each isogeny
+class with that conductor, and a numbering of the curves in each
+isogeny class: {\tt<conductor\_label>-<class\_label><number>}.  We may
+also include a label for the base field to obtain a label with four
+components:
+{\tt<field\_label>-<conductor\_label>-<class\_label><number>}.
 
+Over~$\Q$ itself, there have been different labelling scemes
+historically, which we use instead: see the next section.
+
+\subsubsection{LMFDB number field labels}  (See
+\url{https://www.lmfdb.org/knowledge/show/nf.label}) A number field of
+degree~$d$, signature $(r,s)$ and discriminant absolute value~$D$ has
+label {\tt d.r.D.i} where $i$ is the index of the field in a list of
+all those with the same degree, signature and discriminant in case
+there are more than one.  For example, there are two totally real
+quartic fields, {\tt 4.4.16448.1} and {\tt 4.4.16448.2}, with reduced
+defining polynomials $x^4 - 2x^3 - 6x^2 + 2$ and $x^4 - 2x^3 - 7x^2 +
+8x + 14$ respectively.
+
+\subsubsection{Conductor labels}
 Since conductors are integral ideals we can label them according to
-the previous section.
+the scheme defined in~\cite{CremonaPageSutherland}.  Each non-zero
+integral ideal has a unique label of the form {\tt N.i} where $N$ is
+the norm and $i$ is the index of the ideal in the sorted list of all
+integral ideals of norm~$N$ (starting at~$1$).
 
-For a fixed conductor each isogeny class is uniquely determined by the
-traces of Frobenius $a_{\p}(E)$.  Here we include primes of bad
-reduction in the usual way: $a_{\p}(E)=+1$ for split multiplicative
-reduction, $-1$ for non-split and $0$ for additive reduction.  Now we
-can sort the isogeny classes of any fixed conductor by
-lexicographically ordering the sequence of $a_{\p}(E)$ with the
-primes~$\p$ ordered as in the previous section.  Having done that,
-each isogeny class has an index in the order; we base the indices
-at~$0$ and convert to base 26 using ``digits'' $a=0$, $b=1$, $\dots$,
-$z=25$, obtaining a string from the list $a, b, \dots, z, ba, bb,
-\dots$.
+\subsubsection{Isogeny class labels}
+For a fixed conductor, each isogeny class is uniquely determined by
+the traces of Frobenius $a_{\p}(E)$, since by the isogeny theorem, two
+elliptic curves~$E_1$, $E_2$ defined over the same field~$K$ are
+isogenous over~$K$ if and only if $a_{\p}(E_1)=a_{\p}(E_1)$ for all
+but finitely many primes~$\p$.  To sort the isogeny classes for fixed
+conductor $\n$, we include primes of bad reduction (dividing~$\n$),
+defining $a_{\p}(E)$ in the usual way: $a_{\p}(E)=+1$ for split
+multiplicative reduction, $-1$ for non-split and $0$ for additive
+reduction.  Now we can sort the isogeny classes of any fixed conductor
+as follows: take the sequence of integers $(a_{\p}(E))_{\p}$, with the
+primes~$\p$ ordered as in~\cite{CremonaPageSutherland}, and order
+these lexicographically.  Now each isogeny class of conductor~$\n$ has
+an index in this ordering; we base the indices at~$0$ and convert to
+base 26 using ``digits'' $a=0$, $b=1$, $\dots$, $z=25$, obtaining a
+string from the list $a, b, \dots, z, ba, bb, \dots$.
 
-Remarks: 1. In the LMFDB at present (June 2016) the isogeny class
+\subsubsection{Sorting isogenous curves} Finally, the curves in each
+isogeny class are sorted in some way and hence given a numerical
+index, starting at 1, which forms the third part of the label.  In the
+next section we describe methods used to sort the curves in each
+isogeny class.
+
+\begin{rem} In the LMFDB at present (May 2020) the isogeny class
 labels follow this scheme for imaginary quadratic fields since there
 the primes are sorted as in the previous section.  However the class
 labels for elliptic curves over totally real fields are taken from the
 labels of the associated Hilbert modular forms, whose ordering is not
 necessary well-defined as described above.  This is a historical
-accident.
+accident, and may change in future.
+\end{rem}
+\begin{rem} Over $\Q$, the LMFDB uses two different labelling chemes
+  for elliptic curves, which are referrred to as ``LMFDB labels'' and
+  ``Cremona labels''.  The LMFDB labels for elliptic curves use the
+  sorting described here for isogeny classes and curves i each class,
+  and have the format~{\tt <conductor>.<class\_label><number>}, for
+  example {\tt 11.a1}.  By contrast, Cremona labels have the
+  format~{\tt <conductor><class\_label><number>}, for example {\tt
+    11a1}.  Note that \lmfdbecLMFDB{11}{a}{1}
+  and~\lmfdbecCremona{11}{a}{1} are different elliptic curves: there
+  is only one isogeny class of elliptic curves of conductor~$11$,
+  labelled \lmfdbecisoLMFDB{11}{a} or~\lmfdbecisoCremona{11}{a}
+  respectively, and the three curves in this class are sorted
+  differently in the two schemes.  Sinmilarly, for many conductors up
+  to $230,000$, the sorting of both the isogeny classes and the curves
+  in each class which led to the Cremona labels was done differently
+  (and for some ranges of conductors did not keep to any logical
+  schema).
+\end{rem}
+\begin{rem}
+In the Antwerp tables of elliptic curves over~$\Q$ of conductor up
+to~$200$ in \cite{AntwerpIV}, curves are labelled differently, with a
+single upper case letter for each curve of fixed conductor, not
+divided into isogeny classes except that isogenous curves had
+consecutive letters.  See the table below for an example.  In Table~1
+of the author's book \cite{JCbook2}, one can read off the Antwerp
+labels corresponding to each Cremona label for conductors up to~$200$.
+\end{rem}
 
-2. Over $\Q$ the LMFDB labels for elliptic curves follow this but the
-Cremona labels do not for conductors up to $230000$.  Again this is a
-historical phenomenon.
-
-Finally, the curves in each isogeny class are sorted in some way and
-hence given a numerical index, starting at 1, which forms the third
-part of the label.  In the rest of this section we describe methods
-used to sort the curves in each isogeny class.
-
-\subsection{Over \texorpdfstring{$\Q$}{\bf Q}}
+\subsection{Sorting isogenous curves}
+\subsubsection{Over \texorpdfstring{$\Q$}{\bf Q}}
 
 Every elliptic curve over $\Q$ has a unique Weierstrass model which is
-integral, globally minimal and with coefficients $a_1,a_3\in\{0,1\}$
-and $a_3\in\{-1,0,1\}$.  We sort the curves using this coefficient
-vector $(a_1,a_2,a_3,a_4,a_6)$.  In fact, within on isogeny class the
-triple $(a_1,a_2,a_3)$ is constant (see \cite{Siksek}), so it suffices
-to sort on $(a_4,a_6)$.
+integral, globally minimal and with coefficients $a_1,a_2\in\{0,1\}$
+and $a_3\in\{-1,0,1\}$.  We sort the curves using the
+vector~$(a_1,a_2,a_3,a_4,a_6)$ of coefficients of such a model.
+Moreover, within an isogeny class the triple $(a_1,a_2,a_3)$ is
+constant (see \cite{Siksek}), so it suffices to sort on $(a_4,a_6)$.
 
 This is the sorting used for the LMFDB labels for elliptic curves over
 $\Q$.  It differs from the Cremona labelling, in which the ``strong
@@ -155,57 +287,75 @@ labelled in the order of being computed from the first.  At some point
 the latter became completely deterministic and has been documented
 elsewhere, but the details are not relevant here.
 
+\begin{example}
+The three elliptic curves of conductor~$11$ have the following labels
+in the two schemas:
+\[
+\begin{array}{c|c|c|c}
+  \text{LMFDB label} & \text{Cremona label} & \text{Antwerp IV label} & \text{equation} \\
+  \hline\rule[-.3\baselineskip]{0pt}{10pt}
+  \lmfdbecLMFDB{11}{a}{1} & \lmfdbecCremona{11}{a}{2} &\text{11C}& y^2 + y = x^{3} -  x^{2} - 7820 x - 263580 \\
+  \lmfdbecLMFDB{11}{a}{2} & \lmfdbecCremona{11}{a}{1} &\text{11B}& y^2 + y = x^{3} -  x^{2} - 10 x - 20 \\
+  \lmfdbecLMFDB{11}{a}{3} & \lmfdbecCremona{11}{a}{3} &\text{11A}& y^2 + y = x^{3} -  x^{2}
+\end{array}
+\]
+\end{example}
+
+\subsubsection{Over arbitrary number fields}
+
 There are many reasons why a system of ordering isogenous curves using
 Weierstrass models is hopeless over almost all number fields (the only
 exceptions, perhaps, being the $7$ imaginary quadratic fields having
 only $\pm1$ as units, and class number~$1$).  There may be no global
-minimal model, in which case some ``semi-global minimal'' model is
-stored in the LMFDB; even when there is a global minimal model,
-scaling by units results in infinitely many such models, even up to
-translation (except for imaginary quadratic fields where the number is
-finite).
+minimal model (in such cases, the LMFDB uses a ``semi-global minimal''
+model which is minimal at all but one prime); even when there is a
+global minimal model, scaling by units results in infinitely many such
+models, even up to translation (except for imaginary quadratic fields
+where the number is finite).
 
 Instead we have devised a system of sorting isogenous curves which
-does not depend on the model, based on the simple observation (see the
-next subsection) that in almost all cases isogenous curves have
-distinct $j$-invariants.  It would be possible to use this new system
-over $\Q$, but as there are already two labelling systems we do not
-propose this!
-
-\subsection{Over arbitrary number fields}
+does not depend on the model, based on the simple observation that in
+almost all cases isogenous curves have distinct $j$-invariants, so
+that we may sort the curves in an isogeny class by sorting their
+$j$-invariants, as number field elements, following the schema of
+Section~\ref{sec:nfsort}.  While it would be possible to use this new
+system over $\Q$ also, we do not propose this as there are already two
+labelling systems in use.
 
 The basic fact we need is that in almost all cases, the elliptic
 curves in an isogeny class have distinct $j$-invariants.
 
 \begin{thm}
-Let $K$ be a number field and let $E_1$, $E_2$ elliptic curves defined
-over~$K$ that are isogenous over $K$ but not isomorphic over $K$.
-Then either
+Let $K$ be a number field and let $E_1$, $E_2$ be elliptic curves
+defined over~$K$ that are isogenous over $K$ but not isomorphic over
+$K$.  Then either
 \begin{enumerate}
 \item $j(E_1)\not=j(E_2)$; or
 \item $j(E_1)=j(E_2)$, and $E_1$ and $E_2$ both have CM by an
   imaginary quadratic order $\OO$ of discriminant~$D<0$ for which
   $\sqrt{D}\notin K$ (so that the extra endomorphisms are not defined
-  over~$K$); $E_1$ and $E_2$ become isomorphic over $L=K(\sqrt{D})$;
-  and there is a rational cyclic isogeny $\phi\colon E_1\to E_2$ of
-  degree $|D|$ (if $D$ is odd), $|D|/4$ (if $D$ is even and
-  $D\not=-4$) or~$2$ (if $D=-4$).
+  over~$K$).
+
+  In this case, $E_1$ and $E_2$ become isomorphic over
+  $L=K(\sqrt{D})$, and there is a rational cyclic isogeny $\phi\colon
+  E_1\to E_2$ of degree $|D|$ (if $D$ is odd), $|D|/4$ (if $D$ is even
+  and $D\not=-4$) or~$2$ (if $D=-4$).
 \end{enumerate}
 Conversely, if $E$ is an elliptic curve defined over $K$ with CM by an
 order of discriminant~$D$ not contained in~$K$, then the quadratic
 twist of $E$ by $\sqrt{D}$ is isogenous but not isomorphic to~$E$
 over~$K$; thus the isogeny class of $E$ consists of pairs of curves,
 the curves in each pair being quadratic twists that are isomorphic
-over $K(\sqrt{D})$ with CM by a quadratic order $\OO$ in that
-field. The order $\OO$ is the same for each pair of quadratic twists,
-but may vary between pairs.
-
+over $K(\sqrt{D})$ with CM by a quadratic order $\OO$
+in~$\Q(\sqrt{D})$. The order $\OO$ is the same for each pair of
+quadratic twists, but may vary (among orders in the same imaginary
+quadratic field) between pairs.
 \end{thm}
 
 \begin{proof}
 Let $\phi:E_1\to E_2$ be an isogeny defined over~$K$; without loss of
-generality we may take $\phi$ to be cyclic (since otherwise it factors
-through the multiplication-by-$m$ map $[m]$ on $E_1$ for some $m>1$).
+generality we may take $\phi$ to be cyclic, since otherwise it factors
+through the multiplication-by-$m$ map $[m]$ on $E_1$ for some $m>1$.
 
 Assume that $j(E_1)=j(E_2)$.  Then there is an isomorphism
 $\alpha:E_2\to E_1$ defined over an extension $L/K$ of degree at
@@ -271,27 +421,26 @@ $K(\sqrt{-1})$ where $-4$ becomes a $4$th power.
 
 \end{proof}
 
-\subsection{Sorting isogenous elliptic curves over number fields}
+This theorem says that, for any isogeny class of curves defined
+over~$K$ which either do not have CM or which have ``rational CM''
+(meaning that the extra endomorphisms are defined over $K$ itself),
+the $j$-invariants of the curves in the class are distinct; we may
+therefore sort the curves using their $j$-invariants as in
+Section~\ref{sec:nfsort}.  We choose this option for curves without
+CM.
 
-The theorem in the last subsection says that, for any isogeny class of
-curves defined over~$K$ which either do not have CM or which have
-``rational CM'' (meaning that the extra endomorphisms are defined over
-$K$ itself), the $j$-invariants of the curves in the class are
-distinct; we may therefore sort the curves using their $j$-invariants
-as in Section~1.
-
-However, in the case where the curves in the isogeny class do have
-rational CM, we adjust this sorting scheme as follows.  Observe that
-when two elliptic curves are isogenous, if one has CM then so does the
-other, and their endomorphism rings are (isomorphic to) orders in the
-same imaginary quadratic field, though in general different orders.
-In the case of rational CM, we first sort by the absolute value of the
-CM discriminant; this means that curves which have the same
-endomorphism ring are grouped together.  The number of isomorphism
-classes in each of these ``clusters'' of curves is equal to the class
-number of the associated CM discriminant.  Within each cluster, the
-$j$-invariants are distinct, though Galois conjugate, and we sort them
-as in Section~1.
+In the case where the curves in the isogeny class do have rational CM,
+we adjust this sorting scheme as follows.  Observe that when two
+elliptic curves are isogenous, if one has CM then so does the other,
+and their endomorphism rings are isomorphic to orders in the same
+imaginary quadratic field, though in general different orders.  In the
+case of rational CM, we first sort by the absolute value of the CM
+discriminant; this means that curves which have the same endomorphism
+ring are grouped together.  The number of isomorphism classes in each
+of these ``clusters'' of curves is equal to the class number of the
+associated CM discriminant.  Within each cluster, the $j$-invariants
+are distinct, though Galois conjugate, and we sort them as in
+Section~1.
 
 It remains to consider isogeny classes of curves with CM by an order
 in an imaginary quadratic field $\Q(\sqrt{d})$ where $\sqrt{d}\notin
@@ -311,7 +460,7 @@ primes~$\p$ of $K$ lying above a rational prime~$p$, such that
 \begin{enumerate}
 \item $p$ does not divide $6dN_{K/\Q}(\n)$;
 \item $p$ does not divide $\disc g$, where $g$ is the defining polynomial
-  of~$K$.
+  of~$K$;
 \item the Legendre symbol $(d/p)=-1$;
 \item $\p$ has degree~$1$, and hence residue field~$\F_p$;
 \item $\ord_{\p}(j-1728)=0$ if $j\not=1728$, otherwise $\ord_{\p}(j)=0$;
@@ -319,11 +468,11 @@ primes~$\p$ of $K$ lying above a rational prime~$p$, such that
 Conditions (1), (2) and~(5) only exclude finitely many primes; (4)
 excludes a set of density~$0$; and (3) still leaves a set of primes of
 $K$ of density~$1/2$.  Using our ordering of primes we can let $\p$ be
-the \textit{first} prime of $K$ with all the above properties, and
-because of condition~(2), we only need use the simple form of ordering
-of primes of equal norm based on the factorization of $g(X)$
-modulo~$p$.  Note that the conditions we put on $\p$ are independent
-of the models for $E_1$ and~$E_2$.
+the \textit{first} prime of $K$ with all the above properties, in the
+sense of~\cite{CremonaPageSutherland}.  This means that
+$\p=(p,\alpha+r)$ with $r\in\{0,1,\dots,p-1\}$ and $r$ minimal. Note
+that the conditions we put on $\p$ are independent of the models for
+$E_1$ and~$E_2$.
 
 In the case $j\not=1728$, we can assume that $E_1$ and $E_2$ have
 equations $Y^2=X^3+aX+b$ and $Y^2=X^3+d^2aX+d^3b$ respectively, with
@@ -384,17 +533,19 @@ Our aim in this section is to define a \textit{minimal quadratic
 to cover the two exceptional $j$-invariants.  For $j(E)\not=0,1728$
 the minimal quadratic twist of $E$ depends only on $j(E)$, so our
 definition involves picking out a unique well-defined representative
-curve with each $j$-invariant.
+curve with each $j$-invariant; in other words, a representative curve
+defined over~$K$ for each $\Qbar$-isomorphism class.
 
 For minimal representatives with respect to the higher order twists,
 we can simply pick out one curve with $j=0$ and one with $j=1728$. For
-example, the curve with LMFDB label 27.a4 (Cremona label 27a3) has
-$j=0$, minimal conductor~$27$ (among all elliptic curves defined
-over~$\Q$ with $j(E)=0$) and minimal discriminant $-27$ (among all
-curves $j(E)=0$ and conductor~$27$).  Similarly, 32.a3 (Cremona label
-32a2) has minimal conductor $32$ and minimal discriminant $64$ among
-those with $j(E)=1728$.  Nevertheless, we will also define minimal
-quadratic twists for these $j$-invariants.
+example, the curve with LMFDB label \lmfdbecLMFDB{27}{a}{4} (Cremona
+label~\lmfdbecCremona{27}{a}{3}) has $j=0$ and minimal conductor~$27$
+among all elliptic curves defined over~$\Q$ with $j(E)=0$, and minimal
+discriminant $-27$ (among all curves with $j(E)=0$ and
+conductor~$27$).  Similarly, \lmfdbecLMFDB{32}{a}{3} (Cremona
+label~\lmfdbecCremona{32}{a}{2}) has minimal conductor $32$ and
+minimal discriminant~$64$ among those with $j(E)=1728$.  Nevertheless,
+we will also define minimal quadratic twists for these $j$-invariants.
 
 In general we require that the definition of which curve is the
 minimal quadratic twist should depend only on the isomorphism class of
@@ -408,7 +559,7 @@ Recall that the minimal discriminant ideal is the integral ideal
 $\prod\p^{d_{\p}}$ whose valuation at each prime~$\p$ is that of the
 discriminant of the local minimal model at~$\p$.  For every
 Weierstrass model of $E$ with discriminant $\Delta\in K^*$ we have
-$(\Delta)=\n\u^{12}$ for some fractional ideal~$\u$, and for every
+$(\Delta)=\d\u^{12}$ for some fractional ideal~$\u$, and for every
 other Weierstrass model with discriminant~$\Delta'$ we have
 $\Delta'/\Delta\in (K^*)^{12}$.  Hence the class of $\Delta$ modulo
 $12$th powers is a well-defined invariant of~$E$, as is the ideal
@@ -477,7 +628,21 @@ discard the other, and are left with the minimal quadratic twist.
 
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
+\providecommand{\MR}{\relax\ifhmode\unskip\space\fi MR }
+\bibitem{AntwerpIV}
+B.~J. Birch and W.~Kuyk (eds.), \emph{Modular functions of one variable. {IV}},
+  Springer-Verlag, Berlin, 1975, Lecture Notes in Mathematics, Vol. 476. \MR{51
+  \#12708}
+\bibitem{JCbook2}
+J.~E. Cremona.
+\newblock {\em Algorithms for Modular Elliptic Curves}.
+\newblock Cambridge University Press, second edition, 1997.
+\newblock available from
+  \url{http://www.warwick.ac.uk/staff/J.E.Cremona/book/fulltext/index.html}.
 \bibitem{Siksek} Samir Siksek, {\em On standardized models of
   isogenous elliptic curves}. Math. Comp. 74 (2005), no. 250, 949--951.
+\bibitem{CremonaPageSutherland} John Cremona, Aurel Page, and Andrew
+  V. Sutherland, {\em Sorting and labelling integral ideals in a
+    number field}, preprint.
 \end{thebibliography}
 \end{document}
