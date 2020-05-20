@@ -556,7 +556,7 @@ we will need to examine further the situation where more than one
 quadratic twist has the same values for both of these.
 
 Recall that the minimal discriminant ideal is the integral ideal
-$\prod\p^{d_{\p}}$ whose valuation at each prime~$\p$ is that of the
+$\d=\prod\p^{d_{\p}}$ whose valuation at each prime~$\p$ is that of the
 discriminant of the local minimal model at~$\p$.  For every
 Weierstrass model of $E$ with discriminant $\Delta\in K^*$ we have
 $(\Delta)=\d\u^{12}$ for some fractional ideal~$\u$, and for every
@@ -625,6 +625,56 @@ and then those whose minimal discriminant is non-minimal among the
 curves still remaining. This will leave either one or two curves
 remaining; in the latter case exactly one will have positive $c_6$, we
 discard the other, and are left with the minimal quadratic twist.
+
+\subsection{Minimal quadratic twists over general number fields}
+As usual, two complications may arise when trying to follow the same
+system for choosing minimal quadratic twists over a number field~$K$,
+one coming from the class group and one from the unit group.
+
+Let~$E_0$ be an elliptic curve defined over~$K$.  First consider the
+set of curves $E/K$ which are quadratic twists of~$E_0$ and whose
+conductor~$\n$ has minimal norm.  If there is a unique such curve, we
+take that to be the minimal quadratic twist of~$E_0$.  To find these
+curve(s)~$E$, we only need consider the twists of~$E_0$ supported on a
+finite set of primes, namely those where the valuation if the
+discriminant~$\Delta(E_0)$ is at least~$6$, together with those
+dividing~$6$. [Possibly go into more detail here.]
+
+If the list of curves with minimal conductor consists of more than one
+curve, consider next the minimal discriminant ideal~$\d$ of each and
+restrict to those for which this has minimal norm.
+
+Finally, suppose that we have at least two curves, $E_1$ and~$E_2$,
+which are quadratic twists and have the same conductor~$\n$ and
+minimal discriminant~$\d$.  Take arbitrary integral Weierstrass models
+of the~$E_i$, with discriminants~$\Delta_i$ for~$i=1,2$.  Then
+$\Delta_2=\Delta_1\cdot d^6$ for some~$d\in K^*$, and there are
+fractional ideals~$\u_i$ such that $\d\u_i^{12}=(\Delta_i)$ for
+$i=1,2$.  Then $(\u_2/\u_1)^{12}=(\Delta_2/\Delta_1)=(d)^6$, and hence
+$(\u_2/\u_1)^{2}=(d)$.  Thus the class of~$\u_2/\u_1$ in the class
+group~$\Cl_K$ has order either~$1$ or~$2$.
+
+First consider the case where~$\u_2/\u_1$ is principal.  (Obviously,
+this is the only case when~$K$ has class number~$1$ or more generall
+when both curves have global minimal models, since then bith~$\u_i$
+are principal.)  Write $\u_2/\u_1=(d_1)$ with~$d_1\in K^*$.  Since
+$(d_1)^2=(d)$ we have $d=d_1^2v$ for some unit~$v$, and
+$\Delta_2=\Delta_1\cdot d_1^{12}v^6$.  Scaling the model for~$E_1$
+by~$d_1$, we may assume that $d_1=1$ and $\Delta_2=\Delta_1\cdot v^6$.
+In other words, $E_2$ is the quadratic twist of~$E_1$ by the {\em
+  unit}~$v$.  Up to isomorphism, we only need consider~$v$ modulo
+squares.
+
+[I am not sure how to finish this case.  Presumably that fact that the
+  $E_i$ have the same conductor and minimal discriminant restricts~$v$
+  even more.  For example, if both curves have good reduction at the
+  primes above~$2$ then $K(\sqrt{v})/K$ must be unramified at such
+  primes and than implies $v\equiv1\pmod4$.  But we still need a way
+  to distinguish the twists.]
+
+In case~$\u_2/\u_1$ is not principal, we are in a similar situation
+except that the twist is not longer by a unit.
+
 
 \bibliographystyle{abbrv}
 \begin{thebibliography}{10}
