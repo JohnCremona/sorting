@@ -60,7 +60,7 @@ def ZpX_key(k):
 def make_keys(K,p):
     """Find and sort all primes of K above p, and store their sort keys in
     a dictionary with keys the primes P and values their sort keys
-    (n,j,e,i) with n the norm, e the ramificatino index, i the index
+    (n,j,e,i) with n the norm, e the ramification index, i the index
     (from 1) in the list of all those primes with the same (n,e), and
     j the index (from 1) in the sorted list of all with the same norm.
     This dict is stored in K in a dict called psort_dict, whose keys
@@ -129,7 +129,7 @@ def make_keys(K,p):
                 key_dict[P] = (P.norm(),e,i)
 
         # Lastly we add a field j to each key (n,e,i) -> (n,j,e,i)
-        # which is its index in the sublist withe same n-value.  This
+        # which is its index in the sublist with the same n-value.  This
         # will not affect sorting but is used in the label n.j.
 
         vals = list(key_dict.values())
@@ -208,7 +208,13 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     # The set of possible degrees f of primes is the set of cycle
     # lengths in the Galois group acting as permutations on the roots
     # of the defining polynomial:
-    dlist = Set(sum([list(g.cycle_type()) for g in K.galois_group('gap').group()],[]))
+
+    from sage.version import version as sage_version
+    if [int(c) for c in sage_version.split(".")[:2]] < [9, 3]:
+        Kgal = K.galois_group('gap').group()
+    else:
+        Kgal = K.galois_group()
+    dlist = Set(sum([list(g.cycle_type()) for g in Kgal],[]))
 
     # Create an array of iterators, one for each residue degree
     PPs = [primes_of_degree_iter(K,d, condition, sort_key, maxnorm=maxnorm)  for d in dlist]
