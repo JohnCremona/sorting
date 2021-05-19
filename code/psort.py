@@ -209,7 +209,7 @@ def primes_iter(K, condition=None, sort_key=prime_label, maxnorm=Infinity):
     # lengths in the Galois group acting as permutations on the roots
     # of the defining polynomial:
 
-    dlist = Set{1,2} if K.degree() == 2 else Set(sum([list(g.cycle_type()) for g in K.galois_group()],[]))
+    dlist = Set([1, 2]) if K.degree() == 2 else Set(sum([list(g.cycle_type()) for g in K.galois_group()],[]))
 
     # Create an array of iterators, one for each residue degree
     PPs = [primes_of_degree_iter(K,d, condition, sort_key, maxnorm=maxnorm)  for d in dlist]
