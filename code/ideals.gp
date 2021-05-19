@@ -7,8 +7,7 @@ main functions
 ideal2label(nf,x)
 label2ideal(nf,lab)
 
-nbidealsprimepowernorm(nf,p,k,dec = idealprimedec(nf,p))
-idealsprimepowernorm(nf,p,k,dec = idealprimedecsorted(nf,p))
+nbidealsofnorm(nf,N)
 idealsofnorm(nf,N,Lp=[],Ldec=[])
 idealsupto(nf,x)
 
