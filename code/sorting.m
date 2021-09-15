@@ -150,7 +150,7 @@ end function;
 function IdealsOfNorm(K,n)
     OK:=RingOfIntegers(K);
     n:=Integers()!n;
-    if n eq 1 then return ideal<OK|1>; end if;
+    if n eq 1 then return [ideal<OK|1>]; end if;
     pp:=[p[1]^p[2]:p in Factorization(n)];
     Q:=<IdealsOfPrimePowerNorm(K,q):q in pp>;
     return [&*[I:I in t]:t in CartesianProduct(Q)];
@@ -221,7 +221,7 @@ end function;
 // test function that exercises some of the code above
 procedure Test(K,N)
     cnt:=0;
-    for n:=2 to N do
+    for n:=1 to N do
         S:=IdealsOfNorm(K,n);
         for m:=1 to #S do
             label := IdealLabel(S[m]);
