@@ -185,7 +185,7 @@ function IdealFromNormIndex(K,n,m)
     end if;
     pp:=[p[1]^p[2]:p in Factorization(n)];
     Q:=<IdealsOfPrimePowerNorm(K,q):q in pp>;
-    for S in Q do if #S eq 0 then return 0; end if; end for;
+    for S in Q do error if #S eq 0, Sprintf("No ideal with  norm %o and index %o exists in the number field %o", n, m, K); end for;
     a := m-1;
     for j:=#Q to 1 by -1 do
         i:=a mod #Q[j];
