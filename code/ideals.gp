@@ -10,6 +10,7 @@ label2ideal(nf,lab)
 nbidealsofnorm(nf,N)
 idealsofnorm(nf,N,Lp=[],Ldec=[])
 idealsupto(nf,x)
+nfprimesupto(nf,x)
 
 */
 
@@ -155,6 +156,9 @@ try_idealprimedecsorted(nf,p,r,dec) =
   ha = subst(lift(facto[i]), x, Mod(x,nf.pol));
   pp = nfprimematch(nf,ha,p,r,dec);
   if(!pp, return(0));
+  if(pp.e*pp.f != poldegree(liftall(facto[i])),
+    error("bug: wrong factor degree! [please report] ", [pr.e, pr.f, poldegree(liftall(facto[i]))]);
+  );
   L[i] = pp
  );
  \\print(L);
